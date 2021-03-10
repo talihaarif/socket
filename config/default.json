@@ -1,5 +1,5 @@
   {
-    "mongoURI": "mongodb://development:development1234@176.9.105.5:27017/predevelopment?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false",
-    "url":"https://138.201.221.102:9001/"
+    "mongoURI": "mongodb://development:SOh3TbYhx8ymamawmqwmpJPxmt1oOfL@138.201.221.102:27017/pfchat?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false",
+    "url":"https://chat.pf.com.pk/"
   }
   
