@@ -1,0 +1,5 @@
+  {
+    "mongoURI": "mongodb://development:development1234@176.9.105.5:27017/predevelopment?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false",
+    "url":"https://chat1.pf.com.pk/"
+  }
+  

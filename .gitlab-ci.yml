@@ -1,0 +1,13 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  environment: production
+  script:
+    - cd /var/www/nodesockets/
+    - sudo git pull
+  tags:
+    - deploy
+  only:
+    - master
