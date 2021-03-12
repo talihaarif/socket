@@ -5,7 +5,7 @@ deploy:
   stage: deploy
   environment: production
   script:
-    - cd /var/www/nodesockets/
+    - cd /var/www/html/pf_chat_node_socket
     - sudo git pull
   tags:
     - deploy
