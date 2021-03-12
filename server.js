@@ -61,7 +61,7 @@ const connection = mongoose.connection;
 //Initializing Socket.io
 const io = require("socket.io")(server, {
     cors: {
-        origin: "https://chat1.pf.com.pk",
+        origin: "https://schat.pf.com.pk",
         methods: ["GET", "POST"]
     },
     maxHttpBufferSize:"5e6"
