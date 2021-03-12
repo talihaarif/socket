@@ -10,4 +10,4 @@ deploy:
   tags:
     - deploy
   only:
-    - master
+    - staging
