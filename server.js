@@ -1,7 +1,7 @@
 const express = require("express");
 var cors = require("cors");
 const app = express();
-const https = require("https");
+const http = require("http");
 const mongoose = require("mongoose");
 const config = require("config");
 const { getAllToken } = require("./utils/token");
@@ -20,6 +20,7 @@ const error = require("./changeStream/error");
 const { default: axios } = require("axios");
 const { removeEmits } = require("./utils/emitQueue");
 
+// Configuration to send request to backend
 const configuration = {
     headers: {
       "Content-Type": "application/json",
@@ -27,16 +28,13 @@ const configuration = {
     },
   };
 
-const options = {
-    key: fs.readFileSync('privkey.pem'),
-    cert: fs.readFileSync('cert.pem'),
-};
+//https certificate 
 
 
 const db = config.get("mongoURI");
 const url = config.get("url");
 const PORT = process.env.PORT || 5000;
-const server = https.createServer(options,app);
+const server = http.createServer(app);
 
 //Init Middleware
 app.use(cors());
@@ -46,12 +44,12 @@ app.use(express.json({ extented: false }));
 //api endpoint for push notification
 app.use("/api/pushNotification", require("./routes/api/pushNotification"));
 
-//connect to database
+//Database Connection
 mongoose.connect(process.env.DB_URI || db, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
+    // useNewUrlParser: true,
+    // useCreateIndex: true,
+    // useUnifiedTopology: true,
+    // useFindAndModify: false,
 });
 
 const connection = mongoose.connection;
@@ -65,6 +63,13 @@ const io = require("socket.io")(server, {
     maxHttpBufferSize:"5e6"
 });
 
+/**
+ * User Socket Connection
+ * 1) An emit is send to the user to authenticate token.
+ * 2) leaveRooms listener to remove all the rooms that user have joined.
+ * 3) messageResume listener to get all the message after the resume token
+ * 4) teamLink listener to authenticate user token and send emit to already added users in company and team
+ */
 io.on("connection", (socket) => {
     console.log("socket.io connected : ", socket.id);
     socket.emit("userAuthentication", "");
