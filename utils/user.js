@@ -51,6 +51,8 @@ const allOnlineUsers = (company_id, user_id) => {
 };
 
 const getAllOfflineUsers = (channelUser) => {
+    console.log("in get All Offline Users",channelUser);
+    console/log("all users", users);
     const offlineUsers = channelUser.filter((el) => {
         if (!users.find((user) => user.user_id == el && user.active == true))
             return el;
