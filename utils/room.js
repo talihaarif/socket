@@ -8,7 +8,8 @@ const joinCompanyRoom = (socket,companies,login=false,selected_company=null) => 
                 socket.company_id = company._id;
                 console.log("selected company id",company._id);
                 console.log("selected company name",company.name);
-                saveUser(socket.id, socket.user_id, company._id);
+                if(!socket.check)
+                    saveUser(socket.id, socket.user_id, company._id);
             }
             joinTeamRoom(socket,company.teams);
         }
