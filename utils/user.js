@@ -71,9 +71,15 @@ const getAllInactiveUsers = (channelUser) => {
 const setActiveStatus = (active,id) => {
     console.log("in active status",active+" "+id)
     let user = users.find((el) => el.socket_id == id);
+    console.log("user find to set active status",user);
     let index = users.indexOf(user);
-    if(index !=-1 && active !== undefined && user !== undefined)
+    console.log("user find to set active status",index);
+    if(index !=-1 && active !== undefined && user !== undefined){
+        console.log("in active status if check");
         users[index].active = active;
+        console.log("in active status after update",users[index].active);
+
+    }
 };
 
 const userOffline=(socket)=>{
