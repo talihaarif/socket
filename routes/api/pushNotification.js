@@ -9,7 +9,7 @@ const router = expess.Router();
 //@access   Private
 router.post("/channelUsers", async (req, res) => {
   const { message, users,type,channel_id,team_id,company_id,channel_name,mention_users,webhooks } = req.body;
-  console.log("request boday".req.body);
+  console.log("request boday",req.body);
   let user_ids='';
   if(webhooks === true){
     user_ids=await getAllOfflineUsers(users);
