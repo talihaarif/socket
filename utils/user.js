@@ -9,7 +9,7 @@ const saveUser = async(socket_id, user_id, company_id) => {
         socket_id: socket_id,
         user_id: user_id,
         company_id: company_id,
-        active: true,
+        active: false,
     });
     console.log("users save",user_id);
 };
