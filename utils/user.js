@@ -59,7 +59,7 @@ const getAllOfflineUsers = (channelUser) => {
 
 const getAllInactiveUsers = (channelUser) => {
     const inactiveUsers = channelUser.filter((el) => {
-        if (users.find((user) => user.user_id == el && user.active == false))
+        if (users.find((user) => user.user_id == el))
             return el;
     });
     return inactiveUsers;

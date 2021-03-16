@@ -11,16 +11,16 @@ router.post("/channelUsers", async (req, res) => {
   const { message, users,type,channel_id,team_id,company_id,channel_name,mention_users,webhooks } = req.body;
   let user_ids='';
   if(webhooks === true){
-    user_ids=await getAllOfflineUsers(users);
+    user_ids=users;
   }
   else if(type =='direct' || message.includes('@channel')){
-    user_ids=await getAllOfflineUsers(users);
+    user_ids=users;
   }
   else if(message.includes('@here')){
     user_ids=await getAllInactiveUsers(users);
   }
   else if(mention_users.length > 0){
-    user_ids=await getAllOfflineUsers(mention_users);
+    user_ids=mention_users;
   }
   if(user_ids=='' || user_ids==[])
     return res.json("oka");
