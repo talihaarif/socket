@@ -50,7 +50,7 @@ const authentication = (socket, io) => {
                 teamListener(socket, io);
                 companyListener(socket,io);
                 messageListener(socket,io);
-                userListener(socket);
+                userListener(io,socket);
             }
             socket.check=true;
             //----------listening to emits from frontend end here----------
