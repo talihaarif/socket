@@ -63,7 +63,13 @@ const message = (conn, io) => {
                     let id=messageTemp.channel_id;
                     delete messageTemp.channel_id;
                     io.to(messageTemp.sender_id).emit("newMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
-                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.sender_id,emit_name:"newMessage"});
+                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.sender_id,emit_name:"send_after"});
+                }
+                else if(messageTemp.reminded_to){
+                    let id=messageTemp.channel_id;
+                    delete messageTemp.channel_id;
+                    io.to(messageTemp.reminded_to).emit("newMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
+                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.reminded_to,emit_name:"reminded_to"});
                 }
                 else{
                     let id=messageTemp.channel_id;

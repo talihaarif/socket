@@ -5,6 +5,7 @@ let companyEmits = [];
 let messageEmits = [];
 let teamEmits = [];
 let userEmits = [];
+let reminderEmits=[];
 
 const saveChannelEmits = async(emit) => {
     channelEmits.push(emit);
@@ -26,12 +27,17 @@ const saveUserEmits = async(emit) => {
     userEmits.push(emit);
 };
 
+const saveReminderEmits = async(emit) => {
+    reminderEmits.push(emit);
+};
+
 const removeEmits = async() => {
     channelEmits=[];
     companyEmits=[];
     messageEmits=[];
     teamEmits=[];
     userEmits=[];
+    reminderEmits=[];
 };
 
 const getEmits=(data,io)=>{
@@ -41,6 +47,7 @@ const getEmits=(data,io)=>{
     let tempMessageEmits=messageEmits;
     let tempTeamEmits=teamEmits;
     let tempUserEmits=userEmits;
+    let tempReminderEmits=reminderEmits;
     let channels=teams=companies=[];
     data.companies.map((company)=>{
         companies.push(company._id);
@@ -62,7 +69,7 @@ const getEmits=(data,io)=>{
     getMessageEmits(tempMessageEmits,io,channels,user_id);
     getTeamEmits(tempTeamEmits,io,teams,user_id);
     getUserEmits(tempUserEmits,io,user_id,data);
-   
+    getReminderEmits(tempReminderEmits,io,user_id);
     
 
 }
@@ -116,8 +123,14 @@ const getMessageEmits=(tempMessageEmits,io,channels,user_id)=>{
     tempMessageEmits.forEach(messageEmit => {
         if(!channels.includes(messageEmit.channel_id))
             console.log("continue");
+        else if(messageEmit.emit_name='send_after')
+            if(messageEmit.emit_to==user_id)
+                io.to(user_id).emit('newMessage',messageEmit);
+        else if(messageEmit.emit_name='reminded_to')
+            if(messageEmit.emit_to==user_id)
+                io.to(user_id).emit('newMessage',messageEmit);
         else
-            io.to(user_id).emit(messageEmit.emit_name,messageEmit);
+            io.to(user_id).emit('newMessage',messageEmit);
     });
 }
 
@@ -151,6 +164,12 @@ const getUserEmits=(tempUserEmits,io,user_id,data)=>{
     });
 }
 
+const getReminderEmits=(tempReminderEmits,io,user_id)=>{
+    tempReminderEmits.forEach(reminderEmit => {
+        if(reminderEmit.emit_to==user_id)
+            io.to(user_id).emit(reminderEmit.emit_name,reminderEmit);
+    });
+}
 
 module.exports = {
     saveChannelEmits,
@@ -159,5 +178,6 @@ module.exports = {
     saveTeamEmits,
     saveUserEmits,
     removeEmits,
-    getEmits
+    getEmits,
+    saveReminderEmits
 };

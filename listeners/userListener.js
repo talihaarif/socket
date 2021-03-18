@@ -11,6 +11,14 @@ const userListener = (io,socket) => {
       usersOnline(io,socket);
     });
 
+    socket.on("newPlugin",(data)=>{
+      socket.to(data.user_id).emit("addPlugin",data);
+    });
+
+    socket.on("deletePlugin",(data)=>{
+      socket.to(data.user_id).emit("removePlugin",data);
+    });
+
 };
 
 module.exports = userListener;
