@@ -13,7 +13,7 @@ router.post("/channelUsers", async (req, res) => {
   if(webhooks === true){
     user_ids=users;
   }
-  else if(type =='direct' || type=='public' || message.includes('@channel')){
+  else if(type =='direct' || message.includes('@channel')){
     user_ids=users;
   }
   else if(message.includes('@here')){
