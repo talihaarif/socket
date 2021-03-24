@@ -49,7 +49,7 @@ const message = (conn, io) => {
             let body = JSON.stringify({ channel_id });
             result =await axios.post(url+"api/teamAndCompanyId", body, configuration);
         } catch (err) {
-            console.log(err);
+            console.log(err.response);
         }
         switch (change.operationType) {
             case "insert":
