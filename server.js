@@ -72,8 +72,10 @@ const io = require("socket.io")(server, {
  * User Socket Connection
  * 1) An emit is send to the user to authenticate token.
  * 2) leaveRooms listener to remove all the rooms that user have joined.
- * 3) messageResume listener to get all the message after the resume token
- * 4) teamLink listener to authenticate user token and send emit to already added users company and team
+ * 3) messageResume listener to get all the message after the resume token.
+ * 4) teamLink listener to authenticate user token when user join the company by 
+ * team link and send emit to already added users company and team.
+ * 5) disconnecting function is called when user connection is lost.
  */
 io.on("connection", (socket) => {
     console.log("socket.io connected : ", socket.id);
@@ -126,6 +128,7 @@ io.on("connection", (socket) => {
     });
 });
 
+// This is the interval to empty the node queue and its run after every 1 minute.
 setInterval(()=>{
     removeEmits();
 },60000);
@@ -133,12 +136,11 @@ setInterval(()=>{
 /*
 Checking if the connection with database is open
 then call the getAllToken function to save the token
-and call the change stream function to start listening to changes
+and call the change stream functions to start listening to changes in database
 */
 connection.once("open", () => {
     console.log("MongoDB database connected");
     console.log("Setting change streams");
-    // message(connection,io);
     getAllToken();
     channel(connection,io);
     company(connection,io);
