@@ -21,13 +21,6 @@ const error = require("./changeStream/error");
 const { default: axios } = require("axios");
 const { removeEmits } = require("./utils/emitQueue");
 
-
-const HttpsAgent = require('agentkeepalive').HttpsAgent;
-
-const agent = new HttpsAgent({
-    freeSocketTimeout: 5000
-});
-
 // Configuration to send request to backend
 const configuration = {
     headers: {
