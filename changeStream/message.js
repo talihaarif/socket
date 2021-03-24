@@ -48,54 +48,54 @@ const message = (conn, io) => {
         try {
             let body = JSON.stringify({ channel_id });
             result =await axios.post(url+"api/teamAndCompanyId", body, configuration);
+            switch (change.operationType) {
+                case "insert":
+                    if(messageTemp.is_forwarded){
+                        let id=messageTemp.channel_id;
+                        delete messageTemp.channel_id;
+                        io.to(id).emit("forwardMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:id,emit_name:"forwardMessage"});
+                    }
+                    else if(messageTemp.send_after){
+                        let id=messageTemp.channel_id;
+                        delete messageTemp.channel_id;
+                        io.to(messageTemp.sender_id).emit("newMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.sender_id,emit_name:"send_after"});
+                    }
+                    else if(messageTemp.reminded_to){
+                        let id=messageTemp.channel_id;
+                        delete messageTemp.channel_id;
+                        io.to(messageTemp.reminded_to).emit("newMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.reminded_to,emit_name:"reminded_to"});
+                    }
+                    else{
+                        let id=messageTemp.channel_id;
+                        delete messageTemp.channel_id;
+                        io.to(id).emit("newMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:id,emit_name:"newMessage"});
+                    }
+                    break;
+                case "update":
+                    let messageUpdateCheck = change.updateDescription.updatedFields;
+                    if(messageUpdateCheck.send_after===null){
+                        io.to(messageTemp.channel_id).emit("sendAfterMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:"sendAfterMessage"});
+                    }
+                    else if (messageUpdateCheck.deleted_at){
+                        messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
+                        io.to(messageTemp.channel_id).emit("updateMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:"updateMessage"});
+                    } else if(messageUpdateCheck.is_read){
+                        break;
+                    }
+                    else{ 
+                        io.to(messageTemp.channel_id).emit("updateMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:"updateMessage"});
+                    }
+                    break;
+            }
         } catch (err) {
             console.log(err.response);
-        }
-        switch (change.operationType) {
-            case "insert":
-                if(messageTemp.is_forwarded){
-                    let id=messageTemp.channel_id;
-                    delete messageTemp.channel_id;
-                    io.to(id).emit("forwardMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
-                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:id,emit_name:"forwardMessage"});
-                }
-                else if(messageTemp.send_after){
-                    let id=messageTemp.channel_id;
-                    delete messageTemp.channel_id;
-                    io.to(messageTemp.sender_id).emit("newMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
-                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.sender_id,emit_name:"send_after"});
-                }
-                else if(messageTemp.reminded_to){
-                    let id=messageTemp.channel_id;
-                    delete messageTemp.channel_id;
-                    io.to(messageTemp.reminded_to).emit("newMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
-                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.reminded_to,emit_name:"reminded_to"});
-                }
-                else{
-                    let id=messageTemp.channel_id;
-                    delete messageTemp.channel_id;
-                    io.to(id).emit("newMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp});
-                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:id,data:messageTemp,emit_to:id,emit_name:"newMessage"});
-                }
-                break;
-            case "update":
-                let messageUpdateCheck = change.updateDescription.updatedFields;
-                if(messageUpdateCheck.send_after===null){
-                    io.to(messageTemp.channel_id).emit("sendAfterMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
-                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:"sendAfterMessage"});
-                }
-                else if (messageUpdateCheck.deleted_at){
-                    messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
-                    io.to(messageTemp.channel_id).emit("updateMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
-                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:"updateMessage"});
-                } else if(messageUpdateCheck.is_read){
-                    break;
-                }
-                else{ 
-                    io.to(messageTemp.channel_id).emit("updateMessage", {message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
-                    saveMessageEmits({message_token:change._id,type:result.data.type,company_id:result.data.company_id,team_id:result.data.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:"updateMessage"});
-                }
-                break;
         }
     });
 
