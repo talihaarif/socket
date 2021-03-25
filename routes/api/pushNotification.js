@@ -37,7 +37,7 @@ router.post("/channelUsers", async (req, res) => {
   const body = JSON.stringify({ message, user_ids,company_id,team_id,channel_id,channel_name });
   try {
     const result =await axios.post(url+"api/sendPush", body, configuration);
-    console.log("push result",result.response.data);
+    console.log("push result",result.data);
     res.json("ok");
   } catch (err) {
     console.log("Push error",err);
