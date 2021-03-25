@@ -9,6 +9,9 @@ const router = expess.Router();
 //@access   Private
 router.post("/channelUsers", async (req, res) => {
   const { message, users,type,channel_id,team_id,company_id,channel_name,mention_users,webhooks } = req.body;
+
+  console.log("in node channel user with message request",req.body);
+
   let user_ids='';
   if(webhooks === true){
     user_ids=users;
@@ -34,6 +37,7 @@ router.post("/channelUsers", async (req, res) => {
   const body = JSON.stringify({ message, user_ids,company_id,team_id,channel_id,channel_name });
   try {
     const result =await axios.post(url+"api/sendPush", body, configuration);
+    console.log("result",result.response.data);
     res.json("ok");
   } catch (err) {
     console.log(err.response.data);
