@@ -37,10 +37,14 @@ router.post("/channelUsers", async (req, res) => {
 
   const body = JSON.stringify({ message, user_ids,company_id,team_id,channel_id,channel_name });
   try {
-    console.log("sending request to send push with data",body);
-    const result =await axios.post(url+"api/sendPush", body, configuration);
-    console.log("push result",result.data);
-    res.json("ok");
+
+    setTimeout(()=>{
+      console.log("sending request to send push with data",body);
+      const result =await axios.post(url+"api/sendPush", body, configuration);
+      console.log("push result",result.data);
+      res.json("ok");
+    },5000);
+    
   } catch (err) {
     console.log("Push error",err);
   }
