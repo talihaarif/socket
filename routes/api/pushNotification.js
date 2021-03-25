@@ -40,7 +40,7 @@ router.post("/channelUsers", async (req, res) => {
     console.log("push result",result.response.data);
     res.json("ok");
   } catch (err) {
-    console.log("Push error",err.response);
+    console.log("Push error",err);
   }
 });
 
