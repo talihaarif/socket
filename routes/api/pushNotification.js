@@ -44,7 +44,7 @@ router.post("/channelUsers", async (req, res) => {
     // console.log({time});
     // setTimeout(async()=>{
       console.log("sending request to send push with data",body);
-      const result =await axios.post(url+"api/sendPush", body, configuration);
+      const result = axios.post(url+"api/sendPush", body, configuration);
       console.log("push result",result.data);
       res.json("ok");
     // },time);
