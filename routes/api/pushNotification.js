@@ -10,9 +10,6 @@ const router = expess.Router();
 //@access   Private
 router.post("/channelUsers", async (req, res) => {
   const { message, users,type,channel_id,team_id,company_id,channel_name,mention_users,webhooks } = req.body;
-
-  console.log("in node channel user with message request",req.body);
-
   let user_ids='';
   if(webhooks === true){
     user_ids=users;
@@ -37,18 +34,9 @@ router.post("/channelUsers", async (req, res) => {
 
   const body = JSON.stringify({ message, user_ids,company_id,team_id,channel_id,channel_name });
   try {
-
-    // min=Math.ceil(5000);
-    // max=Math.floor(10000)
-    // time=Math.floor(Math.random()* (max-min +1)+min);
-    // console.log({time});
-    // setTimeout(async()=>{
-      console.log("sending request to send push with data",body);
       const result = axios.post(url+"api/sendPush", body, configuration);
       console.log("push result",result.data);
       res.json("ok");
-    // },time);
-    
   } catch (err) {
     console.log("Push error",err);
   }
