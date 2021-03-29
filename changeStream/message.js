@@ -52,7 +52,6 @@ const message = (conn, io) => {
                 let body = JSON.stringify({ channel_id });
                 result =await axios.post(url+"api/teamAndCompanyId", body, configuration);
                 ids=result.data;
-                console.log("in false",ids);
                 addIds({channel_id:channel_id,team_id:ids.team_id,company_id:ids.company_id,type:ids.type});
             }
             switch (change.operationType) {
