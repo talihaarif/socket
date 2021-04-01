@@ -128,7 +128,7 @@ const getCompanyEmits=(tempCompanyEmits,io,companies,user_id)=>{
 
 const getMessageEmits=(tempMessageEmits,io,channels,user_id)=>{
     tempMessageEmits.forEach(messageEmit => {
-        if(!channels.includes(messageEmit.channel_id))
+        if(!channels.includes(messageEmit.channel_id) || user_id==messageEmit.data.sender_id)
             console.log("continue");
         else if(messageEmit.emit_name='send_after')
             if(messageEmit.emit_to==user_id)
