@@ -13,6 +13,7 @@ const team = require("./changeStream/team");
 const token = require("./changeStream/token");
 const user = require("./changeStream/user");
 const reminder = require("./changeStream/reminder");
+const permission = require("./changeStream/permission");
 const authentication = require("./listeners/authentication");
 const fs = require('fs');
 const {  leaveCompanyRoom } = require("./utils/room");
@@ -150,6 +151,8 @@ connection.once("open", () => {
     user(connection,io);
     error(connection,io);
     reminder(connection,io);
+    permission(connection,io);
+
 });
 
 server.listen(PORT, () => console.log(`Sever Started on Port ${PORT}`));

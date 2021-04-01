@@ -6,6 +6,7 @@ let messageEmits = [];
 let teamEmits = [];
 let userEmits = [];
 let reminderEmits=[];
+let permissionEmits=[];
 
 const saveChannelEmits = async(emit) => {
     channelEmits.push(emit);
@@ -31,6 +32,10 @@ const saveReminderEmits = async(emit) => {
     reminderEmits.push(emit);
 };
 
+const savePermissionEmits = async(emit) => {
+    permissionEmits.push(emit);
+};
+
 const removeEmits = async() => {
     channelEmits=[];
     companyEmits=[];
@@ -38,6 +43,7 @@ const removeEmits = async() => {
     teamEmits=[];
     userEmits=[];
     reminderEmits=[];
+    permissionEmits=[];
 };
 
 const getEmits=(data,io)=>{
@@ -48,6 +54,7 @@ const getEmits=(data,io)=>{
     let tempTeamEmits=teamEmits;
     let tempUserEmits=userEmits;
     let tempReminderEmits=reminderEmits;
+    let tempPermissionEmits = permissionEmits;
     let channels=teams=companies=[];
     data.companies.map((company)=>{
         companies.push(company._id);
@@ -70,7 +77,7 @@ const getEmits=(data,io)=>{
     getTeamEmits(tempTeamEmits,io,teams,user_id);
     getUserEmits(tempUserEmits,io,user_id,data);
     getReminderEmits(tempReminderEmits,io,user_id);
-    
+    getPermissionEmits(tempPermissionEmits,io,user_id)
 
 }
 
@@ -171,12 +178,20 @@ const getReminderEmits=(tempReminderEmits,io,user_id)=>{
     });
 }
 
+const getPermissionEmits=(tempPermissionEmits,io,user_id)=>{
+    tempPermissionEmits.forEach(permissionEmit => {
+        if(permissionEmit.emit_to==user_id)
+            io.to(user_id).emit(permissionEmit.emit_name,permissionEmit);
+    });
+}
+
 module.exports = {
     saveChannelEmits,
     saveCompanyEmits,
     saveMessageEmits,
     saveTeamEmits,
     saveUserEmits,
+    savePermissionEmits,
     removeEmits,
     getEmits,
     saveReminderEmits
