@@ -15,9 +15,13 @@ const permission = (conn, io) => {
     */
     permission.on("change", async(change) => {
         let permissionTemp = change.fullDocument;
+        let permissions=[];
         switch (change.operationType) {
             case "update":
-                io.to(permissionTemp.user_id).emit("permissionsUpdated",{permissions:permissionTemp.permissions_data});
+                permissionTemp.map((el)=>{
+                    permissions.push({company_id:el.company_id,permission:{attachments:el.attachments,channel:el.channel,company:el.company,company_member:el.company_member,ip:el.ip,team:el.team}});
+                });
+                io.to(permissionTemp.user_id).emit("permissionsUpdated",{permissions});
                 savePermissionEmits({permissions:permissionTemp.permissions_data,emit_to:permissionTemp.user_id,emit_name:"permissionsUpdated"});
                 break;
         }
