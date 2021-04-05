@@ -18,7 +18,7 @@ const permission = (conn, io) => {
         let permissions=[];
         switch (change.operationType) {
             case "update":
-                permissionTemp.map((el)=>{
+                permissionTemp.permissions_data.map((el)=>{
                     permissions.push({company_id:el.company_id,permission:{attachments:el.attachments,channel:el.channel,company:el.company,company_member:el.company_member,ip:el.ip,team:el.team}});
                 });
                 io.to(permissionTemp.user_id).emit("permissionsUpdated",{permissions});

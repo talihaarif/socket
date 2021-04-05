@@ -41,8 +41,8 @@ const deleteTeamRoom = (io,data) => {
 
 const teamInsert=async(teamTemp,io,resumeToken)=>{
     let team_id=teamTemp._id.toString();
-    const body = JSON.stringify({ team_id });
-    const result_data = null;
+    let body = JSON.stringify({ team_id });
+    let result_data = null;
     try {
         const result =await axios.post(url+"api/teamData", body, configuration);
         createTeamRoom(io,result.data);
@@ -56,7 +56,7 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
                 io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken});
                 saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:result_data.data.user_id,emit_name:"newTeamCreated"});
             } catch (err) {
-                console.log(err.response.data);
+                console.log(err);
             }
         });
     } catch (err) {
@@ -67,30 +67,14 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
 const teamArchived=async(teamTemp,io,resumeToken)=>{
     io.to(teamTemp._id.toString()).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken});
     saveTeamEmits({company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken,emit_to:teamTemp._id.toString(),emit_name:"teamArchived"});
+    let team_id=teamTemp._id.toString();
     teamTemp.user_ids.map(async(user_id)=>{
         try {
             const body = JSON.stringify({ team_id,user_id });
             const result =await axios.post(url+"api/teamData", body, configuration);
             deleteTeamRoom(io,result.data);
         } catch (err) {
-            console.log(err.response.data);
-        }
-    });
-    let company_id=teamTemp.company_id.toString();
-    const body1 = JSON.stringify({ company_id, attribute:"team", operation:"update" });
-    const result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
-    const result_data = null;
-    result1.data.sub_admins.map(async(user_id)=>{
-        try {
-            if(!teamTemp.user_ids.includes(user_id)){
-                body = JSON.stringify({ team_id,user_id });
-                result_data =await axios.post(url+"api/teamData", body, configuration);
-                deleteTeamRoom(io,result_data.data);
-                io.to(user_id).emit("teamArchived", {company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken});
-                saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:result_data.data.user_id,emit_name:"teamArchived"});
-            }
-        } catch (err) {
-            console.log(err.response.data);
+            console.log(err);
         }
     });
 }
@@ -110,9 +94,10 @@ const teamUnarchived=async(teamTemp,io,resumeToken)=>{
         }
     });
     let company_id=teamTemp.company_id.toString();
-    const body1 = JSON.stringify({ company_id, attribute:"team", operation:"update" });
-    const result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
-    const result_data = null;
+    let body1 = JSON.stringify({ company_id, attribute:"team", operation:"update" });
+    let result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
+    let result_data = null;
+    result1.data.sub_admins.push(result1.data.admin);
     result1.data.sub_admins.map(async(user_id)=>{
         try {
             if(!teamTemp.user_ids.includes(user_id)){
@@ -123,7 +108,7 @@ const teamUnarchived=async(teamTemp,io,resumeToken)=>{
                 saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:result_data.data.user_id,emit_name:"teamUnArchived"});
             }
         } catch (err) {
-            console.log(err.response.data);
+            console.log(err);
         }
     });
 }
