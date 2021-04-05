@@ -15,6 +15,7 @@ const permission = (conn, io) => {
     */
     permission.on("change", async(change) => {
         let permissionTemp = change.fullDocument;
+        let permissions=[];
         switch (change.operationType) {
             case "update":
                 permissionTemp.permissions_data.map((el)=>{
