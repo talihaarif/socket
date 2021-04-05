@@ -110,6 +110,23 @@ const channelArchived=async(channelTemp,io,resumeToken)=>{
             console.log(err.response.data);
         }
     });
+    let team_id=teamTemp.team_id.toString();
+    const body1 = JSON.stringify({ team_id, attribute:"channel", operation:"update" });
+    const result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
+    const result_data = null;
+    result1.data.sub_admins.map(async (user_id)=>{
+        try {
+            if(!channelTemp.user_ids.includes(user_id)){
+                body = JSON.stringify({ channel_id,user_id });
+                result_data =await axios.post(url+"api/channelData", body, configuration);
+                deleteChannelRoom(io,result_data.data);
+                io.to(user_id).emit("channelArchived", {company_id:result_data.data.company_id,team_id:result_data.data.team_id,type:result_data.data.type,channel:result_data.data.channel,channel_token:resumeToken});
+                saveTeamEmits({company_id:result_data.data.company_id,team_id:result_data.data.team_id,type:result_data.data.type,channel:result_data.data.channel,channel_token:resumeToken,emit_to:user_id,emit_name:"channelArchived"});
+            }
+        } catch (err) {
+            console.log(err.response.data);
+        }
+    });
 }
 
 const channelUnarchived=async(channelTemp,io,resumeToken)=>{
@@ -150,6 +167,23 @@ const channelUnarchived=async(channelTemp,io,resumeToken)=>{
                 saveChannelEmits({company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,emit_to:channelTemp.creator_id,emit_name:"deleteChannel"});
             }
         }
+        let team_id=teamTemp.team_id.toString();
+        const body1 = JSON.stringify({ team_id, attribute:"channel", operation:"update" });
+        const result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
+        const result_data = null;
+        result1.data.sub_admins.map(async(user_id)=>{
+        try {
+            if(!channelTemp.user_ids.includes(user_id)){
+                body = JSON.stringify({ channel_id,user_id });
+                result_data =await axios.post(url+"api/channelData", body, configuration);
+                createChannelRoom(io,result_data.data);
+                io.to(user_id).emit("channelUnArchived", {company_id:result_data.data.company_id,team_id:result_data.data.team_id,type:result_data.data.type,channel:result_data.data.channel,channel_token:resumeToken});
+                saveTeamEmits({company_id:result_data.data.company_id,team_id:result_data.data.team_id,type:result_data.data.type,channel:result_data.data.channel,channel_token:resumeToken,emit_to:user_id,emit_name:"channelUnArchived"});
+            }
+        } catch (err) {
+            console.log(err.response.data);
+        }
+    });
     } catch (err) {
         console.log(err);
     }

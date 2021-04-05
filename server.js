@@ -1,7 +1,7 @@
 const express = require("express");
 var cors = require("cors");
 const app = express();
-const https = require("https");
+const http = require("http");
 const mongoose = require("mongoose");
 const config = require("config");
 const { getAllToken } = require("./utils/token");
@@ -31,16 +31,13 @@ const configuration = {
   };
 
 //https certificate 
-const options = {
-    key: fs.readFileSync('privkey.pem'),
-    cert: fs.readFileSync('cert.pem'),
-};
+
 
 
 const db = config.get("mongoURI");
 const url = config.get("url");
 const PORT = process.env.PORT || 5000;
-const server = https.createServer(options,app);
+const server = http.createServer(app);
 
 //Init Middleware
 app.use(cors());
@@ -52,10 +49,7 @@ app.use("/api/pushNotification", require("./routes/api/pushNotification"));
 
 //Database Connection
 mongoose.connect(process.env.DB_URI || db, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
+   
 });
 
 const connection = mongoose.connection;

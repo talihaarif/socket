@@ -27,6 +27,20 @@ const companyListener = (socket,io) => {
         }
     });
 
+    socket.on("unarchivedFromCompany", async(data) => {
+        let email=data.user_email;
+        let company_id=data.company_id;
+        try {
+            const body = JSON.stringify({ company_id,email });
+            const result =await axios.post(url+"api/companyData", body, configuration);
+            createCompanyRoom(io,result.data);
+            socket.to(data.user_id).emit("unarchivedCompany", result.data);
+            socket.to(data.company_id).emit("userUnarchivedFromCompany",data);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
     /*
     front end will send us the emit when the user
     switch the company so its online status can be maintain
