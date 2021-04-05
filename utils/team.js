@@ -43,26 +43,29 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
     let team_id=teamTemp._id.toString();
     let body = JSON.stringify({ team_id });
     let result_data = null;
-    try {
-        const result =await axios.post(url+"api/teamData", body, configuration);
-        console.log("result of team",result.data);
-        createTeamRoom(io,result.data);
-        io.to(result.data.user_id).emit("newTeamCreated",{company_id:result.data.company_id,team:result.data.team,team_token:resumeToken});
-        saveTeamEmits({company_id:result.data.company_id,team:result.data.team,team_token:resumeToken,emit_to:result.data.user_id,emit_name:"newTeamCreated"});
-        result.data.sub_admins.map(async(user_id)=>{
-            try {
-                body = JSON.stringify({ team_id,user_id });
-                result_data =await axios.post(url+"api/teamData", body, configuration);
-                createTeamRoom(io,result_data.data);
-                io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken});
-                saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:result_data.data.user_id,emit_name:"newTeamCreated"});
-            } catch (err) {
-                console.log(err);
-            }
-        });
-    } catch (err) {
-        console.log(err.response.data);
-    }
+    setTimeout(()=>{
+        try {
+            const result =await axios.post(url+"api/teamData", body, configuration);
+            console.log("result of team",result.data);
+            createTeamRoom(io,result.data);
+            io.to(result.data.user_id).emit("newTeamCreated",{company_id:result.data.company_id,team:result.data.team,team_token:resumeToken});
+            saveTeamEmits({company_id:result.data.company_id,team:result.data.team,team_token:resumeToken,emit_to:result.data.user_id,emit_name:"newTeamCreated"});
+            result.data.sub_admins.map(async(user_id)=>{
+                try {
+                    body = JSON.stringify({ team_id,user_id });
+                    result_data =await axios.post(url+"api/teamData", body, configuration);
+                    createTeamRoom(io,result_data.data);
+                    io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken});
+                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:result_data.data.user_id,emit_name:"newTeamCreated"});
+                } catch (err) {
+                    console.log(err);
+                }
+            });
+        } catch (err) {
+            console.log(err.response.data);
+        } 
+    },3000);
+    
 }
 
 const teamArchived=async(teamTemp,io,resumeToken)=>{
