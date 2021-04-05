@@ -43,7 +43,7 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
     let team_id=teamTemp._id.toString();
     let body = JSON.stringify({ team_id });
     let result_data = null;
-    setTimeout(()=>{
+    setTimeout(async()=>{
         try {
             const result =await axios.post(url+"api/teamData", body, configuration);
             console.log("result of team",result.data);
