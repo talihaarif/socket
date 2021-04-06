@@ -120,9 +120,8 @@ const channelArchived=async(channelTemp,io,resumeToken)=>{
             if(!channelTemp.user_ids.includes(user_id)){
                 body2 = JSON.stringify({ channel_id,user_id });
                 result_data =await axios.post(url+"api/channelData", body2, configuration);
-                deleteChannelRoom(io,result_data.data);
                 io.to(user_id).emit("channelArchived", {team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
-                saveChannelEmits({team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:channelTemp._id.toString(),emit_name:"channelArchived"});
+                saveChannelEmits({team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:user_id,emit_name:"channelArchived"});
             }
         } catch (err) {
             console.log(err);
@@ -179,7 +178,7 @@ const channelUnarchived=async(channelTemp,io,resumeToken)=>{
                 result_data =await axios.post(url+"api/channelData", body, configuration);
                 createChannelRoom(io,result_data.data);
                 io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken});
-                saveChannelEmits({company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,emit_to:result.data.channel.creator_id,emit_name:"channelUnArchived"});
+                saveChannelEmits({company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,emit_to:user_id,emit_name:"channelUnArchived"});
             }
         } catch (err) {
             console.log(err);
