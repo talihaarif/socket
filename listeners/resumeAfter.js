@@ -1,8 +1,8 @@
 const { default: axios } = require("axios");
 const config = require("config");
+const { sendWebhookError } = require("../utils/webhook");
 
 const resumeAfter = (conn,io,data) => {
-
         console.log("messageResume running");
 
         const message = conn
@@ -23,6 +23,7 @@ const resumeAfter = (conn,io,data) => {
 
 
         message.on("change",async (change) => {
+            try{
             let messageTemp = change.fullDocument;
             let channel_id=messageTemp.channel_id;
             let result;
@@ -32,6 +33,7 @@ const resumeAfter = (conn,io,data) => {
                     result =await axios.post(url+"api/teamAndCompanyId", body, configuration);
                 } catch (err) {
                     console.log(err.response.data);
+                    sendWebhookError(err);
                 }
                 // console.log("message resume",messageTemp);
                 switch (change.operationType) {
@@ -62,10 +64,12 @@ const resumeAfter = (conn,io,data) => {
                         break;
                 }
             }
-            
+        } catch (error) {
+            console.log(error);
+            sendWebhookError(error);
+        }
     });
     setTimeout(function(){ message.close(); }, 60000);
-    
-    
+        
 }
 module.exports = resumeAfter;

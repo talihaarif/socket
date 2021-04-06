@@ -1,5 +1,6 @@
 const {  channelInsert, channelNameUpdate, channelUnarchived, channelArchived } = require("../utils/channel");
 const { saveChannelEmits } = require("../utils/emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 
 const channel = (conn, io) => {
     // opening watcher for channels table.
@@ -24,6 +25,7 @@ const channel = (conn, io) => {
     After any emit is send then saveChannelEmit function is called to store the event for one minute.
     */
     channel.on("change", async(change) => {
+        try{
         let channelTemp = change.fullDocument;
         switch (change.operationType) {
             case "insert":
@@ -90,7 +92,12 @@ const channel = (conn, io) => {
                 }
                 break;
         }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
+    
 };
 
 module.exports = channel;

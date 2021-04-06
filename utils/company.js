@@ -3,6 +3,7 @@ const { joinCompanyRoom, leaveCompanyRoom } = require("./room");
 const { default: axios } = require("axios");
 const config = require("config");
 const { saveCompanyEmits } = require("./emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 
 const configuration = {
     headers: {
@@ -24,6 +25,7 @@ const createCompanyRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 
 };
@@ -40,21 +42,23 @@ const deleteCompanyRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 
 };
 
 const companyInsert=async(companyTemp,io,resumeToken)=>{
-    let company_id=companyTemp._id.toString();
-    let email=companyTemp.user_email;
-    const body = JSON.stringify({ company_id,email });
-    try {
-    const result =await axios.post(url+"api/companyData", body, configuration);
-    createCompanyRoom(io,result.data);
-    io.to(result.data._id).emit("newCompany",{company:result.data.companies[0],company_token:resumeToken});
-    saveCompanyEmits({company:result.data.companies[0],company_token:resumeToken,emit_to:result.data._id,emit_name:"newCompany"});
+    try{
+        let company_id=companyTemp._id.toString();
+        let email=companyTemp.user_email;
+        const body = JSON.stringify({ company_id,email });
+        const result =await axios.post(url+"api/companyData", body, configuration);
+        createCompanyRoom(io,result.data);
+        io.to(result.data._id).emit("newCompany",{company:result.data.companies[0],company_token:resumeToken});
+        saveCompanyEmits({company:result.data.companies[0],company_token:resumeToken,emit_to:result.data._id,emit_name:"newCompany"});
     } catch (err) {
         console.log(err);
+        sendWebhookError(err);
     }
 }
 

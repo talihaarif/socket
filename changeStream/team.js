@@ -1,5 +1,6 @@
 const {  teamInsert, teamUnarchived, teamArchived } = require("../utils/team");
 const { saveTeamEmits } = require("../utils/emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 
 const team = (conn, io) => {
     /*
@@ -24,6 +25,7 @@ const team = (conn, io) => {
     */
 
     team.on("change", async(change) => {
+        try{
         let teamTemp = change.fullDocument;
         switch (change.operationType) {
             case "insert":
@@ -54,9 +56,11 @@ const team = (conn, io) => {
                 }
                 break;
         }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
-
-    
 };
 
 module.exports = team;

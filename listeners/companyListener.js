@@ -2,9 +2,9 @@ const { default: axios } = require("axios");
 const { saveUser, userOffline, userOnline, usersOnline } = require("../utils/user");
 const { deleteCompanyRoom, createCompanyRoom } = require("../utils/company");
 const config = require("config");
+const { sendWebhookError } = require("../utils/webhook");
 
 const companyListener = (socket,io) => {
-    
     const configuration = {
         headers: {
           "Content-Type": "application/json",
@@ -24,6 +24,7 @@ const companyListener = (socket,io) => {
             socket.to(data.company_id).emit("userRemovedFromCompany",data);
         } catch (err) {
             console.log(err);
+            sendWebhookError(err);
         }
     });
 
@@ -38,6 +39,7 @@ const companyListener = (socket,io) => {
             socket.to(data.company_id).emit("userUnarchivedFromCompany",data);
         } catch (err) {
             console.log(err);
+            sendWebhookError(err);
         }
     });
 
@@ -46,6 +48,7 @@ const companyListener = (socket,io) => {
     switch the company so its online status can be maintain
     */
     socket.on("switchCompany", (id) => {
+        try{
         console.log("switch from " ,socket.company_id);
         console.log("switch to " ,id);
         userOffline(socket);
@@ -53,6 +56,10 @@ const companyListener = (socket,io) => {
         saveUser(socket.id, socket.user_id, id);
         userOnline(socket);
         usersOnline(io,socket);
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 
     //new new user added in company
@@ -68,6 +75,7 @@ const companyListener = (socket,io) => {
                 socket.to(user._id).emit("addedInNewCompany",result.data.companies[0]);
             } catch (err) {
                 console.log(err);
+                sendWebhookError(err);
             }
         });
     });

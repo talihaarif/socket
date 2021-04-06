@@ -1,4 +1,5 @@
 const { saveUserEmits } = require("../utils/emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 
 const user = (conn, io) => {
     /*
@@ -27,6 +28,7 @@ const user = (conn, io) => {
 
     */
    user.on("change", (change) => {
+    try{
     let userTemp = change.fullDocument;
     switch (change.operationType) {
         case "update":
@@ -87,6 +89,10 @@ const user = (conn, io) => {
             }
             
             break;
+    }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
     }
 });
 };

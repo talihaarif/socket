@@ -1,4 +1,5 @@
 const { savePermissionEmits } = require("../utils/emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 
 const permission = (conn, io) => {
     // opening watcher for permissions table.
@@ -14,6 +15,7 @@ const permission = (conn, io) => {
     After any emit is send then savePermissionEmit function is called to store the event for one minute.
     */
     permission.on("change", async(change) => {
+        try{
         let permissionTemp = change.fullDocument;
         let permissions=[];
         switch (change.operationType) {
@@ -25,6 +27,10 @@ const permission = (conn, io) => {
                 savePermissionEmits({permissions:permissionTemp.permissions_data,emit_to:permissionTemp.user_id,emit_name:"permissionsUpdated"});
                 break;
         }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 };
 

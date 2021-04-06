@@ -1,6 +1,7 @@
 const { createTeamRoom, deleteTeamRoom } = require("../utils/team");
 const { default: axios } = require("axios");
 const config = require("config");
+const { sendWebhookError } = require("../utils/webhook");
 
 const teamListener = (socket, io) => {
     const configuration = {
@@ -30,20 +31,26 @@ to inform that the users are added in the team to company_id+team_id room.
                 socket.to(user_id).emit("addedInTeam", {company_id:data.company_id,team:result.data.team});
             } catch (err) {
                 console.log(err.response.data);
+                sendWebhookError(err);
             }
         });
     });
 
     socket.on("usersAddedInTeams", (data) => {
+        try{
         user_ids=data.user_ids.map((el)=> {return el._id});
         data.team_ids.map((team_id)=>{
             company_id=data.company_id;
             socket.to(team_id).emit("newUserAddedInTeam", {user_ids,team_id,company_id});
         })
-        
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 
     socket.on("leaveTeam", (data) => {
+        try{
         deleteTeamRoom(io,data);
         io.to(data.user_id).emit("removedFromTeam",{company_id:data.company_id,team_id:data.team._id});
         socket.to(data.team_id).emit("userLeftTeam", {
@@ -51,6 +58,10 @@ to inform that the users are added in the team to company_id+team_id room.
             team_id: data.team._id,
             user_ids: [data.user_id],
         });
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
     /*
 Listen on userRemovedFromTeam emit:
@@ -68,10 +79,10 @@ and also notify the users of the team about the removed users.
                 io.to(user_id).emit("removedFromTeam", {company_id:data.company_id,team_id:data.team_id} );
             } catch (err) {
                 console.log(err.response.data);
+                sendWebhookError(err);
             }
         });
         socket.to(data.team_id).emit("userLeftTeam",  {company_id:data.company_id,team_id:data.team_id,user_ids:data.user_ids} );
     });
-
 };
 module.exports = teamListener;

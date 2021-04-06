@@ -1,3 +1,5 @@
+const { sendWebhookError } = require("../utils/webhook");
+
 const error = (conn, io) => {
     /*
     Connection with database for listening to changes
@@ -17,6 +19,7 @@ const error = (conn, io) => {
     to the company_id.
     */
    error.on("change", async (change) => {
+       try{
         let errorTemp = change.fullDocument;
         switch (change.operationType) {
             case "insert":
@@ -32,6 +35,10 @@ const error = (conn, io) => {
                     io.to(errorTemp.user_id).emit("userError",errorTemp);
                 break;
         }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 };
 

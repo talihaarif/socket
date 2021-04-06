@@ -1,5 +1,7 @@
 const { find } = require("../model/Token");
 const Token = require("../model/Token");
+const { sendWebhookError } = require("../utils/webhook");
+
 let token = [];
 
 /*
@@ -12,6 +14,7 @@ const getAllToken = async() => {
         token = await Token.find();
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 };
 
@@ -20,16 +23,26 @@ if any new token is added in token table then
 that token is also saved token array.
 */
 const addToken = (data) => {
-    token.push(data);
+    try{
+        token.push(data);
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 };
 /*
 if any new token is removed in token table then
 that token is also removed in token array.
 */
 const removeToken = (id) => {
-    token = token.filter((el) => {
-        return el._id != id;
-    });
+    try{
+        token = token.filter((el) => {
+            return el._id != id;
+        });
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 };
 
 /*
@@ -37,11 +50,16 @@ This Function check if the token passed from
 user to make connection is valid or not.
 */
 const checkToken = (data) => {
-    const a = token.find((x) => x.user_id == data._id && x.token == data.token);
-    if (a) {
-        return true;
+    try{
+        const a = token.find((x) => x.user_id == data._id && x.token == data.token);
+        if (a) {
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
     }
-    return false;
 };
 
 module.exports = {

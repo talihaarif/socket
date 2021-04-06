@@ -1,4 +1,5 @@
 const { addToken, removeToken } = require("../utils/token");
+const { sendWebhookError } = require("../utils/webhook");
 
 const token = (conn, io) => {
     /*
@@ -19,6 +20,7 @@ const token = (conn, io) => {
     then emit the user online event to the company in which user is online.
     */
     token.on("change", (change) => {
+        try{
         switch (change.operationType) {
             case "insert":
                 addToken(change.fullDocument);
@@ -27,6 +29,10 @@ const token = (conn, io) => {
                 removeToken(change.documentKey._id);
                 break;
         }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 };
 

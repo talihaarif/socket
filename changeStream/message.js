@@ -2,6 +2,7 @@ const { default: axios } = require("axios");
 const { saveMessageEmits } = require("../utils/emitQueue");
 const config = require("config");
 const { checkIds, addIds } = require("../utils/channelCache");
+const { sendWebhookError } = require("../utils/webhook");
 const message = (conn, io) => {
     /*
     Connection with database for listening to changes
@@ -102,9 +103,9 @@ const message = (conn, io) => {
             }
         } catch (err) {
             console.log(err.response);
+            sendWebhookError(err);
         }
     });
-
 };
 
 module.exports = message;

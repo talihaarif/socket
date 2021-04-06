@@ -1,5 +1,6 @@
 const { companyInsert } = require("../utils/company");
 const { saveCompanyEmits } = require("../utils/emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 const company = (conn, io) => {
     /*
     Connection with database for listening to changes
@@ -19,6 +20,7 @@ const company = (conn, io) => {
     to the company_id.
     */
     company.on("change", async (change) => {
+        try{
         let companyTemp = change.fullDocument;
         switch (change.operationType) {
             case "insert":
@@ -51,6 +53,10 @@ const company = (conn, io) => {
 
                 break;
         }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 };
 

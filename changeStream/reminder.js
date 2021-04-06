@@ -1,4 +1,5 @@
 const { saveReminderEmits } = require("../utils/emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 
 const reminder = (conn, io) => {
     /*
@@ -12,6 +13,7 @@ const reminder = (conn, io) => {
     console.log("reminders change stream running");
 
     reminder.on("change",async (change) => {
+        try{
         let reminderTemp = change.fullDocument;
         switch (change.operationType) {
             case "insert":
@@ -23,8 +25,11 @@ const reminder = (conn, io) => {
                 saveReminderEmits({reminder:reminderTemp,emit_to:reminderTemp.user_id,emit_name:"deleteReminder"});
                 break;
         }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
-
 };
 
 module.exports = reminder;

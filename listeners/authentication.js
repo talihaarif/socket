@@ -7,6 +7,7 @@ const userListener = require("./userListener");
 const { usersOnline, userOnline } = require("../utils/user");
 const { joinCompanyRoom } = require("../utils/room");
 const { getEmits } = require("../utils/emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 
 /**
  * Middleware to verify token and then open the connection between user and server.
@@ -31,6 +32,7 @@ const { getEmits } = require("../utils/emitQueue");
  */
 const authentication = (socket, io) => {
     socket.on("authenticate", (data) => {
+        try{
         console.log("middleware");
         console.log(data.email);
         // data = JSON.parse(data.toString());
@@ -63,6 +65,10 @@ const authentication = (socket, io) => {
         else{
             socket.emit("reconnect", "");            
         }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 };
 module.exports = authentication;

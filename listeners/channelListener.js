@@ -1,9 +1,9 @@
 const { default: axios } = require("axios");
 const config = require("config");
 const { deleteChannelRoom, createChannelRoom } = require("../utils/channel");
+const { sendWebhookError } = require("../utils/webhook");
 
 const channelListener = (socket,io) => {
-
     const configuration = {
         headers: {
           "Content-Type": "application/json",
@@ -14,11 +14,17 @@ const channelListener = (socket,io) => {
 
   
     socket.on("joinChannel", (data) => {
+        try{
         socket.to(data.user_ids[0]).emit('publicChannelJoined',data);
         socket.to(data.channel_id).emit("userAddedInChannel",  data );
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 
     socket.on("newMemberInChannel", (data) => {
+        try{
         socket.to(data.channel_id).emit("userAddedInChannel", data );
         if(data.type=='private'){
             data.user_ids.map(async(user_id) => {
@@ -33,9 +39,14 @@ const channelListener = (socket,io) => {
                 }
             });
         }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 
     socket.on("removedFromChannel", (data) => {
+        try{
         if(data.type=='private'){
             data.user_ids.map(async(user_id) => {
                 let channel_id=data.channel_id;
@@ -50,19 +61,32 @@ const channelListener = (socket,io) => {
             });
         }
         socket.to(data.channel_id).emit("usersRemovedFromChannel",  data );
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 
     socket.on("leaveChannel", (data) => {
+        try{
         if(data.channel.type=='private')
             deleteChannelRoom(io,data);
         socket.to(data.user_id).emit('channelLeft',data);
         socket.to(data.channel._id).emit("usersRemovedFromChannel",  data );
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
     });
 
     socket.on("muteChannel",(data)=>{
+        try{
         socket.to(socket.user_id).emit("channelMuted",data);
-      })
-    
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
+    })
 };
 
 module.exports = channelListener;

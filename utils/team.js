@@ -2,6 +2,7 @@ const { joinTeamRoom, leaveTeamRoom } = require("./room");
 const { default: axios } = require("axios");
 const config = require("config");
 const { saveTeamEmits } = require("./emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 
 const configuration = {
     headers: {
@@ -22,6 +23,7 @@ const createTeamRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 };
 
@@ -36,6 +38,7 @@ const deleteTeamRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 };
 
@@ -44,7 +47,6 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
     let body = JSON.stringify({ team_id });
     let result_data = null;
     setTimeout(async()=>{
-        try {
             const result =await axios.post(url+"api/teamData", body, configuration);
             console.log("result of team",result.data);
             createTeamRoom(io,result.data);
@@ -59,28 +61,27 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
                     saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:user_id,emit_name:"newTeamCreated"});
                 } catch (err) {
                     console.log(err);
+                    sendWebhookError(err);
                 }
             });
-        } catch (err) {
-            console.log(err.response.data);
-        } 
     },3000);
     
 }
 
 const teamArchived=async(teamTemp,io,resumeToken)=>{
-    io.to(teamTemp._id.toString()).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken});
-    saveTeamEmits({company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken,emit_to:teamTemp._id.toString(),emit_name:"teamArchived"});
-    let team_id=teamTemp._id.toString();
-    teamTemp.user_ids.map(async(user_id)=>{
-        try {
-            const body = JSON.stringify({ team_id,user_id });
-            const result =await axios.post(url+"api/teamData", body, configuration);
-            deleteTeamRoom(io,result.data);
-        } catch (err) {
-            console.log(err);
-        }
-    });
+        io.to(teamTemp._id.toString()).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken});
+        saveTeamEmits({company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken,emit_to:teamTemp._id.toString(),emit_name:"teamArchived"});
+        let team_id=teamTemp._id.toString();
+        teamTemp.user_ids.map(async(user_id)=>{
+            try {
+                const body = JSON.stringify({ team_id,user_id });
+                const result =await axios.post(url+"api/teamData", body, configuration);
+                deleteTeamRoom(io,result.data);
+            } catch (err) {
+                console.log(err);
+                sendWebhookError(err);
+            }
+        });
 }
 
 const teamUnarchived=async(teamTemp,io,resumeToken)=>{
@@ -95,13 +96,13 @@ const teamUnarchived=async(teamTemp,io,resumeToken)=>{
 
         } catch (err) {
             console.log(err.response.data);
+            sendWebhookError(err);
         }
     });
     teamUnarchiveEmitToSubAdmins(teamTemp, team_id, resumeToken, io);
 }
 
 const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io)=>{
-    try {
         let company_id=teamTemp.company_id.toString();
         let body1 = JSON.stringify({ company_id, attribute:"team", operation:"update" });
         let result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
@@ -118,11 +119,9 @@ const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io)=>{
                 }
             } catch (err) {
                 console.log(err);
+                sendWebhookError(err);
             }
         });
-    } catch (error) {
-        console.log(error);
-    }
 }
 
 module.exports = {

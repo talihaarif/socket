@@ -3,6 +3,7 @@ const { default: axios } = require("axios");
 const config = require("config");
 const channel = require("../changeStream/channel");
 const { saveChannelEmits } = require("./emitQueue");
+const { sendWebhookError } = require("../utils/webhook");
 const configuration = {
     headers: {
       "Content-Type": "application/json",
@@ -22,6 +23,7 @@ const createChannelRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 };
 
@@ -36,6 +38,7 @@ const deleteChannelRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 };
 
@@ -51,51 +54,58 @@ const channelInsert= async(channelTemp,io,resumeToken)=>{
         saveChannelEmits({company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,emit_to:user_id,emit_name:"newChannel"});
     } catch (err) {
         console.log(err);
+        sendWebhookError(err);
     }
     channelInserEmitInCaseOfPublicDirectChannels(result, channelTemp, io, resumeToken);
 }
 
 const channelNameUpdate=(channelTemp,io,resumeToken)=>{
-    if (channelTemp.type == "direct"){
-        io.to(channelTemp.user_id).emit("channelNameUpdate", {
-            channel:{name:channelTemp.name,_id: channelTemp._id},
-            type:channelTemp.type,
-            team_id:channelTemp.team_id,
-            channel_token:resumeToken
-        });
-        saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id},
-            type:channelTemp.type,
-            team_id:channelTemp.team_id,
-            channel_token:resumeToken,emit_to:channelTemp.user_id,emit_name:"channelNameUpdate"});
-    }
-    else{
-        io.to(channelTemp._id.toString()).emit("channelNameUpdate", {
-            channel:{name:channelTemp.name,_id: channelTemp._id},
-            type:channelTemp.type,
-            team_id:channelTemp.team_id,
-            channel_token:resumeToken
-        });
-        saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id},
-            type:channelTemp.type,
-            team_id:channelTemp.team_id,
-            channel_token:resumeToken,emit_to:channelTemp._id.toString(),emit_name:"channelNameUpdate"});
+    try{
+        if (channelTemp.type == "direct"){
+            io.to(channelTemp.user_id).emit("channelNameUpdate", {
+                channel:{name:channelTemp.name,_id: channelTemp._id},
+                type:channelTemp.type,
+                team_id:channelTemp.team_id,
+                channel_token:resumeToken
+            });
+            saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id},
+                type:channelTemp.type,
+                team_id:channelTemp.team_id,
+                channel_token:resumeToken,emit_to:channelTemp.user_id,emit_name:"channelNameUpdate"});
+        }
+        else{
+            io.to(channelTemp._id.toString()).emit("channelNameUpdate", {
+                channel:{name:channelTemp.name,_id: channelTemp._id},
+                type:channelTemp.type,
+                team_id:channelTemp.team_id,
+                channel_token:resumeToken
+            });
+            saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id},
+                type:channelTemp.type,
+                team_id:channelTemp.team_id,
+                channel_token:resumeToken,emit_to:channelTemp._id.toString(),emit_name:"channelNameUpdate"});
+        }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
     }
 }
 
 const channelArchived=async(channelTemp,io,resumeToken)=>{
-    io.to(channelTemp._id.toString()).emit("channelArchived", {team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
-    saveChannelEmits({team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:channelTemp._id.toString(),emit_name:"channelArchived"});
-    let channel_id=channelTemp._id.toString();
-    channelTemp.user_ids.map(async(user_id)=>{
-        try {
-            const body = JSON.stringify({ channel_id,user_id });
-            const result =await axios.post(url+"api/channelData", body, configuration);
-            deleteChannelRoom(io,result.data);
-        } catch (err) {
-            console.log(err.response.data);
-        }
-    });
-    channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io);
+        io.to(channelTemp._id.toString()).emit("channelArchived", {team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
+        saveChannelEmits({team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:channelTemp._id.toString(),emit_name:"channelArchived"});
+        let channel_id=channelTemp._id.toString();
+        channelTemp.user_ids.map(async(user_id)=>{
+            try {
+                const body = JSON.stringify({ channel_id,user_id });
+                const result =await axios.post(url+"api/channelData", body, configuration);
+                deleteChannelRoom(io,result.data);
+            } catch (err) {
+                console.log(err.response.data);
+                sendWebhookError(err);
+            }
+        });
+        channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io);
 }
 
 const channelUnarchived=async(channelTemp,io,resumeToken)=>{
@@ -122,6 +132,7 @@ const channelUnarchived=async(channelTemp,io,resumeToken)=>{
         chanelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io);
     } catch (err) {
         console.log(err);
+        sendWebhookError(err);
     }
 }
 
@@ -137,6 +148,7 @@ const publicChannelJoin=(io,data)=>{
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 }
 const directChannelJoin=(io,data)=>{
@@ -150,11 +162,12 @@ const directChannelJoin=(io,data)=>{
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 }
 
 const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken, io)=>{
-    try {
+    if (channelTemp.type == "private"){
         let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
         let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
         let result_data = null;
@@ -169,15 +182,13 @@ const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken,
                 }
             } catch (err) {
                 console.log(err);
+                sendWebhookError(err);
             }
         });
-    } catch (error) {
-        console.log(error);
     }
 }
 
 const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resumeToken, io)=>{
-    try{
         let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
         let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
         let result_data = null;
@@ -193,11 +204,9 @@ const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resu
                 }
             } catch (err) {
                 console.log(err);
+                sendWebhookError(err);
             }
         });
-    } catch (error) {
-        console.log(error);
-    }
 }
 
 const channelUnarchiveEmitForPublicPrivateChannels=async(channel_id, result, io, channelTemp, resumeToken)=>{
@@ -221,6 +230,7 @@ const channelUnarchiveEmitForPublicPrivateChannels=async(channel_id, result, io,
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 }
 
@@ -244,6 +254,7 @@ const channelInserEmitInCaseOfPublicDirectChannels=(result, channelTemp, io, res
         }
     } catch (error) {
         console.log(error);
+        sendWebhookError(error);
     }
 }
 module.exports = {

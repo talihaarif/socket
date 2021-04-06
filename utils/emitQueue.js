@@ -1,4 +1,5 @@
 const channel = require("./channel");
+const { sendWebhookError } = require("../utils/webhook");
 
 let channelEmits = [];
 let companyEmits = [];
@@ -47,41 +48,47 @@ const removeEmits = async() => {
 };
 
 const getEmits=(data,io)=>{
-    let user_id=data._id;
-    let tempChannelEmits=channelEmits;
-    let tempCompanyEmits=companyEmits;
-    let tempMessageEmits=messageEmits;
-    let tempTeamEmits=teamEmits;
-    let tempUserEmits=userEmits;
-    let tempReminderEmits=reminderEmits;
-    let tempPermissionEmits = permissionEmits;
-    let channels=teams=companies=[];
-    data.companies.map((company)=>{
-        companies.push(company._id);
-        company.teams.map((team)=>{
-            teams.push(team._id);
-            team.public.map((public)=>{
-                channels.push(public._id);
-            });
-            team.private.map((private)=>{
-                channels.push(private._id);
-            });
-            team.direct.map((direct)=>{
-                channels.push(direct._id);
-            });
+    try{
+        let user_id=data._id;
+        let tempChannelEmits=channelEmits;
+        let tempCompanyEmits=companyEmits;
+        let tempMessageEmits=messageEmits;
+        let tempTeamEmits=teamEmits;
+        let tempUserEmits=userEmits;
+        let tempReminderEmits=reminderEmits;
+        let tempPermissionEmits = permissionEmits;
+        let channels=teams=companies=[];
+        data.companies.map((company)=>{
+            companies.push(company._id);
+            company.teams.map((team)=>{
+                teams.push(team._id);
+                team.public.map((public)=>{
+                    channels.push(public._id);
+                });
+                team.private.map((private)=>{
+                    channels.push(private._id);
+                });
+                team.direct.map((direct)=>{
+                    channels.push(direct._id);
+                });
+            })
         })
-    })
-    getChannelEmits(tempChannelEmits,io,channels,user_id);
-    getCompanyEmits(tempCompanyEmits,io,companies,user_id);
-    getMessageEmits(tempMessageEmits,io,channels,user_id);
-    getTeamEmits(tempTeamEmits,io,teams,user_id);
-    getUserEmits(tempUserEmits,io,user_id,data);
-    getReminderEmits(tempReminderEmits,io,user_id);
-    getPermissionEmits(tempPermissionEmits,io,user_id)
+        getChannelEmits(tempChannelEmits,io,channels,user_id);
+        getCompanyEmits(tempCompanyEmits,io,companies,user_id);
+        getMessageEmits(tempMessageEmits,io,channels,user_id);
+        getTeamEmits(tempTeamEmits,io,teams,user_id);
+        getUserEmits(tempUserEmits,io,user_id,data);
+        getReminderEmits(tempReminderEmits,io,user_id);
+        getPermissionEmits(tempPermissionEmits,io,user_id);
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 
 }
 
 const getChannelEmits=(tempChannelEmits,io,channels,user_id)=>{
+    try{
     tempChannelEmits.forEach(channelEmit => {
         if(!channels.includes(channelEmit.channel._id) || !channelEmit.emit_name=='channelUnArchived' || !channelEmit.emit_name=='newChannel' || !channelEmit.emit_name=='newPublicChannel' || !channelEmit.emit_name=='newDirectChannel')
             console.log("continue");
@@ -112,77 +119,111 @@ const getChannelEmits=(tempChannelEmits,io,channels,user_id)=>{
         else
             io.to(user_id).emit(channelEmit.emit_name,channelEmit);
     });
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 }
 
 const getCompanyEmits=(tempCompanyEmits,io,companies,user_id)=>{
-    tempCompanyEmits.forEach(companyEmit => {
-        if(!companies.includes(companyEmit.company_id) || !companyEmit.emit_name=='newCompany')
-            console.log("continue");
-        else if(companyEmit.emit_name=='newCompany')
-            if(companyEmit.emit_to==user_id)
+    try{
+        tempCompanyEmits.forEach(companyEmit => {
+            if(!companies.includes(companyEmit.company_id) || !companyEmit.emit_name=='newCompany')
+                console.log("continue");
+            else if(companyEmit.emit_name=='newCompany')
+                if(companyEmit.emit_to==user_id)
+                    io.to(user_id).emit(companyEmit.emit_name,companyEmit);
+            else
                 io.to(user_id).emit(companyEmit.emit_name,companyEmit);
-        else
-            io.to(user_id).emit(companyEmit.emit_name,companyEmit);
-    });
+        });
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 }
 
 const getMessageEmits=(tempMessageEmits,io,channels,user_id)=>{
-    tempMessageEmits.forEach(messageEmit => {
-        if(!channels.includes(messageEmit.channel_id) || user_id==messageEmit.data.sender_id)
-            console.log("continue");
-        else if(messageEmit.emit_name='send_after')
-            if(messageEmit.emit_to==user_id)
+    try{
+        tempMessageEmits.forEach(messageEmit => {
+            if(!channels.includes(messageEmit.channel_id) || user_id==messageEmit.data.sender_id)
+                console.log("continue");
+            else if(messageEmit.emit_name='send_after')
+                if(messageEmit.emit_to==user_id)
+                    io.to(user_id).emit('newMessage',messageEmit);
+            else if(messageEmit.emit_name='reminded_to')
+                if(messageEmit.emit_to==user_id)
+                    io.to(user_id).emit('newMessage',messageEmit);
+            else
                 io.to(user_id).emit('newMessage',messageEmit);
-        else if(messageEmit.emit_name='reminded_to')
-            if(messageEmit.emit_to==user_id)
-                io.to(user_id).emit('newMessage',messageEmit);
-        else
-            io.to(user_id).emit('newMessage',messageEmit);
-    });
+        });
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 }
 
 const getTeamEmits=(tempTeamEmits,io,teams,user_id)=>{
-    tempTeamEmits.forEach(teamEmit => {
-        if(!teams.includes(teamEmit.team_id) || !teamEmit.emit_name=='newTeamCreated' || !teamEmit.emit_name=='teamUnArchived')
-            console.log("continue");
-        else if(teamEmit.emit_name=='newTeamCreated')
-            if(teamEmit.emit_to==user_id)
+    try{
+        tempTeamEmits.forEach(teamEmit => {
+            if(!teams.includes(teamEmit.team_id) || !teamEmit.emit_name=='newTeamCreated' || !teamEmit.emit_name=='teamUnArchived')
+                console.log("continue");
+            else if(teamEmit.emit_name=='newTeamCreated')
+                if(teamEmit.emit_to==user_id)
+                    io.to(user_id).emit(teamEmit.emit_name,teamEmit);
+            else if(teamEmit.emit_name=='teamUnArchived')
+                if(!teamEmit.team.users.includes(user_ids))
+                    io.to(user_id).emit(teamEmit.emit_name,teamEmit);
+            else
                 io.to(user_id).emit(teamEmit.emit_name,teamEmit);
-        else if(teamEmit.emit_name=='teamUnArchived')
-            if(!teamEmit.team.users.includes(user_ids))
-                io.to(user_id).emit(teamEmit.emit_name,teamEmit);
-        else
-            io.to(user_id).emit(teamEmit.emit_name,teamEmit);
-    });
+        });
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 }
 
 const getUserEmits=(tempUserEmits,io,user_id,data)=>{
-    tempUserEmits.forEach(userEmit => {
-        if(userEmit.emit_name=="userProfilePictureUpdate" || userEmit.emit_name=="userNameUpdate")
-        {
-            data.companies.map((company)=>{
-                if(company.users.filter((user)=> {return user._id==userEmit.user_id}))
-                    io.to(user_id).emit(tempUserEmits.emit_name,tempUserEmits);
-            })
-        }
-        else if(user_id==tempUserEmits.user_id){
-            io.to(user_id).emit(tempUserEmits.emit_name,tempUserEmits);
-        }
-    });
+    try{
+        tempUserEmits.forEach(userEmit => {
+            if(userEmit.emit_name=="userProfilePictureUpdate" || userEmit.emit_name=="userNameUpdate")
+            {
+                data.companies.map((company)=>{
+                    if(company.users.filter((user)=> {return user._id==userEmit.user_id}))
+                        io.to(user_id).emit(tempUserEmits.emit_name,tempUserEmits);
+                })
+            }
+            else if(user_id==tempUserEmits.user_id){
+                io.to(user_id).emit(tempUserEmits.emit_name,tempUserEmits);
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 }
 
 const getReminderEmits=(tempReminderEmits,io,user_id)=>{
-    tempReminderEmits.forEach(reminderEmit => {
-        if(reminderEmit.emit_to==user_id)
-            io.to(user_id).emit(reminderEmit.emit_name,reminderEmit);
-    });
+    try{
+        tempReminderEmits.forEach(reminderEmit => {
+            if(reminderEmit.emit_to==user_id)
+                io.to(user_id).emit(reminderEmit.emit_name,reminderEmit);
+        });
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 }
 
 const getPermissionEmits=(tempPermissionEmits,io,user_id)=>{
-    tempPermissionEmits.forEach(permissionEmit => {
-        if(permissionEmit.emit_to==user_id)
-            io.to(user_id).emit(permissionEmit.emit_name,permissionEmit);
-    });
+    try{
+        tempPermissionEmits.forEach(permissionEmit => {
+            if(permissionEmit.emit_to==user_id)
+                io.to(user_id).emit(permissionEmit.emit_name,permissionEmit);
+        });
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
 }
 
 module.exports = {
