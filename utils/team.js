@@ -97,24 +97,32 @@ const teamUnarchived=async(teamTemp,io,resumeToken)=>{
             console.log(err.response.data);
         }
     });
-    let company_id=teamTemp.company_id.toString();
-    let body1 = JSON.stringify({ company_id, attribute:"team", operation:"update" });
-    let result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
-    let result_data = null;
-    result1.data.sub_admins.push(result1.data.admin);
-    result1.data.sub_admins.map(async(user_id)=>{
-        try {
-            if(!teamTemp.user_ids.includes(user_id)){
-                body = JSON.stringify({ team_id,user_id });
-                result_data =await axios.post(url+"api/teamData", body, configuration);
-                createTeamRoom(io,result_data.data);
-                io.to(user_id).emit("teamUnArchived", {company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken});
-                saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:user_id,emit_name:"teamUnArchived"});
+    teamUnarchiveEmitToSubAdmins(teamTemp, team_id, resumeToken, io);
+}
+
+const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io)=>{
+    try {
+        let company_id=teamTemp.company_id.toString();
+        let body1 = JSON.stringify({ company_id, attribute:"team", operation:"update" });
+        let result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
+        let result_data = null;
+        result1.data.sub_admins.push(result1.data.admin);
+        result1.data.sub_admins.map(async(user_id)=>{
+            try {
+                if(!teamTemp.user_ids.includes(user_id)){
+                    body = JSON.stringify({ team_id,user_id });
+                    result_data =await axios.post(url+"api/teamData", body, configuration);
+                    createTeamRoom(io,result_data.data);
+                    io.to(user_id).emit("teamUnArchived", {company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken});
+                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:user_id,emit_name:"teamUnArchived"});
+                }
+            } catch (err) {
+                console.log(err);
             }
-        } catch (err) {
-            console.log(err);
-        }
-    });
+        });
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 module.exports = {
