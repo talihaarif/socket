@@ -105,7 +105,7 @@ const channelArchived=async(channelTemp,io,resumeToken)=>{
                 sendWebhookError(err);
             }
         });
-        channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io);
+        // channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io);
 }
 
 const channelUnarchived=async(channelTemp,io,resumeToken)=>{
@@ -166,27 +166,27 @@ const directChannelJoin=(io,data)=>{
     }
 }
 
-const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken, io)=>{
-    if (channelTemp.type == "private"){
-        let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
-        let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
-        let result_data = null;
-        result1.data.sub_admins.push(result1.data.admin);
-        result1.data.sub_admins.map(async (user_id)=>{
-            try {
-                if(!channelTemp.user_ids.includes(user_id)){
-                    let body2 = JSON.stringify({ channel_id,user_id });
-                    result_data =await axios.post(url+"api/channelData", body2, configuration);
-                    io.to(user_id).emit("channelArchived", {team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
-                    saveChannelEmits({team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:user_id,emit_name:"channelArchived"});
-                }
-            } catch (err) {
-                console.log(err);
-                sendWebhookError(err);
-            }
-        });
-    }
-}
+// const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken, io)=>{
+//     if (channelTemp.type == "private"){
+//         let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
+//         let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
+//         var result_data = null;
+//         result1.data.sub_admins.push(result1.data.admin);
+//         result1.data.sub_admins.map(async (user_id)=>{
+//             try {
+//                 if(!channelTemp.user_ids.includes(user_id)){
+//                     let body2 = JSON.stringify({ channel_id,user_id });
+//                     result_data =await axios.post(url+"api/channelData", body2, configuration);
+//                     io.to(user_id).emit("channelArchived", {team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
+//                     saveChannelEmits({team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:user_id,emit_name:"channelArchived"});
+//                 }
+//             } catch (err) {
+//                 console.log(err);
+//                 sendWebhookError(err);
+//             }
+//         });
+//     }
+// }
 
 const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resumeToken, io)=>{
         let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
@@ -222,12 +222,12 @@ const channelUnarchiveEmitForPublicPrivateChannels=async(channel_id, result, io,
             io.to(channelTemp.team_id).emit("publicChannelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken});
             saveChannelEmits({company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,emit_to:channelTemp.team_id,emit_name:"publicChannelUnArchived"});
         }
-        else if(channelTemp.type=='private'){
-            if(!channelTemp.user_ids.includes(result.admin_id)){
-                io.to(channelTemp.creator_id).emit("deleteChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken});
-                saveChannelEmits({company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,emit_to:channelTemp.creator_id,emit_name:"deleteChannel"});
-            }
-        }
+        // else if(channelTemp.type=='private'){
+        //     if(!channelTemp.user_ids.includes(result.admin_id)){
+        //         io.to(channelTemp.creator_id).emit("deleteChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken});
+        //         saveChannelEmits({company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,emit_to:channelTemp.creator_id,emit_name:"deleteChannel"});
+        //     }
+        // }
     } catch (error) {
         console.log(error);
         sendWebhookError(error);
