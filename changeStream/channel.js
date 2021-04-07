@@ -22,7 +22,7 @@ const channel = (conn, io) => {
         d) if channel deleted_at is changed and deleted_at is null then channelUnarchived function is called otherwise
             channelArchived function is called.
         e) if channel creator_id is changed then emit is send to the channel room.
-    After any emit is send then saveChannelEmit function is called to store the event for one minute.
+    After any emit is send then saveChannelEmits function is called to store the event for one minute.
     */
     channel.on("change", async(change) => {
         try{

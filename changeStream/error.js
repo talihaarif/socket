@@ -10,13 +10,16 @@ const error = (conn, io) => {
 
     console.log("Error change stream running");
 
-    /*
-    ---Listening to company Table---
-    Case update:
-    one case is handel in update operation 
-    of company table.
-    1) If company name is changed then the emit is send
-    to the company_id.
+     /*
+    When any changes occurs in error_logs table then this change event function runs and return 
+    an object which contain an object containing all the details of the document that is created,
+    updated or deleted.
+    1) If new document is created then change operation type is insert.
+        a) if subject of error is message then messageError emit is send to the user_id who performed this request.
+        b) if subject of error is channel then channelError emit is send to the user_id who performed this request.
+        c) if subject of error is team then teamError emit is send to the user_id who performed this request.
+        d) if subject of error is company then companyError emit is send to the user_id who performed this request.
+        e) if subject of error is user then userError emit is send to the user_id who performed this request.
     */
    error.on("change", async (change) => {
        try{

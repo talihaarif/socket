@@ -1,6 +1,16 @@
 const { setActiveStatus } = require("../utils/user");
 const { sendWebhookError } = require("../utils/webhook");
 
+/**
+ * This is the code for User Listener. This is called when emit is send from frontend on user operations.
+ *
+ * 1. On getOnlineUsers emit from frontend:
+ *      Call usersOnline function.
+ * 2. On newPlugin emit from frontend:
+ *      Send addPlugin emit to the user who added plugin.
+ * 3. On deletePlugin emit from frontend:
+ *      Send removePlugin emit to the user who deleted plugin.
+ */
 
 const userListener = (io,socket) => {
     //Inactive listen

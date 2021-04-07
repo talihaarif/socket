@@ -12,12 +12,17 @@ const token = (conn, io) => {
 
     /*
     ---Listening to Tokens table---
+    When any changes occurs in tokens table then this change event function runs and return 
+    an object which contain an object containing all the details of the document that is created,
+    updated or deleted.
 
     Case: Insert:
-    When Ever any new entry is added in token table then 
-    it means that some user is online in some company so
-    first save that token in node local array for middleware check
-    then emit the user online event to the company in which user is online.
+    
+    Call the addToken function in case of insert.
+
+    Case: Delete:
+    
+    Call the removeToken function in case of delete.
     */
     token.on("change", (change) => {
         try{

@@ -11,17 +11,21 @@ const team = (conn, io) => {
 
     /*
     ---Listening to Teams Table---
+    When any changes occurs in messages table then this change event function runs and return 
+    an object which contain an object containing all the details of the document that is created,
+    updated or deleted.
+    Case insert:
+
+    1) teamInsert function is called in case on insert.
 
     Case update:
-    There cases are handel in update operation 
-    of teams table.
-    1) Name of the team is changed then emit will be
-    send to the company_id+team_id room.
-    2) Profile Image of the team is changed then emit will be
-    send to the company_id+team_id room.
-    3) Team is Archived then emit will be send to all the
-    user which are in this team.
+    The cases handled in update operation of teams table are:
 
+    1) If name of the team is changed then emit will be send to team_id room.
+    2) If profile image of the team is changed then emit will be send to the team_id room.
+    3) If deleted_at of team is set to null then call the teamUnarchived function otherwise call the teamArchived function.
+
+    After any emit is send then saveTeamEmits function is called to store the event for one minute.
     */
 
     team.on("change", async(change) => {

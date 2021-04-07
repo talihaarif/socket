@@ -4,6 +4,34 @@ const { deleteCompanyRoom, createCompanyRoom } = require("../utils/company");
 const config = require("config");
 const { sendWebhookError } = require("../utils/webhook");
 
+/**
+ * This is the code for Company Listener. This is called when emit is send from frontend on company operations.
+ *
+ * 1. Declare configuration variable to store headers which will be send with axios requests.
+ * 2. On removedFromChannel emit from frontend:
+ *      Send axios request to api/companyData route on backend and store response in result variable.
+ *      Call deleteCompanyRoom function.
+ *      Send removedCompany emit to the user who is removed.
+ *      Send userRemovedFromCompany emit to company room.
+ * 3. On unarchivedFromCompany emit from frontend:
+ *      Send userUnarchivedFromCompany emit to company room.
+ *      Send axios request to api/companyData route on backend and store response in result variable.
+ *      Call createCompanyRoom function.
+ *      Send unarchivedCompany emit to the user who is un archived.
+ * 4. On switchCompany emit from frontend:
+ *      Call userOffline function.
+ *      Save company id in socket instance.
+ *      Call saveUser function.
+ *      Call userOnline function.
+ *      Call usersOnline function.
+ * 5. On addUserInNewCompany emit from frontend.
+ *      Send newUserAdded emit to the company room.
+ *      For each user of company:
+ *      Send axios request to api/companyData route on backend and store response in result variable.
+ *      Call createCompanyRoom function.
+ *      Send addedInNewCompany emit to the user.
+ */
+
 const companyListener = (socket,io) => {
     const configuration = {
         headers: {

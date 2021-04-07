@@ -13,19 +13,20 @@ const user = (conn, io) => {
 
     /*
     ---Listening to user Table---
+    When any changes occurs in users table then this change event function runs and return 
+    an object which contain an object containing all the details of the document that is created,
+    updated or deleted.
 
     Case update:
-    Three cases are handel in update operation 
-    of user table.
-    1) If profile_picture is changed then the emit is send
-    to the all the companies in which this user
-    is added in company_id room.
-    2) If full name is changed then the emit is send
-    to the all the companies in which this user
-    is added in company_id room.
-    3) If user is added in any company then emit contating
-    company_id will be send to the user_id room.
+    The cases handled in update operation of users table are:
 
+    1) If profile_picture is changed then the emit is send to the all the companies in which this user is added in company_id room.
+    2) If full name is changed then the emit is send to the all the companies in which this user is added in company_id room.
+    3) If user two_fa is changed then userTwoFaChange emit is send to the user whose two_fa is changed.
+    4) If user in_app_notification field is changed then userInAppNotification emit is send to the user whose in_app_notification field is changed.
+    5) If user notification_sound field is changed then userNotificationSound emit is send to the user whose notification_sound field is changed.
+    
+    After any emit is send then saveUserEmits function is called to store the event for one minute.
     */
    user.on("change", (change) => {
     try{

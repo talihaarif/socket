@@ -59,6 +59,7 @@ const removeUser = (socket_id, user_id, company_id) => {
     }
 };
 
+// This function finds all online users in a company.
 const allOnlineUsers = (company_id, user_id) => {
     try{
         const onlineUsersArray = users.filter((el) => {
@@ -71,6 +72,7 @@ const allOnlineUsers = (company_id, user_id) => {
     }
 };
 
+// This function finds all offline users of a company.
 const getAllOfflineUsers = (channelUser) => {
     try{
         const offlineUsers = channelUser.filter((el) => {
@@ -84,6 +86,7 @@ const getAllOfflineUsers = (channelUser) => {
     }
 };
 
+// This function finds those users if the user is active but the tab is not opened
 const getAllInactiveUsers = (channelUser) => {
     try{
         const inactiveUsers = channelUser.filter((el) => {
@@ -97,6 +100,7 @@ const getAllInactiveUsers = (channelUser) => {
     }
 };
 
+// This function sets the active status of user.
 const setActiveStatus = (active,id) => {
     try{
         let user = users.find((el) => el.socket_id == id);
@@ -110,6 +114,7 @@ const setActiveStatus = (active,id) => {
     }
 };
 
+//this function sets userOffline emit to company room if user gets offline.
 const userOffline=(socket)=>{
     try{
         if (!removeUser(socket.id, socket.user_id, socket.company_id)) {
@@ -124,6 +129,7 @@ const userOffline=(socket)=>{
     }
 }
 
+//this function sets userOnline emit to company room if user gets online.
 const userOnline=(socket)=>{
     try{
         socket.to(socket.company_id).emit("userOnline", {
@@ -136,6 +142,7 @@ const userOnline=(socket)=>{
     }
 }
 
+// This function sends usersOnline emit to the user to give him all online users of a company.
 const usersOnline=(io,socket)=>{
     try{
         io.to(socket.id).emit("usersOnline", {

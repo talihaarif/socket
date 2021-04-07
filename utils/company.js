@@ -5,6 +5,7 @@ const config = require("config");
 const { saveCompanyEmits } = require("./emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
 
+// Declare configuration variable to store headers which will be send with axios requests.
 const configuration = {
     headers: {
       "Content-Type": "application/json",
@@ -13,7 +14,13 @@ const configuration = {
   };
 const url = config.get("url");
 
-
+/*
+* This function is used to create the company room.
+* If no clients found return true.
+* Otherwise For each client:
+* Get client socket id.
+* Call joinCompanyRoom function.
+*/
 const createCompanyRoom = (io,data) => {
     try {
         let clients = io.sockets.adapter.rooms.get(data._id);
@@ -30,6 +37,13 @@ const createCompanyRoom = (io,data) => {
 
 };
 
+/*
+* This function deletes the company room
+* If no client found return true.
+* Otherwise For each client:
+* Get client socket id.
+* Call leaveCompanyRoom function and call userOffline function.
+*/
 const deleteCompanyRoom = (io,data) => {
     try {
         let clients = io.sockets.adapter.rooms.get(data._id);
@@ -47,6 +61,13 @@ const deleteCompanyRoom = (io,data) => {
 
 };
 
+/*
+* This function sends the emit on new company insertion
+* Call api/companyData backend route using axios and store the response in a variable.
+* Call createCompanyRoom function.
+* Send newCompany emit to the user who created the company.
+* Call saveCompanyEmits function to store the event for one minute.
+*/
 const companyInsert=async(companyTemp,io,resumeToken)=>{
     try{
         let company_id=companyTemp._id.toString();

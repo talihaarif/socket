@@ -3,6 +3,30 @@ const { default: axios } = require("axios");
 const config = require("config");
 const { sendWebhookError } = require("../utils/webhook");
 
+/**
+ * This is the code for Team Listener. This is called when emit is send from frontend on team operations.
+ *
+ * 1. Declare configuration variable to store headers which will be send with axios requests.
+ * 2. On userAddedInTeam emit from frontend:
+ *      Send newUserAddedInTeam emit to team room.
+ *      For all users of team:
+ *      Send axios request to api/teamData route on backend and store response in result variable.
+ *      Call createTeamRoom function.
+ *      Send addedInTeam emit to the user.
+ * 3. On usersAddedInTeams emit from frontend:
+ *      For each team in which the users are added:
+ *      Send newUserAddedInTeam emit to team room.
+ * 4. On leaveTeam emit from frontend:
+ *      Call deleteTeamRoom function.
+ *      Send removedFromTeam emit to the user who left the team.
+ *      Send userLeftTeam emit to team room.
+ * 5. On userRemovedFromTeam emit from frontend.
+ *      For all users of team:
+ *      Send axios request to api/teamData route on backend and store response in result variable.
+ *      Call deleteTeamRoom function.
+ *      Send removedFromTeam emit to the user.
+ */
+
 const teamListener = (socket, io) => {
     const configuration = {
         headers: {
