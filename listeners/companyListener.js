@@ -35,8 +35,8 @@ const companyListener = (socket,io) => {
             const body = JSON.stringify({ company_id,email });
             const result =await axios.post(url+"api/companyData", body, configuration);
             createCompanyRoom(io,result.data);
-            socket.to(data.user_id).emit("unarchivedCompany", result.data);
             socket.to(data.company_id).emit("userUnarchivedFromCompany",data);
+            socket.to(data.user_id).emit("unarchivedCompany", result.data);
         } catch (err) {
             console.log(err);
             sendWebhookError(err);
