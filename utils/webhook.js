@@ -11,7 +11,7 @@ const configuration = {
         let body='';
         console.log('webhook');
         // console.log(error.response.data);
-        if(error.response.data)
+        if(error && error.response && error.response.data)
           body = JSON.stringify({ "error":error.response.data} );
         else
           body = JSON.stringify( error.message );
