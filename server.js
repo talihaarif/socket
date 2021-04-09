@@ -21,6 +21,7 @@ const resumeAfter = require("./listeners/resumeAfter");
 const error = require("./changeStream/error");
 const { default: axios } = require("axios");
 const { removeEmits } = require("./utils/emitQueue");
+const pushError = require("./changeStream/errorPush");
 
 // Configuration to send request to backend
 const configuration = {
@@ -152,6 +153,7 @@ connection.once("open", () => {
     error(connection,io);
     reminder(connection,io);
     permission(connection,io);
+    pushError(connection,io);
 
 });
 
