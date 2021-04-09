@@ -59,6 +59,53 @@ const deleteChannelRoom = (io,data) => {
 };
 
 /*
+* This function creates the public and private channels room
+* If no clients found return true.
+* Otherwise For each client:
+* Get client socket id.
+* Call joinChannelRoom function.
+*/
+const createPublicPrivateChannelRoom = (io,data) => {
+    try {
+        let clients = io.sockets.adapter.rooms.get(data.user_id);
+        if(!clients)
+            return true;
+        for (const clientId of clients) {
+            let clientSocket = io.sockets.sockets.get(clientId);
+            joinChannelRoom(clientSocket,[data.public]);
+            joinChannelRoom(clientSocket,[data.private]);
+        }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
+};
+
+/*
+* This function deletes the public and private channels room
+* If no client found return true.
+* Otherwise For each client:
+* Get client socket id.
+* Call leaveChannelRoom function.
+*/
+const deletePublicPrivateChannelRoom = (io,data) => {
+    try {
+        let clients = io.sockets.adapter.rooms.get(data.user_id);
+        if(!clients)
+            return true;
+        for (const clientId of clients) {
+            let clientSocket = io.sockets.sockets.get(clientId);
+            leaveChannelRoom(clientSocket,[data.public]);
+            leaveChannelRoom(clientSocket,[data.private]);
+        }
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
+};
+
+
+/*
 * This function sends the emit on new channel insertion
 * Call api/channelData backend route using axios and store the response in a variable.
 * Call createChannelRoom function.
@@ -364,5 +411,7 @@ module.exports = {
     channelInsert,
     channelNameUpdate,
     channelUnarchived,
-    channelArchived
+    channelArchived,
+    createPublicPrivateChannelRoom,
+    deletePublicPrivateChannelRoom
 };

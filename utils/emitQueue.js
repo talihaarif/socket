@@ -65,17 +65,17 @@ const getEmits=(data,io)=>{
             if(company.teams){
                 company.teams.map((team)=>{
                     teams.push(team._id);
-                    team.public.map((public)=>{
-                        channels.push(public._id);
-                    });
-                    team.private.map((private)=>{
-                        channels.push(private._id);
-                    });
-                    team.direct.map((direct)=>{
-                        channels.push(direct._id);
-                    });
                 });
             }
+            company.public.map((public)=>{
+                channels.push(public._id);
+            });
+            company.private.map((private)=>{
+                channels.push(private._id);
+            });
+            company.direct.map((direct)=>{
+                channels.push(direct._id);
+            });
             
         });
         getChannelEmits(tempChannelEmits,io,channels,user_id);
