@@ -76,7 +76,7 @@ and also notify the users of the team about the removed users.
                 const body = JSON.stringify({ team_id,user_id });
                 const result =await axios.post(url+"api/teamData", body, configuration);
                 deleteTeamRoom(io,result.data);
-                io.to(user_id).emit("removedFromTeam", {company_id:data.company_id,team_id:data.team_id} );
+                io.to(user_id).emit("removedFromTeam", {company_id:data.company_id,team_id:data.team_id,_id: user_id} );
             } catch (err) {
                 console.log(err.response.data);
                 sendWebhookError(err);
