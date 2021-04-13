@@ -144,11 +144,13 @@ const channelNameUpdate=(channelTemp,io,resumeToken)=>{
                 channel:{name:channelTemp.name,_id: channelTemp._id},
                 type:channelTemp.type,
                 team_id:channelTemp.team_id,
+                company_id:channelTemp.company_id,
                 channel_token:resumeToken
             });
             saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id},
                 type:channelTemp.type,
                 team_id:channelTemp.team_id,
+                company_id:channelTemp.company_id,
                 channel_token:resumeToken,emit_to:channelTemp.user_id,emit_name:"channelNameUpdate"});
         }
         else{
@@ -156,11 +158,13 @@ const channelNameUpdate=(channelTemp,io,resumeToken)=>{
                 channel:{name:channelTemp.name,_id: channelTemp._id},
                 type:channelTemp.type,
                 team_id:channelTemp.team_id,
+                company_id:channelTemp.company_id,
                 channel_token:resumeToken
             });
             saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id},
                 type:channelTemp.type,
                 team_id:channelTemp.team_id,
+                company_id:channelTemp.company_id,
                 channel_token:resumeToken,emit_to:channelTemp._id.toString(),emit_name:"channelNameUpdate"});
         }
     } catch (error) {

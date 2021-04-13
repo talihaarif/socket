@@ -42,11 +42,13 @@ const channel = (conn, io) => {
                             channel: {name:channelTemp.display_name,_id: channelTemp._id},
                             type:channelTemp.type,
                             team_id:channelTemp.team_id,
+                            company_id:channelTemp.company_id,
                             channel_token:change._id
                     });
                     saveChannelEmits({channel: {name:channelTemp.display_name,_id: channelTemp._id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
+                        company_id:channelTemp.company_id,
                         channel_token:change._id,emit_to:channelTemp.creator_id,emit_name:"channelNameUpdate"});
                 }  else if (
                     channelUpdateCheck.description ||

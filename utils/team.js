@@ -89,8 +89,8 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
                     result_data =await axios.post(url+"api/teamData", body, configuration);
                     createTeamRoom(io,result_data.data);
                     createPublicPrivateChannelRoom(io, result_data.data);
-                    io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team, public:result_data.data.public , private:result_data.data.private ,team_token:resumeToken});
-                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , private:result_data.data.private,team_token:resumeToken,emit_to:user_id,emit_name:"newTeamCreated"});
+                    io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team, public:result_data.data.public ,team_token:resumeToken});
+                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public ,team_token:resumeToken,emit_to:user_id,emit_name:"newTeamCreated"});
                 } catch (err) {
                     console.log(err);
                     sendWebhookError(err);

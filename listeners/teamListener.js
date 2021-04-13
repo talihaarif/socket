@@ -49,7 +49,7 @@ const teamListener = (socket, io) => {
                 const result =await axios.post(url+"api/teamData", body, configuration);
                 createTeamRoom(io,result.data);
                 createPublicPrivateChannelRoom(io, result.data);
-                socket.to(user_id).emit("addedInTeam", {company_id:data.company_id,team:result.data.team, public:result.data.public, private:result.data.private});
+                socket.to(user_id).emit("addedInTeam", {company_id:data.company_id,team:result.data.team, public:result.data.public});
             } catch (err) {
                 console.log(err.response.data);
                 sendWebhookError(err);
