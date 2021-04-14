@@ -64,16 +64,23 @@ const message = (conn, io) => {
                         saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp,emit_to:id,emit_name:"forwardMessage"});
                     }
                     else if(messageTemp.send_after){
+                        let send_after_emit_name = messageTemp.replying_id ? "replySendAfterMessage" : "newMessage";
                         let id=messageTemp.channel_id;
                         delete messageTemp.channel_id;
-                        io.to(messageTemp.sender_id).emit("newMessage", {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp});
-                        saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.sender_id,emit_name:"send_after"});
+                        io.to(messageTemp.sender_id).emit(send_after_emit_name, {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.sender_id,emit_name:send_after_emit_name});
                     }
                     else if(messageTemp.reminded_to){
                         let id=messageTemp.channel_id;
                         delete messageTemp.channel_id;
                         io.to(messageTemp.reminded_to).emit("newMessage", {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp});
                         saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.reminded_to,emit_name:"reminded_to"});
+                    }
+                    else if(messageTemp.replying_id){
+                        let id=messageTemp.channel_id;
+                        delete messageTemp.channel_id;
+                        io.to(messageTemp.reminded_to).emit("newReplyMessage", {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.reminded_to,emit_name:"newReplyMessage"});
                     }
                     else{
                         let id=messageTemp.channel_id;
@@ -84,20 +91,22 @@ const message = (conn, io) => {
                     break;
                 case "update":
                     let messageUpdateCheck = change.updateDescription.updatedFields;
+                    let send_after_emit_name = messageUpdateCheck.replying_id ? "replySendAfterMessage" : "sendAfterMessage";
+                    let update_message_emit_name = messageUpdateCheck.replying_id ? "replyUpdateMessage" : "updateMessage";
                     if(messageUpdateCheck.send_after===null){
-                        io.to(messageTemp.channel_id).emit("sendAfterMessage", {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
-                        saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:"sendAfterMessage"});
+                        io.to(messageTemp.channel_id).emit(send_after_emit_name, {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:send_after_emit_name});
                     }
                     else if (messageUpdateCheck.deleted_at){
                         messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
-                        io.to(messageTemp.channel_id).emit("updateMessage", {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
-                        saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:"updateMessage"});
+                        io.to(messageTemp.channel_id).emit(update_message_emit_name, {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:update_message_emit_name});
                     } else if(messageUpdateCheck.is_read){
                         break;
                     }
                     else{ 
-                        io.to(messageTemp.channel_id).emit("updateMessage", {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
-                        saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:"updateMessage"});
+                        io.to(messageTemp.channel_id).emit(update_message_emit_name, {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp});
+                        saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:messageTemp.channel_id,data:messageTemp,emit_to:messageTemp.channel_id,emit_name:update_message_emit_name});
                     }
                     break;
             }
