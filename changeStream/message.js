@@ -79,6 +79,10 @@ const message = (conn, io) => {
                     else if(messageTemp.replying_id){
                         let id=messageTemp.channel_id;
                         delete messageTemp.channel_id;
+                        let message_id =  messageTemp.replying_id;
+                        let body = JSON.stringify({ message_id });
+                        result =await axios.post(url+"api/message/read", body, configuration);
+                        messageTemp.parent = result.data;
                         io.to(messageTemp.reminded_to).emit("newReplyMessage", {message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp});
                         saveMessageEmits({message_token:change._id,type:ids.type,company_id:ids.company_id,team_id:ids.team_id,channel_id:id,data:messageTemp,emit_to:messageTemp.reminded_to,emit_name:"newReplyMessage"});
                     }
