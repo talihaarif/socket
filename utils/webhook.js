@@ -16,7 +16,7 @@ const sendWebhookError = async(error) => {
         else
             body = JSON.stringify(error.message);
         // console.log(body);        
-        const result = await axios.post("https://schat.pf.com.pk/api/webhooks/606d977869396a521e0d5d95", body, configuration);
+        const result = await axios.post("https://schat.pf.com.pk/api/webhooks/60781aaf52876b510f1f772e", body, configuration);
     } catch (err) {
         console.log(err);
     }
