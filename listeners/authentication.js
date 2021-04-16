@@ -33,8 +33,8 @@ const { sendWebhookError } = require("../utils/webhook");
 const authentication = (socket, io) => {
     socket.on("authenticate", (data) => {
         try{
-        console.log("middleware");
-        console.log(data.email);
+        // console.log("middleware");
+        // console.log(data.email);
         // data = JSON.parse(data.toString());
         if (checkToken(data)) {
             let user_id = data._id;
