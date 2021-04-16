@@ -62,7 +62,6 @@ const message = (conn, io) => {
                         let body = JSON.stringify({ message_id });
                         result = await axios.post(url + "api/getMessage", body, configuration);
                         messageTemp.parent = result.data.message;
-                        console.log("in first if", messageTemp);
                     }
                     if (messageTemp.is_forwarded) {
                         let id = messageTemp.channel_id;
@@ -83,7 +82,6 @@ const message = (conn, io) => {
                     } else if (messageTemp.replying_id) {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
-                        console.log("sending emit of newReplyMessage", messageTemp);
                         io.to(id).emit("newReplyMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp });
                     } else {
                         let id = messageTemp.channel_id;
@@ -111,7 +109,11 @@ const message = (conn, io) => {
                         messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: update_message_emit_name });
                     } else if (messageUpdateCheck.is_read) {
                         break;
-                    } else {
+                    }
+                    else if (messageUpdateCheck.child_read){
+                        break;
+                    }
+                     else {
                         io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp });
                         messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: update_message_emit_name });
                     }
