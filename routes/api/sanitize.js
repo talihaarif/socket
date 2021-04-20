@@ -27,17 +27,14 @@ router.post("/sanitizeMessage", async (req, res) => {
 });
 
 function printList(items) {
-    //map keys of the object
-    // console.log("Object",items);
-    let a='';
     Object.keys(items).map(k => {
         if(items[k]==null)
             console.log(items[k]);
         else if(typeof items[k] == 'string' || typeof items[k] == 'integer' ){
             items[k]=sanitizeHtml(items[k],{allowedAttributes: {
-                'span': [ 'class','data-mention-id' ]
+                'span': [ 'class','data-mention-id' ],
+                'a':['href','target','rel']
             },});
-            console.log("String",items[k]);
         }
         else if (typeof items[k] === "object") {
             printList(items[k]);
