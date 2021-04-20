@@ -60,12 +60,14 @@ const channel = (conn, io) => {
                             channel:{name:channelTemp.name,_id: channelTemp._id,description: channelTemp.description},
                             type:channelTemp.type,
                             team_id:channelTemp.team_id,
+                            company_id:channelTemp.company_id,
                             channel_token:change._id
                         }
                     );
                     saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,description: channelTemp.description},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
+                        company_id:channelTemp.company_id,
                         channel_token:change._id,emit_to:channelTemp._id.toString(),emit_name:"channelDescriptionUpdated"});
                 } else if (
                     channelUpdateCheck.deleted_at ||
@@ -85,11 +87,13 @@ const channel = (conn, io) => {
                         channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
+                        company_id:channelTemp.company_id,
                         channel_token:change._id
                     });
                     saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
+                        company_id:channelTemp.company_id,
                         channel_token:change._id,emit_to:channelTemp._id.toString(),emit_name:"channelCreatorUpdate"});
                 }
                 break;

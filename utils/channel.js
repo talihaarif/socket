@@ -181,8 +181,8 @@ const channelNameUpdate=(channelTemp,io,resumeToken)=>{
 * Call deleteChannelRoom function.
 */
 const channelArchived=async(channelTemp,io,resumeToken)=>{
-        io.to(channelTemp._id.toString()).emit("channelArchived", {team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
-        saveChannelEmits({team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:channelTemp._id.toString(),emit_name:"channelArchived"});
+        io.to(channelTemp._id.toString()).emit("channelArchived", {company_id:channelTemp.company_id, team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
+        saveChannelEmits({company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:channelTemp._id.toString(),emit_name:"channelArchived"});
         let channel_id=channelTemp._id.toString();
         channelTemp.user_ids.map(async(user_id)=>{
             try {
