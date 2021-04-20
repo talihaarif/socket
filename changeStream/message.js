@@ -69,9 +69,11 @@ const message = (conn, io) => {
                         io.to(id).emit("forwardMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp });
                         saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: id, emit_name: "forwardMessage" });
                     } else if (messageTemp.send_after) {
+                        console.log("in send_after")
                         let send_after_emit_name = messageTemp.replying_id ? "newReplyMessage" : "newMessage";
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
+                        console.log("sending emit to id",messageTemp.sender_id)
                         io.to(messageTemp.sender_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp });
                         messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: messageTemp.sender_id, emit_name: send_after_emit_name });
                     } else if (messageTemp.reminded_to) {
