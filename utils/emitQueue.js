@@ -151,12 +151,7 @@ const getMessageEmits=(tempMessageEmits,io,channels,user_id)=>{
             if(!channels.includes(messageEmit.channel_id) || user_id==messageEmit.data.sender_id)
                 console.log("continue");
             else if(messageEmit.emit_name='send_after'){
-                console.log("in send after queue")
-                console.log("sending emit to ..",user_id);
-                console.log("emit to ...",messageEmit.emit_to);
                 if(messageEmit.emit_to==user_id){
-                    console.log("sending emit to",user_id);
-                    console.log("emit to ",messageEmit.emit_to);
                     io.to(user_id).emit('newMessage',messageEmit);
                 }
             }
