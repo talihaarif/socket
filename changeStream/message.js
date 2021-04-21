@@ -121,7 +121,6 @@ const message = (conn, io) => {
                             io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp });
                             messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: update_message_emit_name });
                         }
-                        
                     }
                     break;
             }
