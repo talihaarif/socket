@@ -73,7 +73,7 @@ const message = (conn, io) => {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
                         io.to(messageTemp.sender_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp });
-                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: messageTemp.sender_id, emit_name: send_after_emit_name });
+                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: messageTemp.sender_id, emit_name: "send_after" });
                     } else if (messageTemp.reminded_to) {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
