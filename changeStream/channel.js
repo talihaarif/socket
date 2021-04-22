@@ -38,6 +38,7 @@ const channel = (conn, io) => {
                     channelNameUpdate(channelTemp,io,change._id);
     
                 } else if (channelUpdateCheck.display_name) {
+                    console.log("channel info:",channelTemp);
                     io.to(channelTemp.creator_id).emit("channelNameUpdate", {
                             channel: {name:channelTemp.display_name,_id: channelTemp._id},
                             type:channelTemp.type,

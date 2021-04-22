@@ -90,7 +90,7 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
                     createTeamRoom(io,result_data.data);
                     createPublicPrivateChannelRoom(io, result_data.data);
                     io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team, public:result_data.data.public ,team_token:resumeToken});
-                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public ,team_token:resumeToken,emit_to:user_id,emit_name:"newTeamCreated"});
+                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , team_token:resumeToken,emit_to:user_id,emit_name:"newTeamCreated"});
                 } catch (err) {
                     console.log(err);
                     sendWebhookError(err);

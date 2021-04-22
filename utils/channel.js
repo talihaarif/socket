@@ -181,7 +181,7 @@ const channelNameUpdate=(channelTemp,io,resumeToken)=>{
 * Call deleteChannelRoom function.
 */
 const channelArchived=async(channelTemp,io,resumeToken)=>{
-        io.to(channelTemp._id.toString()).emit("channelArchived", {company_id:channelTemp.company_id, team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
+        io.to(channelTemp._id.toString()).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
         saveChannelEmits({company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:channelTemp._id.toString(),emit_name:"channelArchived"});
         let channel_id=channelTemp._id.toString();
         channelTemp.user_ids.map(async(user_id)=>{
@@ -194,7 +194,7 @@ const channelArchived=async(channelTemp,io,resumeToken)=>{
                 sendWebhookError(err);
             }
         });
-        // channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io);
+        channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io);
 }
 
 /*
@@ -285,27 +285,28 @@ const directChannelJoin=(io,data)=>{
     }
 }
 
-// const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken, io)=>{
-//     if (channelTemp.type == "private"){
-//         let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
-//         let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
-//         var result_data = null;
-//         result1.data.sub_admins.push(result1.data.admin);
-//         result1.data.sub_admins.map(async (user_id)=>{
-//             try {
-//                 if(!channelTemp.user_ids.includes(user_id)){
-//                     let body2 = JSON.stringify({ channel_id,user_id });
-//                     result_data =await axios.post(url+"api/channelData", body2, configuration);
-//                     io.to(user_id).emit("channelArchived", {team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken});
-//                     saveChannelEmits({team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:user_id,emit_name:"channelArchived"});
-//                 }
-//             } catch (err) {
-//                 console.log(err);
-//                 sendWebhookError(err);
-//             }
-//         });
-//     }
-// }
+const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken, io)=>{
+    if (channelTemp.type == "private"){
+        let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
+        let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
+        console.log("channelArchiveEmitToSubAdmins::", result1.data);
+        var result_data = null;
+        result1.data.sub_admins.push(result1.data.admin);
+        result1.data.sub_admins.map(async (user_id)=>{
+            try {
+                if(!channelTemp.user_ids.includes(user_id)){
+                    let body2 = JSON.stringify({ channel_id,user_id });
+                    result_data =await axios.post(url+"api/channelData", body2, configuration);
+                    io.to(user_id).emit("channelArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:result_data.data.channel,channel_token:resumeToken});
+                    saveChannelEmits({company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,emit_to:user_id,emit_name:"channelArchived"});
+                }
+            } catch (err) {
+                console.log(err);
+                sendWebhookError(err);
+            }
+        });
+    }
+}
 
 /*
 * This function is used to send channel un archive emit to sub admins. 
