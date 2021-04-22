@@ -49,7 +49,7 @@ const teamListener = (socket, io) => {
                 const result =await axios.post(url+"api/teamData", body, configuration);
                 createTeamRoom(io,result.data);
                 createPublicPrivateChannelRoom(io, result.data);
-                socket.to(user_id).emit("addedInTeam", {company_id:data.company_id,team:result.data.team, public:result.data.public, private:result.data.private});
+                socket.to(user_id).emit("addedInTeam", {company_id:data.company_id,team:result.data.team, public:result.data.public});
             } catch (err) {
                 console.log(err.response.data);
                 sendWebhookError(err);
@@ -94,7 +94,7 @@ const teamListener = (socket, io) => {
                 const result =await axios.post(url+"api/teamData", body, configuration);
                 deleteTeamRoom(io,result.data);
                 deletePublicPrivateChannelRoom(io, result.data);
-                io.to(user_id).emit("removedFromTeam", {company_id:data.company_id,team_id:data.team_id} );  //????
+                io.to(user_id).emit("removedFromTeam", {company_id:data.company_id,team_id:data.team_id,_id: user_id} );
             } catch (err) {
                 console.log(err.response.data);
                 sendWebhookError(err);
