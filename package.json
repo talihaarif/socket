@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "http": "0.0.1-security",
     "https": "^1.0.0",
+    "moment": "^2.29.1",
     "mongoose": "^5.11.1",
     "nodemon": "^2.0.6",
     "sanitize-html": "^2.3.3",
