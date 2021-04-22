@@ -38,15 +38,18 @@ const channel = (conn, io) => {
                     channelNameUpdate(channelTemp,io,change._id);
     
                 } else if (channelUpdateCheck.display_name) {
+                    console.log("channel info:",channelTemp);
                     io.to(channelTemp.creator_id).emit("channelNameUpdate", {
                             channel: {name:channelTemp.display_name,_id: channelTemp._id},
                             type:channelTemp.type,
                             team_id:channelTemp.team_id,
+                            company_id:channelTemp.company_id,
                             channel_token:change._id
                     });
                     saveChannelEmits({channel: {name:channelTemp.display_name,_id: channelTemp._id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
+                        company_id:channelTemp.company_id,
                         channel_token:change._id,emit_to:channelTemp.creator_id,emit_name:"channelNameUpdate"});
                 }  else if (
                     channelUpdateCheck.description ||
@@ -58,12 +61,14 @@ const channel = (conn, io) => {
                             channel:{name:channelTemp.name,_id: channelTemp._id,description: channelTemp.description},
                             type:channelTemp.type,
                             team_id:channelTemp.team_id,
+                            company_id:channelTemp.company_id,
                             channel_token:change._id
                         }
                     );
                     saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,description: channelTemp.description},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
+                        company_id:channelTemp.company_id,
                         channel_token:change._id,emit_to:channelTemp._id.toString(),emit_name:"channelDescriptionUpdated"});
                 } else if (
                     channelUpdateCheck.deleted_at ||
@@ -83,11 +88,13 @@ const channel = (conn, io) => {
                         channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
+                        company_id:channelTemp.company_id,
                         channel_token:change._id
                     });
                     saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
+                        company_id:channelTemp.company_id,
                         channel_token:change._id,emit_to:channelTemp._id.toString(),emit_name:"channelCreatorUpdate"});
                 }
                 break;

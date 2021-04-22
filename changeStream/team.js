@@ -39,14 +39,14 @@ const team = (conn, io) => {
             case "update":
                 let teamUpdateCheck = change.updateDescription.updatedFields;
                 if (teamUpdateCheck.name) {
-                    io.to(teamTemp._id.toString()).emit("teamNameUpdate", {team_id:teamTemp._id.toString(),name:teamTemp.name,team_token:change._id});
-                    saveTeamEmits({team_id:teamTemp._id.toString(),name:teamTemp.name,team_token:change._id,emit_to:teamTemp._id.toString(),emit_name:"teamNameUpdate"});
+                    io.to(teamTemp._id.toString()).emit("teamNameUpdate", {team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,name:teamTemp.name,team_token:change._id});
+                    saveTeamEmits({team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,name:teamTemp.name,team_token:change._id,emit_to:teamTemp._id.toString(),emit_name:"teamNameUpdate"});
                 } else if (
                     teamUpdateCheck.profile_picture ||
                     teamUpdateCheck.profile_picture === null
                 ) {
-                    io.to(teamTemp._id.toString()).emit("teamProfileUpdate", {team_id:teamTemp._id.toString(),profile_picture:teamTemp.profile_picture,team_token:change._id});
-                    saveTeamEmits({team_id:teamTemp._id.toString(),profile_picture:teamTemp.profile_picture,team_token:change._id,emit_to:teamTemp._id.toString(),emit_name:"teamProfileUpdate"});
+                    io.to(teamTemp._id.toString()).emit("teamProfileUpdate", {team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,profile_picture:teamTemp.profile_picture,team_token:change._id});
+                    saveTeamEmits({team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,profile_picture:teamTemp.profile_picture,team_token:change._id,emit_to:teamTemp._id.toString(),emit_name:"teamProfileUpdate"});
                 } else if (
                     teamUpdateCheck.deleted_at ||
                     teamUpdateCheck.deleted_at === null
