@@ -3,10 +3,10 @@ const { default: axios } = require("axios");
 // Declare configuration variable to store headers which will be send with axios requests.
 const configuration = {
     headers: {
-      "Content-Type": "application/json",
-      "token":"MyNodeToken"
+        "Content-Type": "application/json",
+        "token": "MyNodeToken"
     },
-  };
+};
 
   /*
   * This function is used to send a webhook message in case of server error in node sockets.
@@ -16,15 +16,15 @@ const configuration = {
   */
   const sendWebhookError = async(error) => {
     try {
-        let body='';
+        let body = '';
         console.log('webhook');
         // console.log(error.response.data);
-        if(error && error.response && error.response.data)
-          body = JSON.stringify({ "error":error.response.data} );
+        if (error && error.response && error.response.data)
+            body = JSON.stringify({ "error": error.response.data });
         else
-          body = JSON.stringify( error.message );
+            body = JSON.stringify(error.message);
         // console.log(body);        
-        const result =await axios.post("https://schat.pf.com.pk/api/webhooks/606c5a812a440676a05feced", body, configuration);
+        const result = await axios.post("https://schat.pf.com.pk/api/webhooks/60781aaf52876b510f1f772e", body, configuration);
     } catch (err) {
         console.log(err);
     }

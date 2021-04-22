@@ -1,7 +1,7 @@
 const express = require("express");
 var cors = require("cors");
 const app = express();
-const http = require("http");
+const https = require("https");
 const mongoose = require("mongoose");
 const config = require("config");
 const { getAllToken } = require("./utils/token");
@@ -16,7 +16,7 @@ const reminder = require("./changeStream/reminder");
 const permission = require("./changeStream/permission");
 const authentication = require("./listeners/authentication");
 const fs = require('fs');
-const {  leaveCompanyRoom } = require("./utils/room");
+const { leaveCompanyRoom } = require("./utils/room");
 const resumeAfter = require("./listeners/resumeAfter");
 const error = require("./changeStream/error");
 const { default: axios } = require("axios");
@@ -26,22 +26,22 @@ const pushError = require("./changeStream/errorPush");
 // Configuration to send request to backend
 const configuration = {
     headers: {
-      "Content-Type": "application/json",
-      "token":"MyNodeToken"
+        "Content-Type": "application/json",
+        "token": "MyNodeToken"
     },
-  };
+};
 
 //https certificate 
 const options = {
-    // key: fs.readFileSync('privkey.pem'),
-    // cert: fs.readFileSync('cert.pem'),
+    key: fs.readFileSync('privkey.pem'),
+    cert: fs.readFileSync('cert.pem'),
 };
 
 
 const db = config.get("mongoURI");
 const url = config.get("url");
 const PORT = process.env.PORT || 5000;
-const server = http.createServer(options,app);
+const server = https.createServer(options, app);
 
 //Init Middleware
 app.use(cors());
@@ -50,13 +50,16 @@ app.use(express.json({ extented: false }));
 
 //api endpoint for push notification
 app.use("/api/pushNotification", require("./routes/api/pushNotification"));
+//sanitize
+app.use("/api/", require("./routes/api/sanitize"));
+
 
 //Database Connection
 mongoose.connect(process.env.DB_URI || db, {
-    // useNewUrlParser: true,
-    // useCreateIndex: true,
-    // useUnifiedTopology: true,
-    // useFindAndModify: false,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
 });
 
 const connection = mongoose.connection;
@@ -67,7 +70,7 @@ const io = require("socket.io")(server, {
         origin: "https://schat.pf.com.pk",
         methods: ["GET", "POST"]
     },
-    maxHttpBufferSize:"5e6"
+    maxHttpBufferSize: "5e6"
 });
 
 /**
@@ -84,14 +87,14 @@ io.on("connection", (socket) => {
     socket.emit("userAuthentication", "");
     authentication(socket, io);
 
-    socket.on("leaveRooms",(data)=>{
+    socket.on("leaveRooms", (data) => {
         console.log("Leaving Rooms");
         userOffline(socket);
         socket.leave(socket.user_id);
         socket.user_id = null
         socket.token = null;
-        socket.check=false;
-        leaveCompanyRoom(socket,data.companies,true);
+        socket.check = false;
+        leaveCompanyRoom(socket, data.companies, true);
     });
 
     socket.on("messageResume", (data) => {
@@ -102,18 +105,18 @@ io.on("connection", (socket) => {
 
     socket.on("teamLink", async(data) => {
         try {
-            let user_ids=[];
-            let token=data.key;
+            let user_ids = [];
+            let token = data.key;
             const body = JSON.stringify({ token });
-            let result =await axios.post(url+"api/team/readLink", body, configuration);
-            if(result.data.expire==false){
-                socket.to(data.company_id).emit("newUserAdded", {company_id:data.company_id,users:data.users});
-                data.users.forEach((user)=>{
+            let result = await axios.post(url + "api/team/readLink", body, configuration);
+            if (result.data.expire == false) {
+                socket.to(data.company_id).emit("newUserAdded", { company_id: data.company_id, users: data.users });
+                data.users.forEach((user) => {
                     user_ids.push(user._id);
                 })
-                let company_id=data.company_id;
-                data.team_ids.map((team_id)=>{
-                    socket.to(team_id).emit("newUserAddedInTeam", {user_ids,team_id,company_id});
+                let company_id = data.company_id;
+                data.team_ids.map((team_id) => {
+                    socket.to(team_id).emit("newUserAddedInTeam", { user_ids, team_id, company_id });
                 })
             }
         } catch (err) {
@@ -131,9 +134,9 @@ io.on("connection", (socket) => {
 });
 
 // This is the interval to empty the node queue and its run after every 1 minute.
-setInterval(()=>{
+setInterval(() => {
     removeEmits();
-},60000);
+}, 60000);
 
 /*
 Checking if the connection with database is open
@@ -144,16 +147,16 @@ connection.once("open", () => {
     console.log("MongoDB database connected");
     console.log("Setting change streams");
     getAllToken();
-    channel(connection,io);
-    company(connection,io);
-    message(connection,io);
-    team(connection,io);
-    token(connection,io);
-    user(connection,io);
-    error(connection,io);
-    reminder(connection,io);
-    permission(connection,io);
-    pushError(connection,io);
+    channel(connection, io);
+    company(connection, io);
+    message(connection, io);
+    team(connection, io);
+    token(connection, io);
+    user(connection, io);
+    error(connection, io);
+    reminder(connection, io);
+    permission(connection, io);
+    pushError(connection, io);
 
 });
 

@@ -152,9 +152,11 @@ const getMessageEmits=(tempMessageEmits,io,channels,user_id)=>{
         tempMessageEmits.forEach(messageEmit => {
             if(!channels.includes(messageEmit.channel_id) || user_id==messageEmit.data.sender_id)
                 console.log("continue");
-            else if(messageEmit.emit_name='send_after')
-                if(messageEmit.emit_to==user_id)
+            else if(messageEmit.emit_name='send_after'){
+                if(messageEmit.emit_to==user_id){
                     io.to(user_id).emit('newMessage',messageEmit);
+                }
+            }
             else if(messageEmit.emit_name='reminded_to')
                 if(messageEmit.emit_to==user_id)
                     io.to(user_id).emit('newMessage',messageEmit);
