@@ -1,4 +1,5 @@
 const { checkToken } = require("../utils/token");
+var moment = require('moment');
 const channelListener = require("./channelListener");
 const teamListener = require("./teamListener");
 const companyListener = require("./companyListener");
@@ -60,7 +61,11 @@ const authentication = (socket, io) => {
 
         }
         else{
-            socket.emit("reconnect", "");            
+            if(!socket.reconnectTime)
+                socket.reconnectTime=moment();
+            let t2 = moment();
+            if(moment.duration(t2.diff(socket.reconnectTime)).asSeconds()<60)
+                socket.emit("reconnect", "");       
         }
     } catch (error) {
         console.log(error);
