@@ -3,8 +3,37 @@ const config = require("config");
 const { deleteChannelRoom, createChannelRoom } = require("../utils/channel");
 const { sendWebhookError } = require("../utils/webhook");
 
+/**
+ * This is the code for Channel Listener. This is called when emit is send from frontend on channel operations.
+ *
+ * 1. Declare configuration variable to store headers which will be send with axios requests.
+ * 2. On joinChannel emit from frontend:
+ *      Send publicChannelJoined emit to the user who joined the channel (if he opened that channel somewhere else).
+ *      Send userAddedInChannel emit to channel room.
+ * 3. On newMemberInChannel emit from frontend:
+ *      Send userAddedInChannel emit to channel room.
+ *      If Channel type is private then:
+ *      For each user of that private channel.
+ *      Send axios request to api/channelData route on backend and store response in result variable.
+ *      Call createChannelRoom function.
+ *      Send addedInChannel emit to the user.
+ * 4. On removedFromChannel emit from frontend:
+ *      If Channel type is private then:
+ *      For each user of that private channel.
+ *      Send axios request to api/channelData route on backend and store response in result variable.
+ *      Call deleteChannelRoom function.
+ *      Send removedFromChannel emit to the user.
+ *      Otherwise send usersRemovedFromChannel emit to channel room.
+ * 5. On leaveChannel emit from frontend:
+ *      If channel type is private then call deleteChannelRoom function.
+ *      Send channelLeft emit to the user who left the channel.
+ *      Send usersRemovedFromChannel emit to channel room.
+ * 6. On muteChannel emit from frontend.
+ *      Send channelMuted emit to the user who muted the channel.
+ *
+ */
 const channelListener = (socket,io) => {
-    const configuration = {
+    const configuration = {   
         headers: {
           "Content-Type": "application/json",
           "token":"MyNodeToken"

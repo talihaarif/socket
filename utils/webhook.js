@@ -1,4 +1,6 @@
 const { default: axios } = require("axios");
+
+// Declare configuration variable to store headers which will be send with axios requests.
 const configuration = {
     headers: {
         "Content-Type": "application/json",
@@ -6,7 +8,13 @@ const configuration = {
     },
 };
 
-const sendWebhookError = async(error) => {
+  /*
+  * This function is used to send a webhook message in case of server error in node sockets.
+  * If server error has data then set error data in body because it is in the case of error from backend in node while calling any backend route.
+  * Otherwise set error message in case of server error from node.
+  * Call the backend webhook route using axios.
+  */
+  const sendWebhookError = async(error) => {
     try {
         let body = '';
         console.log('webhook');

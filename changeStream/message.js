@@ -23,24 +23,26 @@ const message = (conn, io) => {
 
     /*
     ---Listening to message Table---
-
+    When any changes occurs in messages table then this change event function runs and return 
+    an object which contain an object containing all the details of the document that is created,
+    updated or deleted.
     Case Insert:
-    There cases are handel in insert operation 
-    of message table.
-    1) If is_delayed is set then we don't emit any event
-    2) If receiver_id is null then the emit is send
-    to the company_id+team_id+channel_id room.
-    3) If channel_id is null then the emit is send
-    to the company_id+team_id+user_id room.
+    The cases handled in insert operation of messages table are:
+
+    1) If is_forwarded field of message is set then forwardMessage emit is send to channel room.
+    2) If send_after field of message is set then newMessage emit is send to sender only.
+    3) If reminded_to field of message is set then newMessage emit is send to the user who reminded the message.
+    4) Otherwise newMessage emit is send to channel room.
 
     Case update:
-    two cases are handel in update operation 
-    of message table.
-    1) If receiver_id is null then the emit is send
-    to the company_id+team_id+channel_id room.
-    2) If channel_id is null then the emit is send
-    to the company_id+team_id+user_id room.
+    The cases handled in update operation of messages table are:
 
+    1) If send_after field of message is null then sendAfterMessage emit is send to the channel room.
+    2) If deleted_at field of message is set then updateMessage emit is send to channel room.
+    3) If is_read field of message is set then no emit is send.
+    4) Otherwise updateMessage emit is send to channel room.
+
+    After any emit is send then saveMessageEmits function is called to store the event for one minute.
     */
 
     message.on("change", async(change) => {

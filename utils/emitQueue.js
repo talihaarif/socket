@@ -9,34 +9,35 @@ let userEmits = [];
 let reminderEmits=[];
 let permissionEmits=[];
 
+//push emit in channelEmits array
 const saveChannelEmits = async(emit) => {
     channelEmits.push(emit);
 };
-
+//push emit in companyEmits array
 const saveCompanyEmits = async(emit) => {
     companyEmits.push(emit);
 };
-
+//push emit in messageEmits array
 const saveMessageEmits = async(emit) => {
     messageEmits.push(emit);
 };
-
+//push emit in teamEmits array
 const saveTeamEmits = async(emit) => {
     teamEmits.push(emit);
 };
-
+//push emit in userEmits array
 const saveUserEmits = async(emit) => {
     userEmits.push(emit);
 };
-
+//push emit in reminderEmits array
 const saveReminderEmits = async(emit) => {
     reminderEmits.push(emit);
 };
-
+//push emit in permissionEmits array
 const savePermissionEmits = async(emit) => {
     permissionEmits.push(emit);
 };
-
+//set arrays to empty array.
 const removeEmits = async() => {
     channelEmits=[];
     companyEmits=[];
@@ -46,6 +47,7 @@ const removeEmits = async() => {
     reminderEmits=[];
     permissionEmits=[];
 };
+
 
 const getEmits=(data,io)=>{
     try{
@@ -63,17 +65,17 @@ const getEmits=(data,io)=>{
             if(company.teams){
                 company.teams.map((team)=>{
                     teams.push(team._id);
-                    team.public.map((public)=>{
-                        channels.push(public._id);
-                    });
-                    team.private.map((private)=>{
-                        channels.push(private._id);
-                    });
-                    team.direct.map((direct)=>{
-                        channels.push(direct._id);
-                    });
                 });
             }
+            company.public.map((public)=>{
+                channels.push(public._id);
+            });
+            company.private.map((private)=>{
+                channels.push(private._id);
+            });
+            company.direct.map((direct)=>{
+                channels.push(direct._id);
+            });
             
         });
         getChannelEmits(tempChannelEmits,io,channels,user_id);

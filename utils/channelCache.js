@@ -1,6 +1,9 @@
 const { sendWebhookError } = require("../utils/webhook");
 let ids = [];
 
+/*
+* This function is used to push data in ids array.
+*/
 const addIds = (data) => {
     try{
         ids.push(data);
@@ -10,9 +13,12 @@ const addIds = (data) => {
     }
 };
 
+/*
+* This function updates the ids array.
+*/
 const removeIds = (id) => {
     try{
-        ids = ids.filter((el) => {
+        ids = ids.filter((el) => {   
             return el.channel_id != id;
         });
     } catch (error) {
@@ -21,6 +27,9 @@ const removeIds = (id) => {
     }
 };
 
+/*
+* This function checks id in ids array if it is found then return it.
+*/
 const checkIds = (id) => {
     try{
         const channelDetails = ids.find((x) => x.channel_id == id);

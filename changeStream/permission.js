@@ -11,8 +11,8 @@ const permission = (conn, io) => {
     /*
     When any changes occurs in permissions table then this change event function runs and return 
     an object which contain an object containing all the details of the document that is updated.
-    1) If any document is updated then send emit to the user whose permission is changed.
-    After any emit is send then savePermissionEmit function is called to store the event for one minute.
+    1) If any document is updated then send emit to the user whose permission is changed. And send permissions array is send with emit.
+    After any emit is send then savePermissionEmits function is called to store the event for one minute.
     */
     permission.on("change", async(change) => {
         try{

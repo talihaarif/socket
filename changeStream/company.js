@@ -12,12 +12,19 @@ const company = (conn, io) => {
     console.log("Company change stream running");
 
     /*
-    ---Listening to company Table---
-    Case update:
-    one case is handel in update operation 
-    of company table.
-    1) If company name is changed then the emit is send
-    to the company_id.
+    When any changes occurs in companies table then this change event function runs and return 
+    an object which contain an object containing all the details of the document that is created,
+    updated or deleted.
+    1) If new document is created then change operation type is insert.
+        a) In insert companyInsert Function is called.
+    2) If any document is updated then change operation type is update.
+        a) if company name is changed then an emit is send to the company room.
+        b) if company deleteFileTimeChange then an emit is send to the company room.
+        c) if company shareAbleLinkChange then an emit is send to the company room.
+        d) if company companyTwoFaChange then an emit is send to the company room.
+        e) if company ipStatusChange then an emit is send to the company room.
+        f) if company ipsChange then an emit is send to the company room.
+    After any emit is send then saveCompanyEmits function is called to store the event for one minute.
     */
     company.on("change", async (change) => {
         try{

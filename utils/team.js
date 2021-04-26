@@ -3,7 +3,9 @@ const { default: axios } = require("axios");
 const config = require("config");
 const { saveTeamEmits } = require("./emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
+const { createChannelRoom , deletePublicPrivateChannelRoom, createPublicPrivateChannelRoom} = require("./channel");
 
+// Declare configuration variable to store headers which will be send with axios requests.
 const configuration = {
     headers: {
       "Content-Type": "application/json",
@@ -12,6 +14,13 @@ const configuration = {
   };
 const url = config.get("url");
 
+/*
+* This function is used to create the team room.
+* If no clients found return true.
+* Otherwise For each client:
+* Get client socket id.
+* Call joinTeamRoom function.
+*/
 const createTeamRoom = (io,data) => {
     try {
         let clients = io.sockets.adapter.rooms.get(data.user_id);
@@ -27,6 +36,13 @@ const createTeamRoom = (io,data) => {
     }
 };
 
+/*
+* This function deletes the team room
+* If no client found return true.
+* Otherwise For each client:
+* Get client socket id.
+* Call leaveTeamRoom function and call userOffline function.
+*/
 const deleteTeamRoom = (io,data) => {
     try {
         let clients = io.sockets.adapter.rooms.get(data.user_id);
@@ -42,6 +58,21 @@ const deleteTeamRoom = (io,data) => {
     }
 };
 
+/*
+* This function sends the emit on new team insertion.
+* Call api/teamData backend route using axios and store the response in a variable.
+* Call createTeamRoom function.
+* Send newTeamCreated emit to the user who created the team.
+* Call saveTeamEmits function to store the event for one minute.
+* Call api/getSubAdmins backend route using axios to find the sub admins.
+* Also push admin in sub_admins array.
+* For each sub admin.
+*   Call api/teamData backend route using axios and store the response in a variable.
+*   Call createTeamRoom function.
+*   Call createPublicPrivateChannelRoom function.
+*   Send newTeamCreated emit to sub admin.
+*   Call saveTeamEmits function to store the event for one minute.
+*/
 const teamInsert=async(teamTemp,io,resumeToken)=>{
     let team_id=teamTemp._id.toString();
     let body = JSON.stringify({ team_id });
@@ -50,15 +81,16 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
             const result =await axios.post(url+"api/teamData", body, configuration);
             console.log("result of team",result.data);
             createTeamRoom(io,result.data);
-            io.to(result.data.user_id).emit("newTeamCreated",{company_id:result.data.company_id,team:result.data.team,team_token:resumeToken});
-            saveTeamEmits({company_id:result.data.company_id,team:result.data.team,team_token:resumeToken,emit_to:result.data.user_id,emit_name:"newTeamCreated"});
+            io.to(result.data.user_id).emit("newTeamCreated",{company_id:result.data.company_id,team:result.data.team, public:result.data.public , private:result.data.private , team_token:resumeToken});
+            saveTeamEmits({company_id:result.data.company_id,team:result.data.team, public:result.data.public , private:result.data.private ,team_token:resumeToken,emit_to:result.data.user_id,emit_name:"newTeamCreated"});
             result.data.sub_admins.map(async(user_id)=>{
                 try {
                     body = JSON.stringify({ team_id,user_id });
                     result_data =await axios.post(url+"api/teamData", body, configuration);
                     createTeamRoom(io,result_data.data);
-                    io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken});
-                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:user_id,emit_name:"newTeamCreated"});
+                    createPublicPrivateChannelRoom(io, result_data.data);
+                    io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team, public:result_data.data.public ,team_token:resumeToken});
+                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , team_token:resumeToken,emit_to:user_id,emit_name:"newTeamCreated"});
                 } catch (err) {
                     console.log(err);
                     sendWebhookError(err);
@@ -68,6 +100,15 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
     
 }
 
+/*
+* This function is used to send emit for team archive operation.
+* Send teamArchived emit to team room.
+* Call saveTeamEmits function to store the event for one minute.
+* For each team user:
+*   Call api/teamData backend route using axios and store the response in a variable.
+*   Call deleteTeamRoom function.
+*   Call deletePublicPrivateChannelRoom function.
+*/
 const teamArchived=async(teamTemp,io,resumeToken)=>{
         io.to(teamTemp._id.toString()).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken});
         saveTeamEmits({company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken,emit_to:teamTemp._id.toString(),emit_name:"teamArchived"});
@@ -77,6 +118,7 @@ const teamArchived=async(teamTemp,io,resumeToken)=>{
                 const body = JSON.stringify({ team_id,user_id });
                 const result =await axios.post(url+"api/teamData", body, configuration);
                 deleteTeamRoom(io,result.data);
+                deletePublicPrivateChannelRoom(io, result.data);
             } catch (err) {
                 console.log(err);
                 sendWebhookError(err);
@@ -84,6 +126,16 @@ const teamArchived=async(teamTemp,io,resumeToken)=>{
         });
 }
 
+/*
+* This function is used to send emit for team un archive operation.
+* For each team user:
+*   Call api/teamData backend route using axios and store the response in a variable.
+*   Call createTeamRoom function.
+*   Call createPublicPrivateChannelRoom function.
+*   Send teamUnArchived emit to the team user.
+*   Call saveTeamEmits function to store the event for one minute.
+* Call teamUnarchiveEmitToSubAdmins function.
+*/
 const teamUnarchived=async(teamTemp,io,resumeToken)=>{
     let team_id=teamTemp._id.toString();
     teamTemp.user_ids.map(async(user_id)=>{
@@ -91,9 +143,9 @@ const teamUnarchived=async(teamTemp,io,resumeToken)=>{
             const body = JSON.stringify({ team_id,user_id });
             const result =await axios.post(url+"api/teamData", body, configuration);
             createTeamRoom(io,result.data);
-            io.to(user_id).emit("teamUnArchived", {company_id:teamTemp.company_id,team:result.data.team,team_token:resumeToken});
-            saveTeamEmits({company_id:teamTemp.company_id,team:result.data.team,team_token:resumeToken,emit_to:user_id,emit_name:"teamUnArchived"});
-
+            createPublicPrivateChannelRoom(io, result.data);
+            io.to(user_id).emit("teamUnArchived", {company_id:teamTemp.company_id,team:result.data.team,public:result.data.public , private:result.data.private , team_token:resumeToken});
+            saveTeamEmits({company_id:teamTemp.company_id,team:result.data.team,public:result.data.public , private:result.data.private , team_token:resumeToken,emit_to:user_id,emit_name:"teamUnArchived"});
         } catch (err) {
             console.log(err.response.data);
             sendWebhookError(err);
@@ -102,6 +154,18 @@ const teamUnarchived=async(teamTemp,io,resumeToken)=>{
     teamUnarchiveEmitToSubAdmins(teamTemp, team_id, resumeToken, io);
 }
 
+/*
+* This function is used to send team un archive emit to sub admins. 
+* Call api/getSubAdmins backend route using axios to find the sub admins.
+* Also push admin in sub_admins array.
+* If sub_admin is a member of team then do not send emit.
+* Otherwise for each sub admin.
+*   Call api/teamData backend route using axios.
+*   Call createTeamRoom function.
+*   Call createPublicPrivateChannelRoom function.
+*   Send teamUnArchived emit to sub admin.
+*   Call saveTeamEmits function to store the event for one minute.
+*/
 const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io)=>{
         let company_id=teamTemp.company_id.toString();
         let body1 = JSON.stringify({ company_id, attribute:"team", operation:"update" });
@@ -114,8 +178,9 @@ const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io)=>{
                     body = JSON.stringify({ team_id,user_id });
                     result_data =await axios.post(url+"api/teamData", body, configuration);
                     createTeamRoom(io,result_data.data);
-                    io.to(user_id).emit("teamUnArchived", {company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken});
-                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,team_token:resumeToken,emit_to:user_id,emit_name:"teamUnArchived"});
+                    createPublicPrivateChannelRoom(io, result_data.data);
+                    io.to(user_id).emit("teamUnArchived", {company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , private:result_data.data.private , team_token:resumeToken});
+                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , private:result_data.data.private ,team_token:resumeToken,emit_to:user_id,emit_name:"teamUnArchived"});
                 }
             } catch (err) {
                 console.log(err);
