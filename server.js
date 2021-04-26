@@ -51,7 +51,7 @@ app.use(express.json({ extented: false }));
 //api endpoint for push notification
 app.use("/api/pushNotification", require("./routes/api/pushNotification"));
 //sanitize
-app.use("/api/", require("./routes/api/sanitize"));
+app.use("/api", require("./routes/api/sanitize"));
 
 
 //Database Connection
