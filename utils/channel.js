@@ -72,8 +72,8 @@ const createPublicPrivateChannelRoom = (io,data) => {
             return true;
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
-            joinChannelRoom(clientSocket,[data.public]);
-            joinChannelRoom(clientSocket,[data.private]);
+            joinChannelRoom(clientSocket,data.public);
+            joinChannelRoom(clientSocket,data.private);
         }
     } catch (error) {
         console.log(error);
