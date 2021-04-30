@@ -70,10 +70,13 @@ const teamListener = (socket, io) => {
     }
     });
 
-    socket.on("leaveTeam", (data) => {       //???
-        try{
-        deleteTeamRoom(io,data);
-        deletePublicPrivateChannelRoom(io, data);
+    socket.on("leaveTeam", async(data) => {       //???
+    try{
+        let team_id=data.team_id;
+        let body = JSON.stringify({ team_id });
+        const result =await axios.post(url+"api/teamData", body, configuration);
+        deleteTeamRoom(io,result.data);
+        deletePublicPrivateChannelRoom(io, result.data);
         io.to(data.user_id).emit("removedFromTeam",{company_id:data.company_id,team_id:data.team._id,_id:data.user_id});
         socket.to(data.team_id).emit("userLeftTeam", {
             company_id:data.company_id,

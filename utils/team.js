@@ -79,7 +79,6 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
     let result_data = null;
     setTimeout(async()=>{
             const result =await axios.post(url+"api/teamData", body, configuration);
-            console.log("result of team",result.data);
             createTeamRoom(io,result.data);
             createPublicPrivateChannelRoom(io, result.data);
             io.to(result.data.user_id).emit("newTeamCreated",{company_id:result.data.company_id,team:result.data.team, public:result.data.public , private:result.data.private , team_token:resumeToken});
