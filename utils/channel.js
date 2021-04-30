@@ -95,8 +95,8 @@ const deletePublicPrivateChannelRoom = (io,data) => {
             return true;
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
-            leaveChannelRoom(clientSocket,[data.public]);
-            leaveChannelRoom(clientSocket,[data.private]);
+            leaveChannelRoom(clientSocket,data.public);
+            leaveChannelRoom(clientSocket,data.private);
         }
     } catch (error) {
         console.log(error);
