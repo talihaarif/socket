@@ -24,7 +24,7 @@ const userListener = (io,socket) => {
     } catch (error) {
       console.log(error);
       sendWebhookError(error);
-  }
+    }
     });
 
     socket.on("newPlugin",(data)=>{
@@ -33,7 +33,7 @@ const userListener = (io,socket) => {
     } catch (error) {
       console.log(error);
       sendWebhookError(error);
-  }
+    }
     });
 
     socket.on("deletePlugin",(data)=>{
@@ -42,7 +42,16 @@ const userListener = (io,socket) => {
     } catch (error) {
       console.log(error);
       sendWebhookError(error);
-  }
+    }
+    });
+
+    socket.on("flagChannel",(data)=>{
+      try{
+      socket.to(data.user_id).emit("channelFlagged",data);
+    } catch (error) {
+      console.log(error);
+      sendWebhookError(error);
+    }
     });
 };
 
