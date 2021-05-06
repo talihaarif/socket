@@ -47,12 +47,12 @@ const authentication = (socket, io) => {
                 },
             };
             const body = JSON.stringify("");
-            result =await axios.post(url+"api/get_ids", body, configuration);
-            let user_id = result.data.user._id;
+            result = axios.post(url+"api/get_ids", body, configuration);
+            let user_id = result.data._id;
             socket.user_id = user_id;
             socket.token = data.token;
             socket.join(user_id);
-            joinCompanyRoom(socket,result.data.user.companies,true,data.selected_company);
+            joinCompanyRoom(socket,result.data.companies,true,data.selected_company);
             console.log("user connected", user_id);
             socket.emit("okay", "");            
             userOnline(socket);
