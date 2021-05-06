@@ -51,7 +51,7 @@ user to make connection is valid or not.
 */
 const checkToken = (data) => {
     try{
-        const a = token.find((x) => x.user_id == data._id && x.token == data.token);
+        const a = token.find((x) => x.token == data.token);
         if (a) {
             return true;
         }
