@@ -33,7 +33,7 @@ const url = config.get("url");
  *
  */
 const authentication = (socket, io) => {
-    socket.on("authenticate", (data) => {
+    socket.on("authenticate",async(data) => {
         try{
         // console.log("middleware");
         // console.log(data.email);
@@ -47,7 +47,7 @@ const authentication = (socket, io) => {
                 },
             };
             const body = JSON.stringify("");
-            result = axios.post(url+"api/get_ids", body, configuration);
+            result = await axios.post(url+"api/get_ids", body, configuration);
             let user_id = result.data._id;
             socket.user_id = user_id;
             socket.token = data.token;
