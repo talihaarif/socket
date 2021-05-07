@@ -48,6 +48,7 @@ const authentication = (socket, io) => {
             };
             const body = JSON.stringify("");
             result = await axios.post(url+"api/get_ids", body, configuration);
+            console.log(result.data);
             let user_id = result.data._id;
             socket.user_id = user_id;
             socket.token = data.token;
@@ -67,7 +68,7 @@ const authentication = (socket, io) => {
             }
             socket.check=true;
             //----------listening to emits from frontend end here----------
-            getEmits(data,io);
+            getEmits(result.data,io);
             socket.on("ping", ()=>{
                 socket.emit("pong",true);
             });            
