@@ -88,13 +88,9 @@ io.on("connection", (socket) => {
     authentication(socket, io);
 
     socket.on("leaveRooms", (data) => {
-        console.log("Leaving Rooms");
-        userOffline(socket);
-        socket.leave(socket.user_id);
-        socket.user_id = null
-        socket.token = null;
-        socket.check = false;
-        leaveCompanyRoom(socket, data.companies, true);
+         for (const room of socket.rooms) {
+            socket.leave(room);
+        }
     });
 
     socket.on("messageResume", (data) => {
