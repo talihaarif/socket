@@ -85,6 +85,7 @@ const io = require("socket.io")(server, {
 io.on("connection", (socket) => {
     console.log("socket.io connected : ", socket.id);
     console.log("ip",socket.handshake.headers['x-forwarded-for']);
+    socket.ip=socket.handshake.headers['x-forwarded-for'];
     socket.emit("userAuthentication", "");
     authentication(socket, io);
 

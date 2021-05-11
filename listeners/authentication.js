@@ -46,7 +46,8 @@ const authentication = (socket, io) => {
                 "token":data.token
                 },
             };
-            const body = JSON.stringify("");
+            ip=socket.ip;
+            const body = JSON.stringify(ip);
             result = await axios.post(url+"api/get_ids", body, configuration);
             console.log(result.data);
             let user_id = result.data._id;
