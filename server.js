@@ -84,7 +84,7 @@ const io = require("socket.io")(server, {
  */
 io.on("connection", (socket) => {
     console.log("socket.io connected : ", socket.id);
-    console.log("ip",socket.handshake.address);
+    console.log("ip",socket.request.connection.remoteAddress);
     socket.emit("userAuthentication", "");
     authentication(socket, io);
 
