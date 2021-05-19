@@ -21,7 +21,7 @@ const pushError = (conn, io) => {
         let pushErrorTemp = change.fullDocument;
         switch (change.operationType) {
             case "insert":
-                io.to(pushErrorTemp.user_id).emit('tokenRefresh',pushErrorTemp)
+                io.to(pushErrorTemp.user_token).emit('tokenRefresh',pushErrorTemp)
                 break;
         }
     } catch (error) {

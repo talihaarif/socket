@@ -39,6 +39,7 @@ const authentication = (socket, io) => {
             socket.user_id = user_id;
             socket.token = data.token;
             socket.join(user_id);
+            socket.join(data.token);
             joinCompanyRoom(socket,data.companies,true,data.selected_company);
             console.log("user connected", user_id);
             socket.emit("okay", "");            
