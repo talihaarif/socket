@@ -48,10 +48,12 @@ const authentication = (socket, io) => {
             };
             let result='';
             try {
+                console.log("user connected token",data.token);
                 ip=socket.ip;
                 const body = JSON.stringify({ip});
                 result = await axios.post(url+"api/get_ids", body, configuration);
-                console.log(result.data);
+                console.log("user connected id from req",result.data._id);
+                console.log("user connected email from req",result.data.email);
                 let user_id = result.data._id;
                 socket.user_id = user_id;
                 socket.token = data.token;
