@@ -46,10 +46,16 @@ const authentication = (socket, io) => {
                 "token":data.token
                 },
             };
-            ip=socket.ip;
-            const body = JSON.stringify(ip);
-            result = await axios.post(url+"api/get_ids", body, configuration);
-            console.log(result.data);
+            let result='';
+            try {
+                ip=socket.ip;
+                const body = JSON.stringify({ip});
+                result = await axios.post(url+"api/get_ids", body, configuration);
+                console.log(result.data);
+            } catch (error) {
+                socket.emit("reconnect", "");
+            }
+            
             let user_id = result.data._id;
             socket.user_id = user_id;
             socket.token = data.token;
