@@ -9,6 +9,10 @@ const { usersOnline, userOnline } = require("../utils/user");
 const { joinCompanyRoom } = require("../utils/room");
 const { getEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
+const { default: axios } = require("axios");
+const config = require("config");
+
+const url = config.get("url");
 
 /**
  * Middleware to verify token and then open the connection between user and server.
@@ -29,37 +33,52 @@ const { sendWebhookError } = require("../utils/webhook");
  *
  */
 const authentication = (socket, io) => {
-    socket.on("authenticate", (data) => {
+    socket.on("authenticate",async(data) => {
         try{
         // console.log("middleware");
         // console.log(data.email);
         // data = JSON.parse(data.toString());
         if (checkToken(data)) {
-            let user_id = data._id;
-            socket.user_id = user_id;
-            socket.token = data.token;
-            socket.join(user_id);
-            socket.join(data.token);
-            joinCompanyRoom(socket,data.companies,true,data.selected_company);
-            console.log("user connected", user_id);
-            socket.emit("okay", "");            
-            userOnline(socket);
-            usersOnline(io,socket);
-            //----------listening to emits from frontend start here----------
-            if(!socket.check){
-                channelListener(socket,io);
-                teamListener(socket, io);
-                companyListener(socket,io);
-                messageListener(socket,io);
-                userListener(io,socket);
+            // Declare configuration variable to store headers which will be send with axios requests.
+            const configuration = {
+                headers: {
+                "Content-Type": "application/json",
+                "token":data.token
+                },
+            };
+            let result='';
+            try {
+                ip=socket.ip;
+                const body = JSON.stringify({ip});
+                result = await axios.post(url+"api/get_ids", body, configuration);
+                console.log(result.data);
+                let user_id = result.data._id;
+                socket.user_id = user_id;
+                socket.token = data.token;
+                socket.join(user_id);
+                socket.join(data.token);
+                joinCompanyRoom(socket,result.data.companies,true,data.selected_company);
+                console.log("user connected", user_id);
+                socket.emit("okay", "");            
+                userOnline(socket);
+                usersOnline(io,socket);
+                //----------listening to emits from frontend start here----------
+                if(!socket.check){
+                    channelListener(socket,io);
+                    teamListener(socket, io);
+                    companyListener(socket,io);
+                    messageListener(socket,io);
+                    userListener(io,socket);
+                }
+                socket.check=true;
+                //----------listening to emits from frontend end here----------
+                getEmits(result.data,io);
+                socket.on("ping", ()=>{
+                    socket.emit("pong",true);
+                }); 
+            } catch (error) {
+                socket.emit("reconnect", "");
             }
-            socket.check=true;
-            //----------listening to emits from frontend end here----------
-            getEmits(data,io);
-            socket.on("ping", ()=>{
-                socket.emit("pong",true);
-            });            
-
         }
         else{
             if(!socket.reconnectTime)
