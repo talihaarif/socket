@@ -17,20 +17,20 @@ const { sendWebhookError } = require("../utils/webhook");
 const joinCompanyRoom = (socket,companies,login=false,selected_company=null) => {
     try{
         companies.map((company, index) => {
-            if (company.users) {
-                socket.join(company._id);
-                if (selected_company == company._id && login==true) {
-                    socket.company_id = company._id;
-                    console.log("selected company id",company._id);
-                    console.log("selected company name",company.name);
-                    if(!socket.check)  //?
-                        saveUser(socket.id, socket.user_id, company._id);
-                }
-                joinTeamRoom(socket,company.teams);
-                joinChannelRoom(socket,company.private);
-                joinChannelRoom(socket,company.public);
-                joinChannelRoom(socket,company.direct);
+            // if (company.users) {
+            socket.join(company._id);
+            if (selected_company == company._id && login==true) {
+                socket.company_id = company._id;
+                console.log("selected company id",company._id);
+                console.log("selected company name",company.name);
+                if(!socket.check)  //?
+                    saveUser(socket.id, socket.user_id, company._id);
             }
+            joinTeamRoom(socket,company.teams);
+            joinChannelRoom(socket,company.private);
+            joinChannelRoom(socket,company.public);
+            joinChannelRoom(socket,company.direct);
+            // }
         });
     } catch (error) {
         console.log(error);
