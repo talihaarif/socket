@@ -79,7 +79,9 @@ const authentication = (socket, io) => {
                     socket.emit("pong",true);
                 }); 
             } catch (error) {
-                socket.emit("reconnect", "");
+                // socket.emit("reconnect", "");
+                sendWebhookError(error);
+
             }
         }
         else{
