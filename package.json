@@ -21,6 +21,7 @@
     "mongoose": "^5.11.1",
     "nodemon": "^2.0.6",
     "sanitize-html": "^2.3.3",
+    "serialize-error": "^8.1.0",
     "socket.io": "^3.0.3"
   }
 }
