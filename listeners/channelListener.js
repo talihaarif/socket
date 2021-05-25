@@ -61,6 +61,7 @@ const channelListener = (socket,io) => {
                 try {
                     const body = JSON.stringify({ channel_id,user_id });
                     const result =await axios.post(url+"api/channelData", body, configuration);
+                    console.log("channel data",result.data);
                     createChannelRoom(io,result.data);
                     socket.to(user_id).emit("addedInChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel});
                 } catch (err) {
