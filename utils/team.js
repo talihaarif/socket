@@ -32,7 +32,7 @@ const createTeamRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "createTeamRoom", data);
     }
 };
 
@@ -54,7 +54,7 @@ const deleteTeamRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "deleteTeamRoom", data);
     }
 };
 
@@ -93,7 +93,7 @@ const teamInsert=async(teamTemp,io,resumeToken)=>{
                     saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , team_token:resumeToken,emit_to:user_id,emit_name:"newTeamCreated"});
                 } catch (err) {
                     console.log(err);
-                    sendWebhookError(err);
+                    sendWebhookError(err, "teamInsert", teamTemp);
                 }
             });
     },3000);
@@ -121,7 +121,7 @@ const teamArchived=async(teamTemp,io,resumeToken)=>{
                 deletePublicPrivateChannelRoom(io, result.data);
             } catch (err) {
                 console.log(err);
-                sendWebhookError(err);
+                sendWebhookError(err, "teamArchived", teamTemp);
             }
         });
 }
@@ -148,7 +148,7 @@ const teamUnarchived=async(teamTemp,io,resumeToken)=>{
             saveTeamEmits({company_id:teamTemp.company_id,team:result.data.team,public:result.data.public , private:result.data.private , team_token:resumeToken,emit_to:user_id,emit_name:"teamUnArchived"});
         } catch (err) {
             console.log(err.response.data);
-            sendWebhookError(err);
+            sendWebhookError(err, "teamUnarchived", teamTemp);
         }
     });
     teamUnarchiveEmitToSubAdmins(teamTemp, team_id, resumeToken, io);
@@ -184,7 +184,7 @@ const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io)=>{
                 }
             } catch (err) {
                 console.log(err);
-                sendWebhookError(err);
+                sendWebhookError(err, "teamUnarchiveEmitToSubAdmins", teamTemp);
             }
         });
 }

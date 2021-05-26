@@ -32,7 +32,7 @@ const createChannelRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "createChannelRoom", data);
     }
 };
 
@@ -54,7 +54,7 @@ const deleteChannelRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "deleteChannelRoom", data);
     }
 };
 
@@ -77,7 +77,7 @@ const createPublicPrivateChannelRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "createPublicPrivateChannelRoom", data);
     }
 };
 
@@ -100,7 +100,7 @@ const deletePublicPrivateChannelRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "deletePublicPrivateChannelRoom", data);
     }
 };
 
@@ -125,7 +125,7 @@ const channelInsert= async(channelTemp,io,resumeToken)=>{
         saveChannelEmits({company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,emit_to:user_id,emit_name:"newChannel"});
     } catch (err) {
         console.log(err);
-        sendWebhookError(err);
+        sendWebhookError(err, "channelInsert", channelTemp);
     }
     channelInserEmitInCaseOfPublicDirectChannels(result, channelTemp, io, resumeToken);
 }
@@ -169,7 +169,7 @@ const channelNameUpdate=(channelTemp,io,resumeToken)=>{
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "channelNameUpdate", channelTemp);
     }
 }
 
@@ -191,7 +191,7 @@ const channelArchived=async(channelTemp,io,resumeToken)=>{
                 deleteChannelRoom(io,result.data);
             } catch (err) {
                 console.log(err.response.data);
-                sendWebhookError(err);
+                sendWebhookError(err, "channelArchived", channelTemp);
             }
         });
         channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io);
@@ -236,7 +236,7 @@ const channelUnarchived=async(channelTemp,io,resumeToken)=>{
         chanelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io);
     } catch (err) {
         console.log(err);
-        sendWebhookError(err);
+        sendWebhookError(err, "channelUnarchived", channelTemp);
     }
 }
 
@@ -259,7 +259,7 @@ const publicChannelJoin=(io,data)=>{
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "publicChannelJoin", data);
     }
 }
 
@@ -281,7 +281,7 @@ const directChannelJoin=(io,data)=>{
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "directChannelJoin", data);
     }
 }
 
@@ -302,7 +302,7 @@ const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken,
                 }
             } catch (err) {
                 console.log(err);
-                sendWebhookError(err);
+                sendWebhookError(err, "channelArchiveEmitToSubAdmins", channelTemp);
             }
         });
     }
@@ -335,7 +335,7 @@ const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resu
                 }
             } catch (err) {
                 console.log(err);
-                sendWebhookError(err);
+                sendWebhookError(err, "chanelUnArchiveEmitToSubAdmins", channelTemp);
             }
         });
 }
@@ -370,7 +370,7 @@ const channelUnarchiveEmitForPublicPrivateChannels=async(channel_id, result, io,
         // }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "channelUnarchiveEmitForPublicPrivateChannels", channelTemp);
     }
 }
 
@@ -407,7 +407,7 @@ const channelInserEmitInCaseOfPublicDirectChannels=(result, channelTemp, io, res
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "channelInserEmitInCaseOfPublicDirectChannels", channelTemp);
     }
 }
 module.exports = {

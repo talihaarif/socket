@@ -16,7 +16,7 @@ const saveUser = async(socket_id, user_id, company_id) => {
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "saveUser", user_id);
     }
 };
 
@@ -37,7 +37,7 @@ const findUser = (socket_id, user_id, company_id) => {
         return false;
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "findUser", user_id);
     }
 };
 /*
@@ -55,7 +55,7 @@ const removeUser = (socket_id, user_id, company_id) => {
         return false;
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "removeUser", user_id);
     }
 };
 
@@ -68,7 +68,7 @@ const allOnlineUsers = (company_id, user_id) => {
         return onlineUsersArray;
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "allOnlineUsers", user_id);
     }
 };
 
@@ -82,7 +82,7 @@ const getAllOfflineUsers = (channelUser) => {
         return offlineUsers;
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getAllOfflineUsers", channelUser);
     }
 };
 
@@ -96,7 +96,7 @@ const getAllInactiveUsers = (channelUser) => {
         return inactiveUsers;
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getAllInactiveUsers", channelUser);
     }
 };
 
@@ -110,7 +110,7 @@ const setActiveStatus = (active,id) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "setActiveStatus", id);
     }
 };
 
@@ -125,7 +125,7 @@ const userOffline=(socket)=>{
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "userOffline", socket);
     }
 }
 
@@ -138,7 +138,7 @@ const userOnline=(socket)=>{
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "userOnline", socket);
     }
 }
 
@@ -150,7 +150,7 @@ const usersOnline=(io,socket)=>{
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "usersOnline", socket);
     }
 }
 

@@ -37,7 +37,7 @@ const reminder = (conn, io) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "reminder change stream", change);
     }
     });
 };

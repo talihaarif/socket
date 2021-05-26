@@ -48,7 +48,7 @@ const channelListener = (socket,io) => {
         socket.to(data.channel_id).emit("userAddedInChannel",  data );
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "join channel listener", data);
     }
     });
 
@@ -70,7 +70,7 @@ const channelListener = (socket,io) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "newMemberInChannel listener", data);
     }
     });
 
@@ -92,7 +92,7 @@ const channelListener = (socket,io) => {
         socket.to(data.channel_id).emit("usersRemovedFromChannel",  data );
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "removedFromChannel listener", data);
     }
     });
 
@@ -104,7 +104,7 @@ const channelListener = (socket,io) => {
         socket.to(data.channel._id).emit("usersRemovedFromChannel",  data );
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "leaveChannel listener", data);
     }
     });
 
@@ -113,7 +113,7 @@ const channelListener = (socket,io) => {
         socket.to(socket.user_id).emit("channelMuted",data);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "muteChannel listener", data);
     }
     })
 };

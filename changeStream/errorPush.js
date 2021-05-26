@@ -25,7 +25,7 @@ const pushError = (conn, io) => {
                 break;
         }
     } catch (error) {
-        sendWebhookError(error);
+        sendWebhookError(error, "errorPush change stream", change);
     }
     });
 };

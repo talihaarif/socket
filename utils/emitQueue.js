@@ -87,7 +87,7 @@ const getEmits=(data,io)=>{
         getPermissionEmits(tempPermissionEmits,io,user_id);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getEmits", data);
     }
 
 }
@@ -126,7 +126,7 @@ const getChannelEmits=(tempChannelEmits,io,channels,user_id)=>{
     });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getChannelEmits", channels);
     }
 }
 
@@ -143,7 +143,7 @@ const getCompanyEmits=(tempCompanyEmits,io,companies,user_id)=>{
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getCompanyEmits", companies);
     }
 }
 
@@ -165,7 +165,7 @@ const getMessageEmits=(tempMessageEmits,io,channels,user_id)=>{
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getMessageEmits", channels);
     }
 }
 
@@ -185,7 +185,7 @@ const getTeamEmits=(tempTeamEmits,io,teams,user_id)=>{
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getTeamEmits", teams);
     }
 }
 
@@ -205,7 +205,7 @@ const getUserEmits=(tempUserEmits,io,user_id,data)=>{
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getUserEmits", data);
     }
 }
 
@@ -217,7 +217,7 @@ const getReminderEmits=(tempReminderEmits,io,user_id)=>{
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getReminderEmits", user_id);
     }
 }
 
@@ -229,7 +229,7 @@ const getPermissionEmits=(tempPermissionEmits,io,user_id)=>{
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getPermissionEmits", user_id);
     }
 }
 

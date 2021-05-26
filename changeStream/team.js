@@ -62,7 +62,7 @@ const team = (conn, io) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "team_change stream", change);
     }
     });
 };

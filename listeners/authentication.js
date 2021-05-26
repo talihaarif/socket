@@ -93,7 +93,7 @@ const authentication = (socket, io) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "authentication listener", data);
     }
     });
 };

@@ -101,7 +101,7 @@ const channel = (conn, io) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "channel change stream", change);
     }
     });
     

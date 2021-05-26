@@ -32,7 +32,7 @@ const createCompanyRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "createCompanyRoom", data);
     }
 
 };
@@ -56,7 +56,7 @@ const deleteCompanyRoom = (io,data) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "deleteCompanyRoom", data);
     }
 
 };
@@ -82,7 +82,7 @@ const companyInsert=async(companyTemp,io,resumeToken)=>{
         
     } catch (err) {
         console.log(err);
-        sendWebhookError(err);
+        sendWebhookError(err, "companyInsert", companyTemp);
     }
 }
 

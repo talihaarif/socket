@@ -62,7 +62,7 @@ const company = (conn, io) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "company change stream", change);
     }
     });
 };

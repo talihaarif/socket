@@ -66,7 +66,7 @@ const resumeAfter = (conn,io,data) => {
             }
         } catch (error) {
             console.log(error);
-            sendWebhookError(error);
+            sendWebhookError(error, "resumeAfter listener", change);
         }
     });
     setTimeout(function(){ message.close(); }, 60000);

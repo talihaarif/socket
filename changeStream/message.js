@@ -123,7 +123,7 @@ const message = (conn, io) => {
             }
         } catch (err) {
             console.log(err.response);
-            sendWebhookError(err);
+            sendWebhookError(err, "message change stream", change);
         }
     });
 };

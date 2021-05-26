@@ -14,7 +14,7 @@ const getAllToken = async() => {
         token = await Token.find();
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "getAllToken");
     }
 };
 
@@ -27,7 +27,7 @@ const addToken = (data) => {
         token.push(data);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "addToken", data);
     }
 };
 /*
@@ -41,7 +41,7 @@ const removeToken = (id) => {
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "removeToken", id);
     }
 };
 
@@ -58,7 +58,7 @@ const checkToken = (data) => {
         return false;
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "checkToken", data);
     }
 };
 

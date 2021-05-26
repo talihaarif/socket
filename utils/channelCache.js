@@ -9,7 +9,7 @@ const addIds = (data) => {
         ids.push(data);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "addIds", data);
     }
 };
 
@@ -23,7 +23,7 @@ const removeIds = (id) => {
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "removeIds", id);
     }
 };
 
@@ -39,7 +39,7 @@ const checkIds = (id) => {
         return false;
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "checkIds", id);
     }
 };
 

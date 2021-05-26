@@ -52,7 +52,7 @@ const teamListener = (socket, io) => {
                 socket.to(user_id).emit("addedInTeam", {company_id:data.company_id,team:result.data.team, public:result.data.public});
             } catch (err) {
                 console.log(err.response.data);
-                sendWebhookError(err);
+                sendWebhookError(err, "userAddedInTeam listener", data);
             }
         });
     });
@@ -66,7 +66,7 @@ const teamListener = (socket, io) => {
         })
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "usersAddedInTeams listener", data);
     }
     });
 
@@ -85,7 +85,7 @@ const teamListener = (socket, io) => {
         });
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "leaveTeam listener", data);
     }
     });
     
@@ -100,7 +100,7 @@ const teamListener = (socket, io) => {
                 io.to(user_id).emit("removedFromTeam", {company_id:data.company_id,team_id:data.team_id,_id: user_id} );
             } catch (err) {
                 console.log(err.response.data);
-                sendWebhookError(err);
+                sendWebhookError(err, "userRemovedFromTeam listener", data);
             }
         });
         socket.to(data.team_id).emit("userLeftTeam",  {company_id:data.company_id,team_id:data.team_id,user_ids:data.user_ids} );

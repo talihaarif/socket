@@ -52,7 +52,7 @@ const companyListener = (socket,io) => {
             socket.to(data.company_id).emit("userRemovedFromCompany",data);
         } catch (err) {
             console.log(err);
-            sendWebhookError(err);
+            sendWebhookError(err, "removedFromCompany listener", data);
         }
     });
 
@@ -67,7 +67,7 @@ const companyListener = (socket,io) => {
             socket.to(data.user_id).emit("unarchivedCompany", result.data);
         } catch (err) {
             console.log(err);
-            sendWebhookError(err);
+            sendWebhookError(err, "unarchivedFromCompany listener", data);
         }
     });
 
@@ -86,7 +86,7 @@ const companyListener = (socket,io) => {
         usersOnline(io,socket);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "unarchivedFromCompany listener", id);
     }
     });
 
@@ -103,7 +103,7 @@ const companyListener = (socket,io) => {
                 socket.to(user._id).emit("addedInNewCompany",result.data.companies[0]);
             } catch (err) {
                 console.log(err);
-                sendWebhookError(err);
+                sendWebhookError(err, "addUserInNewCompany listener", data);
             }
         });
     });

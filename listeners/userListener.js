@@ -23,7 +23,7 @@ const userListener = (io,socket) => {
       usersOnline(io,socket);
     } catch (error) {
       console.log(error);
-      sendWebhookError(error);
+      sendWebhookError(error, "getOnlineUsers listener");
     }
     });
 
@@ -32,7 +32,7 @@ const userListener = (io,socket) => {
       socket.to(data.user_id).emit("addPlugin",data);
     } catch (error) {
       console.log(error);
-      sendWebhookError(error);
+      sendWebhookError(error, "newPlugin listener", data);
     }
     });
 
@@ -41,7 +41,7 @@ const userListener = (io,socket) => {
       socket.to(data.user_id).emit("removePlugin",data);
     } catch (error) {
       console.log(error);
-      sendWebhookError(error);
+      sendWebhookError(error, "deletePlugin listener", data);
     }
     });
 
@@ -50,7 +50,7 @@ const userListener = (io,socket) => {
       socket.to(data.user_id).emit("channelFlagged",data);
     } catch (error) {
       console.log(error);
-      sendWebhookError(error);
+      sendWebhookError(error, "flagChannel listener", data);
     }
     });
 };

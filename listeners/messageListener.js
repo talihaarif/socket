@@ -23,7 +23,7 @@ const messageListener = (socket,io) => {
         io.to(data.channel_id).emit("multipleMessagesRead", data);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "messagesRead listener", data);
     }
     });
     socket.on("messageRead", (data) => {
@@ -32,7 +32,7 @@ const messageListener = (socket,io) => {
         io.to(data.channel_id).emit("singleMessageRead", data);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "messageRead listener", data);
     }
     });
     socket.on("markSeenAllReplies", (data) => {
@@ -40,7 +40,7 @@ const messageListener = (socket,io) => {
         socket.to(data.user_id).emit("multipleReplySeen", data);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "markSeenAllReplies listener", data);
     }
     });
     
@@ -49,7 +49,7 @@ const messageListener = (socket,io) => {
         socket.to(data.channel_id).emit("someoneIsTyping", data);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "typing listener", data);
     }
     });
 
@@ -58,7 +58,7 @@ const messageListener = (socket,io) => {
         socket.to(data.channel_id).emit("someoneStopTyping", data);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "stopTyping listener", data);
     }
     });
 };

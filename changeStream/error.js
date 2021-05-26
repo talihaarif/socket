@@ -40,7 +40,7 @@ const error = (conn, io) => {
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "error change stream", change);
     }
     });
 };

@@ -93,7 +93,7 @@ const user = (conn, io) => {
     }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error);
+        sendWebhookError(error, "user change stream", change);
     }
 });
 };

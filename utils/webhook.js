@@ -15,13 +15,13 @@ const configuration = {
   * Otherwise set error message in case of server error from node.
   * Call the backend webhook route using axios.
   */
-  const sendWebhookError = async(error) => {
+  const sendWebhookError = async(error, route, function_data) => {
     try {
         let body = '';
         if (error && error.response && error.response.data)
-            body = JSON.stringify({ "error": serializeError(error),"data": error.response.data});
+            body = JSON.stringify({ "error": serializeError(error),"data": error.response.data, "function":route, "function_data":function_data});
         else
-            body = JSON.stringify({"error":serializeError(error)});      
+            body = JSON.stringify({"error":serializeError(error), "function":route, "function_data":function_data});      
         const result = await axios.post("https://schat.pf.com.pk/api/webhooks/60781aaf52876b510f1f772e", body, configuration);
     } catch (err) {
         console.log(err);
