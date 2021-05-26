@@ -31,8 +31,8 @@ const company = (conn, io) => {
     company.on("change", async (change) => {
         try{
         let companyTemp = change.fullDocument;
-        let hash_data = hash(change.fullDocument, { algorithm: 'md5', encoding: 'base64' });
-        switch (change.operationType) {
+        let hash_data = change.fullDocument;
+        hash(changed_data, { algorithm: 'md5', encoding: 'base64' });        switch (change.operationType) {
             case "insert":
                 companyInsert(companyTemp,io,change._id, hash_data);
                 break;

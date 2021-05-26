@@ -19,7 +19,8 @@ const permission = (conn, io) => {
     permission.on("change", async(change) => {
         try{
         let permissionTemp = change.fullDocument;
-        let hash_data = hash(change.fullDocument, { algorithm: 'md5', encoding: 'base64' });
+        let hash_data = change.fullDocument;
+        hash(changed_data, { algorithm: 'md5', encoding: 'base64' });
         let permissions=[];
         switch (change.operationType) {
             case "update":

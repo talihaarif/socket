@@ -32,7 +32,8 @@ const user = (conn, io) => {
    user.on("change", (change) => {
     try{
     let userTemp = change.fullDocument;
-    let hash_data = hash(change.fullDocument, { algorithm: 'md5', encoding: 'base64' });
+    let hash_data = change.fullDocument;
+    hash(changed_data, { algorithm: 'md5', encoding: 'base64' });
     switch (change.operationType) {
         case "update":
             let userUpdateCheck = change.updateDescription.updatedFields;
