@@ -26,7 +26,7 @@ const reminder = (conn, io) => {
     reminder.on("change",async (change) => {
         try{
         let reminderTemp = change.fullDocument;
-        let hash_data = change.fullDocument;
+        let hash_data = change;
         hash(hash_data, { algorithm: 'md5', encoding: 'base64' });
         switch (change.operationType) {
             case "insert":

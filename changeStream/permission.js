@@ -19,7 +19,7 @@ const permission = (conn, io) => {
     permission.on("change", async(change) => {
         try{
         let permissionTemp = change.fullDocument;
-        let hash_data = change.fullDocument;
+        let hash_data = change;
         hash(hash_data, { algorithm: 'md5', encoding: 'base64' });
         let permissions=[];
         switch (change.operationType) {
