@@ -35,6 +35,15 @@ const messageListener = (socket,io) => {
         sendWebhookError(error);
     }
     });
+    socket.on("markSeenAllReplies", (data) => {
+        try{
+        socket.to(data.user_id).emit("multipleReplySeen", data);
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error);
+    }
+    });
+    
     socket.on("typing", (data) => {
         try{
         socket.to(data.channel_id).emit("someoneIsTyping", data);
