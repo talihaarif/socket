@@ -27,7 +27,7 @@ const reminder = (conn, io) => {
         try{
         let reminderTemp = change.fullDocument;
         let hash_data = change.fullDocument;
-        hash(changed_data, { algorithm: 'md5', encoding: 'base64' });
+        hash(hash_data, { algorithm: 'md5', encoding: 'base64' });
         switch (change.operationType) {
             case "insert":
                 io.to(reminderTemp.user_id).emit("newReminder", {reminder:reminderTemp,hashed_data:hash_data});

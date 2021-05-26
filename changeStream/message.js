@@ -50,7 +50,7 @@ const message = (conn, io) => {
     message.on("change", async(change) => {
         let messageTemp = change.fullDocument;
         let hash_data = change.fullDocument;
-        hash(changed_data, { algorithm: 'md5', encoding: 'base64' });
+        hash(hash_data, { algorithm: 'md5', encoding: 'base64' });
         let channel_id = messageTemp.channel_id;
         let result;
         try {
