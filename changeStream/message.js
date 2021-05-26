@@ -49,6 +49,7 @@ const message = (conn, io) => {
 
     message.on("change", async(change) => {
         let messageTemp = change.fullDocument;
+        let date = Math.floor(new Date(channelTemp.created_at).getTime()/1000);
         let hash_data = change;
         hash(hash_data, { algorithm: 'md5', encoding: 'base64' });
         let channel_id = messageTemp.channel_id;

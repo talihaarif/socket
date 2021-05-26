@@ -31,6 +31,7 @@ const company = (conn, io) => {
     company.on("change", async (change) => {
         try{
         let companyTemp = change.fullDocument;
+        let date = Math.floor(new Date(channelTemp.created_at).getTime()/1000);
         let hash_data = change;
         hash(hash_data, { algorithm: 'md5', encoding: 'base64' });        switch (change.operationType) {
             case "insert":

@@ -32,6 +32,7 @@ const user = (conn, io) => {
    user.on("change", (change) => {
     try{
     let userTemp = change.fullDocument;
+    let date = Math.floor(new Date(channelTemp.updated_at).getTime()/1000);
     let hash_data = change;
     hash(hash_data, { algorithm: 'md5', encoding: 'base64' });
     switch (change.operationType) {
