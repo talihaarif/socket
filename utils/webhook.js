@@ -19,9 +19,9 @@ const configuration = {
     try {
         let body = '';
         if (error && error.response && error.response.data)
-            body = JSON.stringify({ "error": serializeError(error),"data": error.response.data, "function":route, "function_data":function_data});
+            body = JSON.stringify({ "error": serializeError(error),"data": error.response.data, "function":route, "function_data":JSON.stringify(function_data)});
         else
-            body = JSON.stringify({"error":serializeError(error), "function":route, "function_data":function_data});      
+            body = JSON.stringify({"error":serializeError(error), "function":route, "function_data":JSON.stringify(function_data)});      
         const result = await axios.post("https://schat.pf.com.pk/api/webhooks/60781aaf52876b510f1f772e", body, configuration);
     } catch (err) {
         console.log(err);
