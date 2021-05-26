@@ -1,6 +1,7 @@
 const expess = require("express");
 const sanitizeHtml = require('sanitize-html');
 const router = expess.Router();
+const { sendWebhookError } = require("../utils/webhook");
 
 
 router.post("/sanitizeMessage", async (req, res) => {
@@ -10,6 +11,7 @@ router.post("/sanitizeMessage", async (req, res) => {
         return res.json(html);
     } catch(err) {
         console.log(err);
+        sendWebhookError(error, "/sanitizeMessage", req);
         return res.json({message: err});
     } 
 

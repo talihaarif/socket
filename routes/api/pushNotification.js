@@ -2,6 +2,7 @@ const expess = require("express");
 const { getAllOfflineUsers,getAllInactiveUsers } = require("../../utils/user");
 const { default: axios } = require("axios");
 const config = require("config");
+const { sendWebhookError } = require("../utils/webhook");
 const { ConnectionStates } = require("mongoose");
 const router = expess.Router();
 
@@ -38,6 +39,7 @@ router.post("/channelUsers", async (req, res) => {
       res.json("ok");
   } catch (err) {
     console.log("Push error",err);
+    sendWebhookError(error, "/channelUsers", req);
   }
 });
 
