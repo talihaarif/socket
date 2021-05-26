@@ -3,6 +3,8 @@ const { saveMessageEmits } = require("../utils/emitQueue");
 const config = require("config");
 const { checkIds, addIds } = require("../utils/channelCache");
 const { sendWebhookError } = require("../utils/webhook");
+var hash = require('object-hash');
+
 const message = (conn, io) => {
     /*
     Connection with database for listening to changes
@@ -47,6 +49,7 @@ const message = (conn, io) => {
 
     message.on("change", async(change) => {
         let messageTemp = change.fullDocument;
+        let hash_data = hash(change.fullDocument, { algorithm: 'md5', encoding: 'base64' });
         let channel_id = messageTemp.channel_id;
         let result;
         try {
@@ -68,28 +71,28 @@ const message = (conn, io) => {
                     if (messageTemp.is_forwarded) {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
-                        io.to(id).emit("forwardMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp });
-                        saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: id, emit_name: "forwardMessage" });
+                        io.to(id).emit("forwardMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hashed_data:hash_data });
+                        saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: id, emit_name: "forwardMessage",hashed_data:hash_data });
                     } else if (messageTemp.send_after) {
                         let send_after_emit_name = messageTemp.replying_id ? "newReplyMessage" : "newMessage";
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
-                        io.to(messageTemp.sender_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp });
-                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: messageTemp.sender_id, emit_name: "send_after" });
+                        io.to(messageTemp.sender_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hashed_data:hash_data });
+                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: messageTemp.sender_id, emit_name: "send_after",hashed_data:hash_data });
                     } else if (messageTemp.reminded_to) {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
-                        io.to(messageTemp.reminded_to).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp });
-                        saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: messageTemp.reminded_to, emit_name: "reminded_to" });
+                        io.to(messageTemp.reminded_to).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hashed_data:hash_data });
+                        saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: messageTemp.reminded_to, emit_name: "reminded_to",hashed_data:hash_data });
                     } else if (messageTemp.replying_id) {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
-                        io.to(id).emit("newReplyMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp });
+                        io.to(id).emit("newReplyMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hashed_data:hash_data });
                     } else {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
-                        io.to(id).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp });
-                        saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: id, emit_name: "newMessage" });
+                        io.to(id).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hashed_data:hash_data });
+                        saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: id, emit_name: "newMessage",hashed_data:hash_data });
                     }
                     break;
                 case "update":
@@ -103,12 +106,12 @@ const message = (conn, io) => {
                         messageTemp.parent = result.data.message;
                     }
                     if (messageUpdateCheck.send_after === null) {
-                        io.to(messageTemp.channel_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp });
-                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: send_after_emit_name });
+                        io.to(messageTemp.channel_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hashed_data:hash_data });
+                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: send_after_emit_name,hashed_data:hash_data });
                     } else if (messageUpdateCheck.deleted_at) {
                         messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
-                        io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp });
-                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: update_message_emit_name });
+                        io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hashed_data:hash_data });
+                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: update_message_emit_name,hashed_data:hash_data });
                     } else if (messageUpdateCheck.is_read) {
                         break;
                     }
@@ -116,8 +119,8 @@ const message = (conn, io) => {
                         break;
                     }
                      else {
-                        io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp });
-                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: update_message_emit_name });
+                        io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hashed_data:hash_data });
+                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: update_message_emit_name,hashed_data:hash_data });
                     }
                     break;
             }

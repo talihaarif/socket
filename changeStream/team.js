@@ -1,6 +1,7 @@
 const {  teamInsert, teamUnarchived, teamArchived } = require("../utils/team");
 const { saveTeamEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
+var hash = require('object-hash');
 
 const team = (conn, io) => {
     /*
@@ -31,31 +32,32 @@ const team = (conn, io) => {
     team.on("change", async(change) => {
         try{
         let teamTemp = change.fullDocument;
+        let hash_data = hash(change.fullDocument, { algorithm: 'md5', encoding: 'base64' });
         switch (change.operationType) {
             case "insert":
                 if(teamTemp.default==false)
-                    teamInsert(teamTemp,io,change._id);
+                    teamInsert(teamTemp,io,change._id, hash_data);
                 break;
             case "update":
                 let teamUpdateCheck = change.updateDescription.updatedFields;
                 if (teamUpdateCheck.name) {
-                    io.to(teamTemp._id.toString()).emit("teamNameUpdate", {team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,name:teamTemp.name,team_token:change._id});
-                    saveTeamEmits({team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,name:teamTemp.name,team_token:change._id,emit_to:teamTemp._id.toString(),emit_name:"teamNameUpdate"});
+                    io.to(teamTemp._id.toString()).emit("teamNameUpdate", {team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,name:teamTemp.name,team_token:change._id,hashed_data:hash_data});
+                    saveTeamEmits({team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,name:teamTemp.name,team_token:change._id,emit_to:teamTemp._id.toString(),emit_name:"teamNameUpdate",hashed_data:hash_data});
                 } else if (
                     teamUpdateCheck.profile_picture ||
                     teamUpdateCheck.profile_picture === null
                 ) {
-                    io.to(teamTemp._id.toString()).emit("teamProfileUpdate", {team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,profile_picture:teamTemp.profile_picture,team_token:change._id});
-                    saveTeamEmits({team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,profile_picture:teamTemp.profile_picture,team_token:change._id,emit_to:teamTemp._id.toString(),emit_name:"teamProfileUpdate"});
+                    io.to(teamTemp._id.toString()).emit("teamProfileUpdate", {team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,profile_picture:teamTemp.profile_picture,team_token:change._id,hashed_data:hash_data});
+                    saveTeamEmits({team_id:teamTemp._id.toString(),company_id:teamTemp.company_id,profile_picture:teamTemp.profile_picture,team_token:change._id,emit_to:teamTemp._id.toString(),emit_name:"teamProfileUpdate",hashed_data:hash_data});
                 } else if (
                     teamUpdateCheck.deleted_at ||
                     teamUpdateCheck.deleted_at === null
                 ) {
                     if (teamUpdateCheck.deleted_at === null){
-                        teamUnarchived(teamTemp,io,change._id);
+                        teamUnarchived(teamTemp,io,change._id, hash_data);
                     }
                     else {
-                        teamArchived(teamTemp,io,change._id);
+                        teamArchived(teamTemp,io,change._id, hash_data);
                     }
                 }
                 break;

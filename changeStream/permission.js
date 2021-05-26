@@ -1,5 +1,7 @@
 const { savePermissionEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
+var hash = require('object-hash');
+
 
 const permission = (conn, io) => {
     // opening watcher for permissions table.
@@ -17,14 +19,15 @@ const permission = (conn, io) => {
     permission.on("change", async(change) => {
         try{
         let permissionTemp = change.fullDocument;
+        let hash_data = hash(change.fullDocument, { algorithm: 'md5', encoding: 'base64' });
         let permissions=[];
         switch (change.operationType) {
             case "update":
                 permissionTemp.permissions_data.map((el)=>{
                     permissions.push({company_id:el.company_id,permission:{attachments:el.attachments,channel:el.channel,company:el.company,company_member:el.company_member,ip:el.ip,team:el.team}});
                 });
-                io.to(permissionTemp.user_id).emit("permissionsUpdated",{permissions});
-                savePermissionEmits({permissions:permissionTemp.permissions_data,emit_to:permissionTemp.user_id,emit_name:"permissionsUpdated"});
+                io.to(permissionTemp.user_id).emit("permissionsUpdated",{permissions,hashed_data:hash_data});
+                savePermissionEmits({permissions:permissionTemp.permissions_data,emit_to:permissionTemp.user_id,emit_name:"permissionsUpdated",hashed_data:hash_data});
                 break;
         }
     } catch (error) {

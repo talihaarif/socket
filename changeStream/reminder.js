@@ -1,5 +1,6 @@
 const { saveReminderEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
+var hash = require('object-hash');
 
 const reminder = (conn, io) => {
     /*
@@ -25,14 +26,15 @@ const reminder = (conn, io) => {
     reminder.on("change",async (change) => {
         try{
         let reminderTemp = change.fullDocument;
+        let hash_data = hash(change.fullDocument, { algorithm: 'md5', encoding: 'base64' });
         switch (change.operationType) {
             case "insert":
-                io.to(reminderTemp.user_id).emit("newReminder", {reminder:reminderTemp});
-                saveReminderEmits({reminder:reminderTemp,emit_to:reminderTemp.user_id,emit_name:"newReminder"});
+                io.to(reminderTemp.user_id).emit("newReminder", {reminder:reminderTemp,hashed_data:hash_data});
+                saveReminderEmits({reminder:reminderTemp,emit_to:reminderTemp.user_id,emit_name:"newReminder",hashed_data:hash_data});
                 break;
             case "delete":
-                io.to(reminderTemp.user_id).emit("deleteReminder", {reminder:reminderTemp});
-                saveReminderEmits({reminder:reminderTemp,emit_to:reminderTemp.user_id,emit_name:"deleteReminder"});
+                io.to(reminderTemp.user_id).emit("deleteReminder", {reminder:reminderTemp,hashed_data:hash_data});
+                saveReminderEmits({reminder:reminderTemp,emit_to:reminderTemp.user_id,emit_name:"deleteReminder",hashed_data:hash_data});
                 break;
         }
     } catch (error) {
