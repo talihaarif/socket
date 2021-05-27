@@ -88,6 +88,38 @@ const user = (conn, io) => {
                     notification_sound:userTemp.notification_sound,
                     user_token:change._id,emit_to:userTemp._id,emit_name:"userNotificationSound"});
             }
+            else if(userUpdateCheck.status){
+                userTemp.company_ids.map((company_id) => {
+                    io.to(company_id).emit("userStatusUpdate", {
+                        user_id: userTemp._id,
+                        status: userTemp.status,
+                        user_token:change._id
+                    });
+                });
+                saveUserEmits({user_id: userTemp._id,
+                    status: userTemp.status,
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userStatusUpdate"})
+            }
+            else if(userUpdateCheck.push_notification){
+                io.to(userTemp._id).emit("userPushNotification", {
+                    user_id: userTemp._id,
+                    push_notification:userTemp.push_notification,
+                    user_token:change._id
+                });
+                saveUserEmits({user_id: userTemp._id,
+                    push_notification:userTemp.push_notification,
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userPushNotification"});
+            } 
+            else if(userUpdateCheck.do_not_disturb){
+                io.to(userTemp._id).emit("userDoNotDisturb", {
+                    user_id: userTemp._id,
+                    do_not_disturb:userTemp.do_not_disturb,
+                    user_token:change._id
+                });
+                saveUserEmits({user_id: userTemp._id,
+                    do_not_disturb:userTemp.do_not_disturb,
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userDoNotDisturb"});
+            } 
             
             break;
     }
