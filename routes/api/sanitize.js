@@ -1,7 +1,8 @@
 const expess = require("express");
 const sanitizeHtml = require('sanitize-html');
 const router = expess.Router();
-const { sendWebhookError } = require("../utils/webhook");
+const { sendWebhookError } = require("../../utils/webhook");
+
 
 
 router.post("/sanitizeMessage", async (req, res) => {
