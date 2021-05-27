@@ -1,7 +1,6 @@
 const {  channelInsert, channelNameUpdate, channelUnarchived, channelArchived } = require("../utils/channel");
 const { saveChannelEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
-var hash = require('object-hash');
 
 const channel = (conn, io) => {
     // opening watcher for channels table.
@@ -28,18 +27,15 @@ const channel = (conn, io) => {
     channel.on("change", async(change) => {
         try{
         let channelTemp = change.fullDocument;
-        let date = Math.floor(new Date(channelTemp.created_at).getTime()/1000);
-        let hash_data = change;
-        hash(hash_data, { algorithm: 'md5', encoding: 'base64' });
         switch (change.operationType) {
             case "insert":
                 if(channelTemp.default==false)
-                    channelInsert(channelTemp,io,change._id, hash_data);
+                    channelInsert(channelTemp,io,change._id);
                 break;
             case "update":
                 let channelUpdateCheck = change.updateDescription.updatedFields;
                 if (channelUpdateCheck.name) {
-                    channelNameUpdate(channelTemp,io,change._id, hash_data);
+                    channelNameUpdate(channelTemp,io,change._id);
     
                 } else if (channelUpdateCheck.display_name) {
                     console.log("channel info:",channelTemp);
@@ -48,14 +44,13 @@ const channel = (conn, io) => {
                             type:channelTemp.type,
                             team_id:channelTemp.team_id,
                             company_id:channelTemp.company_id,
-                            channel_token:change._id,
-                            hashed_data:hash_data
+                            channel_token:change._id
                     });
                     saveChannelEmits({channel: {name:channelTemp.display_name,_id: channelTemp._id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
                         company_id:channelTemp.company_id,
-                        channel_token:change._id,hashed_data:hash_data,emit_to:channelTemp.creator_id,emit_name:"channelNameUpdate"});
+                        channel_token:change._id,emit_to:channelTemp.creator_id,emit_name:"channelNameUpdate"});
                 }  else if (
                     channelUpdateCheck.description ||
                     channelUpdateCheck.description === null
@@ -67,15 +62,14 @@ const channel = (conn, io) => {
                             type:channelTemp.type,
                             team_id:channelTemp.team_id,
                             company_id:channelTemp.company_id,
-                            channel_token:change._id,
-                            hashed_data:hash_data
+                            channel_token:change._id
                         }
                     );
                     saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,description: channelTemp.description},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
                         company_id:channelTemp.company_id,
-                        channel_token:change._id,hashed_data:hash_data,emit_to:channelTemp._id.toString(),emit_name:"channelDescriptionUpdated"});
+                        channel_token:change._id,emit_to:channelTemp._id.toString(),emit_name:"channelDescriptionUpdated"});
                 } else if (
                     channelUpdateCheck.deleted_at ||
                     channelUpdateCheck.deleted_at === null
@@ -83,10 +77,10 @@ const channel = (conn, io) => {
                     if (
                         channelUpdateCheck.deleted_at === null
                     ){
-                        channelUnarchived(channelTemp,io,change._id, hash_data);
+                        channelUnarchived(channelTemp,io,change._id);
                     }
                     else{
-                        channelArchived(channelTemp,io,change._id,hash_data);
+                        channelArchived(channelTemp,io,change._id);
                     }
                         
                 } else if (channelUpdateCheck.creator_id) {
@@ -95,14 +89,13 @@ const channel = (conn, io) => {
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
                         company_id:channelTemp.company_id,
-                        channel_token:change._id,
-                        hashed_data:hash_data
+                        channel_token:change._id
                     });
                     saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
                         company_id:channelTemp.company_id,
-                        channel_token:change._id,hashed_data:hash_data,emit_to:channelTemp._id.toString(),emit_name:"channelCreatorUpdate"});
+                        channel_token:change._id,emit_to:channelTemp._id.toString(),emit_name:"channelCreatorUpdate"});
                 }
                 break;
         }
