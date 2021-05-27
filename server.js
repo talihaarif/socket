@@ -53,7 +53,6 @@ app.use("/api/pushNotification", require("./routes/api/pushNotification"));
 //sanitize
 app.use("/api", require("./routes/api/sanitize"));
 
-
 //Database Connection
 mongoose.connect(process.env.DB_URI || db, {
     useNewUrlParser: true,
