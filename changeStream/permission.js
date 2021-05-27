@@ -1,5 +1,6 @@
 const { savePermissionEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
+const { createHash } = require("../utils/hash");
 
 
 const permission = (conn, io) => {
@@ -19,13 +20,14 @@ const permission = (conn, io) => {
         try{
         let permissionTemp = change.fullDocument;
         let permissions=[];
+        let hash = createHash(permissionTemp.created_at,change);
         switch (change.operationType) {
             case "update":
                 permissionTemp.permissions_data.map((el)=>{
                     permissions.push({company_id:el.company_id,permission:{attachments:el.attachments,channel:el.channel,company:el.company,company_member:el.company_member,ip:el.ip,team:el.team}});
                 });
-                io.to(permissionTemp.user_id).emit("permissionsUpdated",{permissions});
-                savePermissionEmits({permissions:permissionTemp.permissions_data,emit_to:permissionTemp.user_id,emit_name:"permissionsUpdated"});
+                io.to(permissionTemp.user_id).emit("permissionsUpdated",{permissions,hash:hash});
+                savePermissionEmits({permissions:permissionTemp.permissions_data,emit_to:permissionTemp.user_id,emit_name:"permissionsUpdated",hash:hash});
                 break;
         }
     } catch (error) {

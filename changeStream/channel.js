@@ -1,6 +1,7 @@
 const {  channelInsert, channelNameUpdate, channelUnarchived, channelArchived } = require("../utils/channel");
 const { saveChannelEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
+const { createHash } = require("../utils/hash");
 
 const channel = (conn, io) => {
     // opening watcher for channels table.
@@ -27,15 +28,16 @@ const channel = (conn, io) => {
     channel.on("change", async(change) => {
         try{
         let channelTemp = change.fullDocument;
+        let hash = createHash(channelTemp.created_at,change);
         switch (change.operationType) {
             case "insert":
                 if(channelTemp.default==false)
-                    channelInsert(channelTemp,io,change._id);
+                    channelInsert(channelTemp,io,change._id, hash);
                 break;
             case "update":
                 let channelUpdateCheck = change.updateDescription.updatedFields;
                 if (channelUpdateCheck.name) {
-                    channelNameUpdate(channelTemp,io,change._id);
+                    channelNameUpdate(channelTemp,io,change._id,hash);
     
                 } else if (channelUpdateCheck.display_name) {
                     console.log("channel info:",channelTemp);
@@ -44,13 +46,14 @@ const channel = (conn, io) => {
                             type:channelTemp.type,
                             team_id:channelTemp.team_id,
                             company_id:channelTemp.company_id,
-                            channel_token:change._id
+                            channel_token:change._id,
+                            hash:hash
                     });
                     saveChannelEmits({channel: {name:channelTemp.display_name,_id: channelTemp._id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
                         company_id:channelTemp.company_id,
-                        channel_token:change._id,emit_to:channelTemp.creator_id,emit_name:"channelNameUpdate"});
+                        channel_token:change._id,hash:hash,emit_to:channelTemp.creator_id,emit_name:"channelNameUpdate"});
                 }  else if (
                     channelUpdateCheck.description ||
                     channelUpdateCheck.description === null
@@ -62,14 +65,15 @@ const channel = (conn, io) => {
                             type:channelTemp.type,
                             team_id:channelTemp.team_id,
                             company_id:channelTemp.company_id,
-                            channel_token:change._id
+                            channel_token:change._id,
+                            hash:hash
                         }
                     );
                     saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,description: channelTemp.description},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
                         company_id:channelTemp.company_id,
-                        channel_token:change._id,emit_to:channelTemp._id.toString(),emit_name:"channelDescriptionUpdated"});
+                        channel_token:change._id,hash:hash,emit_to:channelTemp._id.toString(),emit_name:"channelDescriptionUpdated"});
                 } else if (
                     channelUpdateCheck.deleted_at ||
                     channelUpdateCheck.deleted_at === null
@@ -77,10 +81,10 @@ const channel = (conn, io) => {
                     if (
                         channelUpdateCheck.deleted_at === null
                     ){
-                        channelUnarchived(channelTemp,io,change._id);
+                        channelUnarchived(channelTemp,io,change._id, hash);
                     }
                     else{
-                        channelArchived(channelTemp,io,change._id);
+                        channelArchived(channelTemp,io,change._id, hash);
                     }
                         
                 } else if (channelUpdateCheck.creator_id) {
@@ -89,13 +93,14 @@ const channel = (conn, io) => {
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
                         company_id:channelTemp.company_id,
-                        channel_token:change._id
+                        channel_token:change._id,
+                        hash:hash
                     });
                     saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,
                         company_id:channelTemp.company_id,
-                        channel_token:change._id,emit_to:channelTemp._id.toString(),emit_name:"channelCreatorUpdate"});
+                        channel_token:change._id,hash:hash,emit_to:channelTemp._id.toString(),emit_name:"channelCreatorUpdate"});
                 }
                 break;
         }

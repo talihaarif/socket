@@ -1,5 +1,6 @@
 const { saveUserEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
+const { createHash } = require("../utils/hash");
 
 const user = (conn, io) => {
     /*
@@ -31,6 +32,7 @@ const user = (conn, io) => {
    user.on("change", (change) => {
     try{
     let userTemp = change.fullDocument;
+    let hash = createHash(userTemp.created_at,change);
     switch (change.operationType) {
         case "update":
             let userUpdateCheck = change.updateDescription.updatedFields;
@@ -42,83 +44,91 @@ const user = (conn, io) => {
                     io.to(company_id).emit("userProfilePictureUpdate", {
                         user_id: userTemp._id,
                         profile_picture: userTemp.profile_picture,
-                        user_token:change._id
+                        user_token:change._id,
+                        hash:hash
                     });
                 });
                 saveUserEmits({user_id: userTemp._id,
                     profile_picture: userTemp.profile_picture,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userProfilePictureUpdate"})
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userProfilePictureUpdate",hash:hash})
             } else if (userUpdateCheck.full_name) {
                 userTemp.company_ids.map((company_id) => {
                     io.to(company_id).emit("userNameUpdate", {
                         user_id: userTemp._id,
                         name: userTemp.full_name,
-                        user_token:change._id
+                        user_token:change._id,
+                        hash:hash
                     });
                 });
                 saveUserEmits({user_id: userTemp._id,
                     name: userTemp.full_name,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userNameUpdate"});
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userNameUpdate",hash:hash});
             } else if(userUpdateCheck.two_fa){
                 io.to(userTemp._id).emit("userTwoFaChange", {
                     user_id: userTemp._id,
                     two_fa:userTemp.two_fa,
-                    user_token:change._id
+                    user_token:change._id,
+                    hash:hash
                 });
                 saveUserEmits({user_id: userTemp._id,
                     two_fa:userTemp.two_fa,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userTwoFaChange"});
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userTwoFaChange",hash:hash});
                 
             } else if(userUpdateCheck.in_app_notification){
                 io.to(userTemp._id).emit("userInAppNotification", {
                     user_id: userTemp._id,
                     in_app_notification:userTemp.in_app_notification,
-                    user_token:change._id
+                    user_token:change._id,
+                    hash:hash
                 });
                 saveUserEmits({user_id: userTemp._id,
                     in_app_notification:userTemp.in_app_notification,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userInAppNotification"});
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userInAppNotification",hash:hash});
             } else if(userUpdateCheck.notification_sound){
                 io.to(userTemp._id).emit("userNotificationSound", {
                     user_id: userTemp._id,
                     notification_sound:userTemp.notification_sound,
-                    user_token:change._id
+                    user_token:change._id,
+                    hash:hash
                 });
                 saveUserEmits({user_id: userTemp._id,
                     notification_sound:userTemp.notification_sound,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userNotificationSound"});
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userNotificationSound",hash:hash});
             }
             else if(userUpdateCheck.status){
                 userTemp.company_ids.map((company_id) => {
                     io.to(company_id).emit("userStatusUpdate", {
                         user_id: userTemp._id,
                         status: userTemp.status,
-                        user_token:change._id
+                        user_token:change._id,
+                        hash:hash
                     });
                 });
                 saveUserEmits({user_id: userTemp._id,
                     status: userTemp.status,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userStatusUpdate"})
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userStatusUpdate",hash:hash})
             }
             else if(userUpdateCheck.push_notification){
                 io.to(userTemp._id).emit("userPushNotification", {
                     user_id: userTemp._id,
                     push_notification:userTemp.push_notification,
-                    user_token:change._id
+                    user_token:change._id,
+                    hash:hash
                 });
                 saveUserEmits({user_id: userTemp._id,
                     push_notification:userTemp.push_notification,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userPushNotification"});
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userPushNotification",hash:hash});
             } 
             else if(userUpdateCheck.do_not_disturb){
                 io.to(userTemp._id).emit("userDoNotDisturb", {
                     user_id: userTemp._id,
                     do_not_disturb:userTemp.do_not_disturb,
-                    user_token:change._id
+                    user_token:change._id,
+                    hash:hash
                 });
                 saveUserEmits({user_id: userTemp._id,
                     do_not_disturb:userTemp.do_not_disturb,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userDoNotDisturb"});
+                    user_token:change._id,emit_to:userTemp._id,emit_name:"userDoNotDisturb",hash:hash});
             } 
             
             break;
