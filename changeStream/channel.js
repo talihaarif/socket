@@ -49,11 +49,6 @@ const channel = (conn, io) => {
                             channel_token:change._id,
                             hash:hash
                     });
-                    saveChannelEmits({channel: {name:channelTemp.display_name,_id: channelTemp._id},
-                        type:channelTemp.type,
-                        team_id:channelTemp.team_id,
-                        company_id:channelTemp.company_id,
-                        channel_token:change._id,hash:hash,emit_to:channelTemp.creator_id,emit_name:"channelNameUpdate"});
                 }  else if (
                     channelUpdateCheck.description ||
                     channelUpdateCheck.description === null
@@ -69,11 +64,6 @@ const channel = (conn, io) => {
                             hash:hash
                         }
                     );
-                    saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,description: channelTemp.description},
-                        type:channelTemp.type,
-                        team_id:channelTemp.team_id,
-                        company_id:channelTemp.company_id,
-                        channel_token:change._id,hash:hash,emit_to:channelTemp._id.toString(),emit_name:"channelDescriptionUpdated"});
                 } else if (
                     channelUpdateCheck.deleted_at ||
                     channelUpdateCheck.deleted_at === null
@@ -96,11 +86,6 @@ const channel = (conn, io) => {
                         channel_token:change._id,
                         hash:hash
                     });
-                    saveChannelEmits({channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
-                        type:channelTemp.type,
-                        team_id:channelTemp.team_id,
-                        company_id:channelTemp.company_id,
-                        channel_token:change._id,hash:hash,emit_to:channelTemp._id.toString(),emit_name:"channelCreatorUpdate"});
                 }
                 break;
         }

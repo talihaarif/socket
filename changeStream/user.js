@@ -48,9 +48,6 @@ const user = (conn, io) => {
                         hash:hash
                     });
                 });
-                saveUserEmits({user_id: userTemp._id,
-                    profile_picture: userTemp.profile_picture,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userProfilePictureUpdate",hash:hash})
             } else if (userUpdateCheck.full_name) {
                 userTemp.company_ids.map((company_id) => {
                     io.to(company_id).emit("userNameUpdate", {
@@ -60,9 +57,6 @@ const user = (conn, io) => {
                         hash:hash
                     });
                 });
-                saveUserEmits({user_id: userTemp._id,
-                    name: userTemp.full_name,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userNameUpdate",hash:hash});
             } else if(userUpdateCheck.two_fa){
                 io.to(userTemp._id).emit("userTwoFaChange", {
                     user_id: userTemp._id,
@@ -70,10 +64,6 @@ const user = (conn, io) => {
                     user_token:change._id,
                     hash:hash
                 });
-                saveUserEmits({user_id: userTemp._id,
-                    two_fa:userTemp.two_fa,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userTwoFaChange",hash:hash});
-                
             } else if(userUpdateCheck.in_app_notification){
                 io.to(userTemp._id).emit("userInAppNotification", {
                     user_id: userTemp._id,
@@ -81,9 +71,6 @@ const user = (conn, io) => {
                     user_token:change._id,
                     hash:hash
                 });
-                saveUserEmits({user_id: userTemp._id,
-                    in_app_notification:userTemp.in_app_notification,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userInAppNotification",hash:hash});
             } else if(userUpdateCheck.notification_sound){
                 io.to(userTemp._id).emit("userNotificationSound", {
                     user_id: userTemp._id,
@@ -91,9 +78,6 @@ const user = (conn, io) => {
                     user_token:change._id,
                     hash:hash
                 });
-                saveUserEmits({user_id: userTemp._id,
-                    notification_sound:userTemp.notification_sound,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userNotificationSound",hash:hash});
             }
             else if(userUpdateCheck.status){
                 userTemp.company_ids.map((company_id) => {
@@ -104,9 +88,6 @@ const user = (conn, io) => {
                         hash:hash
                     });
                 });
-                saveUserEmits({user_id: userTemp._id,
-                    status: userTemp.status,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userStatusUpdate",hash:hash})
             }
             else if(userUpdateCheck.push_notification){
                 io.to(userTemp._id).emit("userPushNotification", {
@@ -115,9 +96,6 @@ const user = (conn, io) => {
                     user_token:change._id,
                     hash:hash
                 });
-                saveUserEmits({user_id: userTemp._id,
-                    push_notification:userTemp.push_notification,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userPushNotification",hash:hash});
             } 
             else if(userUpdateCheck.do_not_disturb){
                 io.to(userTemp._id).emit("userDoNotDisturb", {
@@ -126,11 +104,7 @@ const user = (conn, io) => {
                     user_token:change._id,
                     hash:hash
                 });
-                saveUserEmits({user_id: userTemp._id,
-                    do_not_disturb:userTemp.do_not_disturb,
-                    user_token:change._id,emit_to:userTemp._id,emit_name:"userDoNotDisturb",hash:hash});
             } 
-            
             break;
     }
     } catch (error) {

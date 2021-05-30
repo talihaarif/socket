@@ -7,7 +7,6 @@ const messageListener = require("./messageListener");
 const userListener = require("./userListener");
 const { usersOnline, userOnline } = require("../utils/user");
 const { joinCompanyRoom } = require("../utils/room");
-const { getEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
 const { default: axios } = require("axios");
 const config = require("config");
@@ -74,14 +73,12 @@ const authentication = (socket, io) => {
                 }
                 socket.check=true;
                 //----------listening to emits from frontend end here----------
-                getEmits(result.data,io);
                 socket.on("ping", ()=>{
                     socket.emit("pong",true);
                 }); 
             } catch (error) {
                 // socket.emit("reconnect", "");
                 sendWebhookError(error);
-
             }
         }
         else{

@@ -82,7 +82,6 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
             createTeamRoom(io,result.data);
             createPublicPrivateChannelRoom(io, result.data);
             io.to(result.data.user_id).emit("newTeamCreated",{company_id:result.data.company_id,team:result.data.team, public:result.data.public , private:result.data.private , team_token:resumeToken,hash:hash});
-            saveTeamEmits({company_id:result.data.company_id,team:result.data.team, public:result.data.public , private:result.data.private ,team_token:resumeToken,emit_to:result.data.user_id,emit_name:"newTeamCreated",hash:hash});
             result.data.sub_admins.map(async(user_id)=>{
                 try {
                     body = JSON.stringify({ team_id,user_id });
@@ -90,7 +89,6 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
                     createTeamRoom(io,result_data.data);
                     createPublicPrivateChannelRoom(io, result_data.data);
                     io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team, public:result_data.data.public ,team_token:resumeToken,hash:hash});
-                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , team_token:resumeToken,emit_to:user_id,emit_name:"newTeamCreated",hash:hash});
                 } catch (err) {
                     console.log(err);
                     sendWebhookError(err, "teamInsert", teamTemp);
@@ -111,7 +109,6 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
 */
 const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
         io.to(teamTemp._id.toString()).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken,hash:hash});
-        saveTeamEmits({company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken,emit_to:teamTemp._id.toString(),emit_name:"teamArchived",hash:hash});
         let team_id=teamTemp._id.toString();
         teamTemp.user_ids.map(async(user_id)=>{
             try {
@@ -145,7 +142,6 @@ const teamUnarchived=async(teamTemp,io,resumeToken, hash)=>{
             createTeamRoom(io,result.data);
             createPublicPrivateChannelRoom(io, result.data);
             io.to(user_id).emit("teamUnArchived", {company_id:teamTemp.company_id,team:result.data.team,public:result.data.public , private:result.data.private , team_token:resumeToken,hash:hash});
-            saveTeamEmits({company_id:teamTemp.company_id,team:result.data.team,public:result.data.public , private:result.data.private , team_token:resumeToken,emit_to:user_id,emit_name:"teamUnArchived",hash:hash});
         } catch (err) {
             console.log(err.response.data);
             sendWebhookError(err, "teamUnarchived", teamTemp);
@@ -180,7 +176,6 @@ const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io, has
                     createTeamRoom(io,result_data.data);
                     createPublicPrivateChannelRoom(io, result_data.data);
                     io.to(user_id).emit("teamUnArchived", {company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , private:result_data.data.private , team_token:resumeToken,hash:hash});
-                    saveTeamEmits({company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , private:result_data.data.private ,team_token:resumeToken,emit_to:user_id,emit_name:"teamUnArchived",hash:hash});
                 }
             } catch (err) {
                 console.log(err);

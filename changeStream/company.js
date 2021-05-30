@@ -42,25 +42,17 @@ const company = (conn, io) => {
                     io.to(companyTemp._id.toString()).emit(
                         "companyNameChange",{company_id:companyTemp._id,name:companyTemp.name,company_token:change._id,hash:hash}
                     );
-                    saveCompanyEmits({company_id:companyTemp._id,name:companyTemp.name,company_token:change._id,emit_to:companyTemp._id.toString(),emit_name:"companyNameChange",hash:hash});
-
                 } else if(companyUpdateCheck.delete_file_after){
                     io.to(companyTemp._id.toString()).emit("deleteFileTimeChange",{company_id:companyTemp._id,delete_file_after:companyTemp.delete_file_after,company_token:change._id,hash:hash});
-                    saveCompanyEmits({company_id:companyTemp._id,delete_file_after:companyTemp.delete_file_after,company_token:change._id,emit_to:companyTemp._id.toString(),emit_name:"deleteFileTimeChange",hash:hash});
                 } else if(companyUpdateCheck.shareable_link === true || companyUpdateCheck.shareable_link === false){
                     io.to(companyTemp._id.toString()).emit("shareAbleLinkChange",{company_id:companyTemp._id,shareable_link:companyTemp.shareable_link,company_token:change._id,hash:hash});
-                    saveCompanyEmits({company_id:companyTemp._id,shareable_link:companyTemp.shareable_link,company_token:change._id,emit_to:companyTemp._id.toString(),emit_name:"shareAbleLinkChange",hash:hash});
                 } else if(companyUpdateCheck.two_fa){
                     io.to(companyTemp._id.toString()).emit("companyTwoFaChange",{company_id:companyTemp._id,two_fa:companyTemp.two_fa,company_token:change._id,hash:hash});
-                    saveCompanyEmits({company_id:companyTemp._id,two_fa:companyTemp.two_fa,company_token:change._id,emit_to:companyTemp._id.toString(),emit_name:"companyTwoFaChange",hash:hash});
                 } else if(companyUpdateCheck.ip_status){
                     io.to(companyTemp._id.toString()).emit("ipStatusChange",{company_id:companyTemp._id,ip_status:companyTemp.ip_status,company_token:change._id,hash:hash});
-                    saveCompanyEmits({company_id:companyTemp._id,ip_status:companyTemp.ip_status,company_token:change._id,emit_to:companyTemp._id.toString(),emit_name:"ipStatusChange",hash:hash});
                 } else if(companyUpdateCheck.ips){
                     io.to(companyTemp._id.toString()).emit("ipsChange",{company_id:companyTemp._id,ips:companyTemp.ips,company_token:change._id,hash:hash});
-                    saveCompanyEmits({company_id:companyTemp._id,ips:companyTemp.ips,company_token:change._id,emit_to:companyTemp._id.toString(),emit_name:"ipsChange",hash:hash});
                 }
-
                 break;
         }
     } catch (error) {

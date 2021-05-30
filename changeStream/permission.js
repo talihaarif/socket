@@ -27,7 +27,6 @@ const permission = (conn, io) => {
                     permissions.push({company_id:el.company_id,permission:{attachments:el.attachments,channel:el.channel,company:el.company,company_member:el.company_member,ip:el.ip,team:el.team}});
                 });
                 io.to(permissionTemp.user_id).emit("permissionsUpdated",{permissions,hash:hash});
-                savePermissionEmits({permissions:permissionTemp.permissions_data,emit_to:permissionTemp.user_id,emit_name:"permissionsUpdated",hash:hash});
                 break;
         }
     } catch (error) {

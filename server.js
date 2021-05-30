@@ -20,7 +20,6 @@ const { leaveCompanyRoom } = require("./utils/room");
 const resumeAfter = require("./listeners/resumeAfter");
 const error = require("./changeStream/error");
 const { default: axios } = require("axios");
-const { removeEmits } = require("./utils/emitQueue");
 const pushError = require("./changeStream/errorPush");
 
 // Configuration to send request to backend
@@ -129,11 +128,6 @@ io.on("connection", (socket) => {
         }
     });
 });
-
-// This is the interval to empty the node queue and its run after every 1 minute.
-setInterval(() => {
-    removeEmits();
-}, 60000);
 
 /*
 Checking if the connection with database is open

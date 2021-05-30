@@ -77,7 +77,6 @@ const companyInsert=async(companyTemp,io,resumeToken, hash)=>{
             const result =await axios.post(url+"api/companyData", body, configuration);
             createCompanyRoom(io,result.data);
             io.to(result.data._id).emit("newCompany",{company:result.data.companies[0],company_token:resumeToken,hash:hash});
-            saveCompanyEmits({company:result.data.companies[0],company_token:resumeToken,emit_to:result.data._id,emit_name:"newCompany",hash:hash});
         },3000);
         
     } catch (err) {

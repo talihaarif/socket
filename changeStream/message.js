@@ -72,18 +72,15 @@ const message = (conn, io) => {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
                         io.to(id).emit("forwardMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
-                        saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: id, emit_name: "forwardMessage",hash:hash });
                     } else if (messageTemp.send_after) {
                         let send_after_emit_name = messageTemp.replying_id ? "newReplyMessage" : "newMessage";
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
                         io.to(messageTemp.sender_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
-                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: messageTemp.sender_id, emit_name: "send_after",hash:hash });
                     } else if (messageTemp.reminded_to) {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
                         io.to(messageTemp.reminded_to).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash});
-                        saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: messageTemp.reminded_to, emit_name: "reminded_to",hash:hash });
                     } else if (messageTemp.replying_id) {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
@@ -92,7 +89,6 @@ const message = (conn, io) => {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
                         io.to(id).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
-                        saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp, emit_to: id, emit_name: "newMessage",hash:hash});
                     }
                     break;
                 case "update":
@@ -107,11 +103,9 @@ const message = (conn, io) => {
                     }
                     if (messageUpdateCheck.send_after === null) {
                         io.to(messageTemp.channel_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash });
-                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: send_after_emit_name,hash:hash });
                     } else if (messageUpdateCheck.deleted_at) {
                         messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
                         io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash});
-                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: update_message_emit_name ,hash:hash});
                     } else if (messageUpdateCheck.is_read) {
                         break;
                     }
@@ -120,7 +114,6 @@ const message = (conn, io) => {
                     }
                      else {
                         io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash });
-                        messageTemp.replying_id ? "" : saveMessageEmits({ message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp, emit_to: messageTemp.channel_id, emit_name: update_message_emit_name,hash:hash });
                     }
                     break;
             }

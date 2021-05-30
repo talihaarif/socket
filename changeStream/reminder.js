@@ -30,11 +30,9 @@ const reminder = (conn, io) => {
         switch (change.operationType) {
             case "insert":
                 io.to(reminderTemp.user_id).emit("newReminder", {reminder:reminderTemp,hash:hash});
-                saveReminderEmits({reminder:reminderTemp,emit_to:reminderTemp.user_id,emit_name:"newReminder",hash:hash});
                 break;
             case "delete":
                 io.to(reminderTemp.user_id).emit("deleteReminder", {reminder:reminderTemp,hash:hash});
-                saveReminderEmits({reminder:reminderTemp,emit_to:reminderTemp.user_id,emit_name:"deleteReminder",hash:hash});
                 break;
         }
     } catch (error) {
