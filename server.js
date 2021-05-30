@@ -12,6 +12,7 @@ const message = require("./changeStream/message");
 const team = require("./changeStream/team");
 const token = require("./changeStream/token");
 const user = require("./changeStream/user");
+const listenerEvent = require("./changeStream/listenerEvent");
 const reminder = require("./changeStream/reminder");
 const permission = require("./changeStream/permission");
 const authentication = require("./listeners/authentication");
@@ -148,6 +149,7 @@ connection.once("open", () => {
     reminder(connection, io);
     permission(connection, io);
     pushError(connection, io);
+    listenerEvent(connection,io);
 
 });
 

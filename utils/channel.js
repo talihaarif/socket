@@ -1,8 +1,6 @@
 const { joinChannelRoom, leaveChannelRoom } = require("./room");
 const { default: axios } = require("axios");
 const config = require("config");
-const channel = require("../changeStream/channel");
-const { saveChannelEmits } = require("./emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
 
 // Declare configuration variable to store headers which will be send with axios requests.

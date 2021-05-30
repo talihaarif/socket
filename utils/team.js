@@ -1,7 +1,6 @@
 const { joinTeamRoom, leaveTeamRoom } = require("./room");
 const { default: axios } = require("axios");
 const config = require("config");
-const { saveTeamEmits } = require("./emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
 const { createChannelRoom , deletePublicPrivateChannelRoom, createPublicPrivateChannelRoom} = require("./channel");
 

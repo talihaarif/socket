@@ -1,4 +1,3 @@
-const { savePermissionEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
 const { createHash } = require("../utils/hash");
 

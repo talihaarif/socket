@@ -1,4 +1,4 @@
-const { setActiveStatus } = require("../utils/user");
+const { saveUser, userOffline, userOnline, usersOnline } = require("../utils/user");
 const { sendWebhookError } = require("../utils/webhook");
 
 /**
@@ -27,32 +27,21 @@ const userListener = (io,socket) => {
     }
     });
 
-    socket.on("newPlugin",(data)=>{
-      try{
-      socket.to(data.user_id).emit("addPlugin",data);
+  socket.on("switchCompany", (id) => {
+    try{
+    console.log("switch from " ,socket.company_id);
+    console.log("switch to " ,id);
+    userOffline(socket);
+    socket.company_id = id;
+    saveUser(socket.id, socket.user_id, id);
+    userOnline(socket);
+    usersOnline(io,socket);
     } catch (error) {
-      console.log(error);
-      sendWebhookError(error, "newPlugin listener", data);
+        console.log(error);
+        sendWebhookError(error, "unarchivedFromCompany listener", id);
     }
-    });
+  });
 
-    socket.on("deletePlugin",(data)=>{
-      try{
-      socket.to(data.user_id).emit("removePlugin",data);
-    } catch (error) {
-      console.log(error);
-      sendWebhookError(error, "deletePlugin listener", data);
-    }
-    });
-
-    socket.on("flagChannel",(data)=>{
-      try{
-      socket.to(data.user_id).emit("channelFlagged",data);
-    } catch (error) {
-      console.log(error);
-      sendWebhookError(error, "flagChannel listener", data);
-    }
-    });
 };
 
 module.exports = userListener;

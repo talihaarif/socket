@@ -1,5 +1,4 @@
 const {  teamInsert, teamUnarchived, teamArchived } = require("../utils/team");
-const { saveTeamEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
 const { createHash } = require("../utils/hash");
 

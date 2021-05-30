@@ -1,5 +1,4 @@
 const { companyInsert } = require("../utils/company");
-const { saveCompanyEmits } = require("../utils/emitQueue");
 const { sendWebhookError } = require("../utils/webhook");
 const { createHash } = require("../utils/hash");
 

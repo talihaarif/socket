@@ -65,9 +65,6 @@ const authentication = (socket, io) => {
                 usersOnline(io,socket);
                 //----------listening to emits from frontend start here----------
                 if(!socket.check){
-                    channelListener(socket,io);
-                    teamListener(socket, io);
-                    companyListener(socket,io);
                     messageListener(socket,io);
                     userListener(io,socket);
                 }
