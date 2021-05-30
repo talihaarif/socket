@@ -10,7 +10,8 @@ const router = expess.Router();
 //@desc     Add TokenNumber
 //@access   Private
 router.post("/channelUsers", async (req, res) => {
-  const { message, users,type,channel_id,team_id,company_id,channel_name,mention_users,webhooks } = req.body;
+  const { message, users,type,channel_id,team_id,company_id,channel_name,mention_users,webhooks,message_body } = req.body;
+  console.log(message_body);
   let user_ids='';
   if(webhooks === true){
     user_ids=users;
@@ -33,7 +34,7 @@ router.post("/channelUsers", async (req, res) => {
   };
   const url = config.get("url");
 
-  const body = JSON.stringify({ message, user_ids,company_id,team_id,channel_id,channel_name });
+  const body = JSON.stringify({ message, user_ids,company_id,team_id,channel_id,channel_name,message_body,type });
   try {
       const result = axios.post(url+"api/sendPush", body, configuration);
       res.json("ok");
