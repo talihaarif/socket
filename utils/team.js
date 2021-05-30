@@ -81,7 +81,7 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
             createTeamRoom(io,result.data);
             createPublicPrivateChannelRoom(io, result.data);
             io.to(result.data.user_id).emit("newTeamCreated",{company_id:result.data.company_id,team:result.data.team, public:result.data.public , private:result.data.private , team_token:resumeToken,hash:hash});
-            result.data.sub_admins.map(async(user_id)=>{
+            for (let user_id of result.data.sub_admins){
                 try {
                     body = JSON.stringify({ team_id,user_id });
                     result_data =await axios.post(url+"api/teamData", body, configuration);
@@ -92,7 +92,7 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
                     console.log(err);
                     sendWebhookError(err, "teamInsert", teamTemp);
                 }
-            });
+            }
     },3000);
     
 }
@@ -109,7 +109,7 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
 const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
         io.to(teamTemp._id.toString()).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken,hash:hash});
         let team_id=teamTemp._id.toString();
-        teamTemp.user_ids.map(async(user_id)=>{
+        for (let user_id of teamTemp.user_ids){
             try {
                 const body = JSON.stringify({ team_id,user_id });
                 const result =await axios.post(url+"api/teamData", body, configuration);
@@ -119,7 +119,7 @@ const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
                 console.log(err);
                 sendWebhookError(err, "teamArchived", teamTemp);
             }
-        });
+        }
 }
 
 /*
@@ -134,7 +134,7 @@ const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
 */
 const teamUnarchived=async(teamTemp,io,resumeToken, hash)=>{
     let team_id=teamTemp._id.toString();
-    teamTemp.user_ids.map(async(user_id)=>{
+    for (let user_id of teamTemp.user_ids){
         try {
             const body = JSON.stringify({ team_id,user_id });
             const result =await axios.post(url+"api/teamData", body, configuration);
@@ -145,8 +145,8 @@ const teamUnarchived=async(teamTemp,io,resumeToken, hash)=>{
             console.log(err.response.data);
             sendWebhookError(err, "teamUnarchived", teamTemp);
         }
-    });
-    teamUnarchiveEmitToSubAdmins(teamTemp, team_id, resumeToken, io, hash);
+    }
+    await teamUnarchiveEmitToSubAdmins(teamTemp, team_id, resumeToken, io, hash);
 }
 
 /*
@@ -167,7 +167,7 @@ const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io, has
         let result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
         let result_data = null;
         result1.data.sub_admins.push(result1.data.admin);
-        result1.data.sub_admins.map(async(user_id)=>{
+        for (let user_id of result1.data.sub_admins){
             try {
                 if(!teamTemp.user_ids.includes(user_id)){
                     body = JSON.stringify({ team_id,user_id });
@@ -180,7 +180,7 @@ const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io, has
                 console.log(err);
                 sendWebhookError(err, "teamUnarchiveEmitToSubAdmins", teamTemp);
             }
-        });
+        }
 }
 
 module.exports = {

@@ -33,6 +33,7 @@ const unarchivedFromCompany =async (data,io) =>{
         const body = JSON.stringify({ company_id,email });
         const result =await axios.post(url+"api/companyData", body, configuration);
         createCompanyRoom(io,result.data);
+        result.data.hash=data.hash
         io.to(data.user_id).emit("unarchivedCompany", result.data);
     } catch (err) {
         console.log(err);
@@ -42,19 +43,20 @@ const unarchivedFromCompany =async (data,io) =>{
 
 const addUserInNewCompany =async (data,io) =>{
     io.to(data.company_id).emit("newUserAdded", {company_id:data.company_id,users:data.users});
-    data.users.map(async(user)=>{
+    for (let user of data.users){
         let email=user.email;
         let company_id=data.company_id;
         try {
             const body = JSON.stringify({ company_id,email });
             const result =await axios.post(url+"api/companyData", body, configuration);
             createCompanyRoom(io,result.data);
+            result.data.companies[0].hash=data.hash;
             io.to(user._id).emit("addedInNewCompany",result.data.companies[0]);
         } catch (err) {
             console.log(err);
             sendWebhookError(err, "addUserInNewCompany listener", data);
         }
-    });
+    }
 }
 
 

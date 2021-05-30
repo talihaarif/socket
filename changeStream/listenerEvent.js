@@ -1,6 +1,7 @@
 const { joinChannel, newMemberInChannel, removedFromChannel, leaveChannel, muteChannel, flagChannel } = require("../listeners/channelListener");
 const { removedFromCompany, unarchivedFromCompany, addUserInNewCompany } = require("../listeners/companyListener");
 const { userAddedInTeam, usersAddedInTeams, leaveTeam, userRemovedFromTeam } = require("../listeners/teamListener");
+const { createHash } = require("../utils/hash");
 
 const listenerEvent = (conn, io) => {
     /*
@@ -23,6 +24,7 @@ const listenerEvent = (conn, io) => {
    listenerEvent.on("change", async (change) => {
         try{
         let listenerEventTemp = change.fullDocument;
+        listenerEventTemp.hash =createHash(listenerEventTemp.created_at,change)
         switch (change.operationType) {
             case "insert":
                 //channel

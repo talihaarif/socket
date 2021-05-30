@@ -21,21 +21,21 @@ const url = config.get("url");
     }
  }
 
- const newMemberInChannel =(data,io)=>{
+ const newMemberInChannel =async(data,io)=>{
     try{
         io.to(data.channel_id).emit("userAddedInChannel", data );
         if(data.type=='private'){
-            data.user_ids.map(async(user_id) => {
+            for (let user_id of data.user_ids){
                 let channel_id=data.channel_id;
                 try {
                     const body = JSON.stringify({ channel_id,user_id });
                     const result =await axios.post(url+"api/channelData", body, configuration);
                     createChannelRoom(io,result.data);
-                    io.to(user_id).emit("addedInChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel});
+                    io.to(user_id).emit("addedInChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,hash:data.hash});
                 } catch (err) {
                     console.log(err.response.data);
                 }
-            });
+            }
         }
     } catch (error) {
         console.log(error);
@@ -43,20 +43,20 @@ const url = config.get("url");
     }
  }
 
- const removedFromChannel = (data,io)=>{
+ const removedFromChannel = async(data,io)=>{
     try{
         if(data.type=='private'){
-            data.user_ids.map(async(user_id) => {
+            for (let user_id of data.user_ids){
                 let channel_id=data.channel_id;
                 try {
                     const body = JSON.stringify({ channel_id,user_id });
                     const result =await axios.post(url+"api/channelData", body, configuration);
                     deleteChannelRoom(io,result.data);
-                    io.to(user_id).emit("removedChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:{_id:channel_id,name:result.data.channel.name}});
+                    io.to(user_id).emit("removedChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:{_id:channel_id,name:result.data.channel.name},hash:data.hash});
                 } catch (err) {
                     console.log(err.response.data);
                 }
-            });
+            }
         }
         io.to(data.channel_id).emit("usersRemovedFromChannel",  data );
     } catch (error) {

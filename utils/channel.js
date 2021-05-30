@@ -173,7 +173,7 @@ const channelNameUpdate=(channelTemp,io,resumeToken, hash)=>{
 const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
         io.to(channelTemp._id.toString()).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
         let channel_id=channelTemp._id.toString();
-        channelTemp.user_ids.map(async(user_id)=>{
+        for (let user_id of channelTemp.user_ids){
             try {
                 const body = JSON.stringify({ channel_id,user_id });
                 const result =await axios.post(url+"api/channelData", body, configuration);
@@ -182,8 +182,8 @@ const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
                 console.log(err.response.data);
                 sendWebhookError(err, "channelArchived", channelTemp);
             }
-        });
-        channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io, hash);
+        }
+        await channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io, hash);
 }
 
 /*
@@ -219,8 +219,8 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
                 io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
             };
         }
-        channelUnarchiveEmitForPublicPrivateChannels(channel_id,result, io, channelTemp, resumeToken, hash);
-        chanelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash);
+        await channelUnarchiveEmitForPublicPrivateChannels(channel_id,result, io, channelTemp, resumeToken, hash);
+        await chanelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash);
     } catch (err) {
         console.log(err);
         sendWebhookError(err, "channelUnarchived", channelTemp);
@@ -279,7 +279,7 @@ const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken,
         console.log("channelArchiveEmitToSubAdmins::", result1.data);
         var result_data = null;
         result1.data.sub_admins.push(result1.data.admin);
-        result1.data.sub_admins.map(async (user_id)=>{
+        for (let user_id of result1.data.sub_admins){
             try {
                 if(!channelTemp.user_ids.includes(user_id)){
                     let body2 = JSON.stringify({ channel_id,user_id });
@@ -290,7 +290,7 @@ const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken,
                 console.log(err);
                 sendWebhookError(err, "channelArchiveEmitToSubAdmins", channelTemp);
             }
-        });
+        }
     }
 }
 
@@ -310,7 +310,7 @@ const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resu
         let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
         let result_data = null;
         result1.data.sub_admins.push(result1.data.admin);
-        result1.data.sub_admins.map(async(user_id)=>{
+        for (let user_id of result1.data.sub_admins){
             try {
                 if(!channelTemp.user_ids.includes(user_id)){
                     body = JSON.stringify({ channel_id,user_id });
@@ -322,7 +322,7 @@ const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resu
                 console.log(err);
                 sendWebhookError(err, "chanelUnArchiveEmitToSubAdmins", channelTemp);
             }
-        });
+        }
 }
 
 /*
