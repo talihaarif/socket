@@ -38,6 +38,17 @@ const messageListener = (socket,io) => {
     socket.on("markSeenAllReplies", (data) => {
         try{
         socket.to(data.user_id).emit("multipleReplySeen", data);
+        socket.to(data.channel_id).emit("multipleReplyRead", data);
+    } catch (error) {
+        console.log(error);
+        sendWebhookError(error, "markSeenAllReplies listener", data);
+    }
+    });
+
+    socket.on("markSeenSingleReplies", (data) => {
+        try{
+        socket.to(data.user_id).emit("singleReplySeen", data);
+        socket.to(data.channel_id).emit("singleReplyRead", data);
     } catch (error) {
         console.log(error);
         sendWebhookError(error, "markSeenAllReplies listener", data);
