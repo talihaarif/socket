@@ -47,9 +47,10 @@ const url = config.get("url");
     try{
         if(data.type=='private'){
             for (let user_id of data.user_ids){
-                let channel_id=data.channel_id;
+                let channel_id=data.channel._id;
                 try {
                     const body = JSON.stringify({ channel_id,user_id });
+                    console.log("body is:",body);
                     const result =await axios.post(url+"api/channelData", body, configuration);
                     deleteChannelRoom(io,result.data);
                     io.to(user_id).emit("removedChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:{_id:channel_id,name:result.data.channel.name},hash:data.hash});
@@ -58,7 +59,7 @@ const url = config.get("url");
                 }
             }
         }
-        io.to(data.channel_id).emit("usersRemovedFromChannel",  data );
+        io.to(data.channel._id).emit("usersRemovedFromChannel",  data );
     } catch (error) {
         console.log(error);
         sendWebhookError(error, "removedFromChannel listener", data);

@@ -1,7 +1,7 @@
 const express = require("express");
 var cors = require("cors");
 const app = express();
-const http = require("http");
+const https = require("https");
 const mongoose = require("mongoose");
 const config = require("config");
 const { getAllToken } = require("./utils/token");
@@ -12,7 +12,6 @@ const message = require("./changeStream/message");
 const team = require("./changeStream/team");
 const token = require("./changeStream/token");
 const user = require("./changeStream/user");
-const listenerEvent = require("./changeStream/listenerEvent");
 const reminder = require("./changeStream/reminder");
 const permission = require("./changeStream/permission");
 const authentication = require("./listeners/authentication");
@@ -33,15 +32,15 @@ const configuration = {
 
 //https certificate 
 const options = {
-    // key: fs.readFileSync('privkey.pem'),
-    // cert: fs.readFileSync('cert.pem'),
+    key: fs.readFileSync('privkey.pem'),
+    cert: fs.readFileSync('cert.pem'),
 };
 
 
 const db = config.get("mongoURI");
 const url = config.get("url");
 const PORT = process.env.PORT || 5000;
-const server = http.createServer(options, app);
+const server = https.createServer(options, app);
 
 //Init Middleware
 app.use(cors());
@@ -149,7 +148,6 @@ connection.once("open", () => {
     reminder(connection, io);
     permission(connection, io);
     pushError(connection, io);
-    listenerEvent(connection,io);
 
 });
 
