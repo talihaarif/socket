@@ -48,10 +48,10 @@ const leaveTeam =async (data,io)=>{
         const result =await axios.post(url+"api/teamData", body, configuration);
         deleteTeamRoom(io,result.data);
         deletePublicPrivateChannelRoom(io, result.data);
-        io.to(data.user_id).emit("removedFromTeam",{company_id:data.company_id,team_id:data.team._id,_id:data.user_id,hash:data.hash});
+        io.to(data.user_id).emit("removedFromTeam",{company_id:data.company_id,team_id:data.team_id,_id:data.user_id,hash:data.hash});
         io.to(data.team_id).emit("userLeftTeam", {
             company_id:data.company_id,
-            team_id: data.team._id,
+            team_id: data.team_id,
             user_ids: [data.user_id],
             hash:data.hash
         });
