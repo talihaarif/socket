@@ -25,7 +25,7 @@ const listenerEvent = (conn, io) => {
    listenerEvent.on("change", async (change) => {
         try{
         let listenerEventTemp = change.fullDocument;
-        listenerEventTemp.hash =createHash(listenerEventTemp.created_at,change)
+        listenerEventTemp.data.hash =createHash(listenerEventTemp.created_at,change)
         switch (change.operationType) {
             case "insert":
                 //channel

@@ -42,7 +42,7 @@ const unarchivedFromCompany =async (data,io) =>{
 }
 
 const addUserInNewCompany =async (data,io) =>{
-    io.to(data.company_id).emit("newUserAdded", {company_id:data.company_id,users:data.users});
+    io.to(data.company_id).emit("newUserAdded", {company_id:data.company_id,users:data.users,hash:data.hash});
     for (let user of data.users){
         let email=user.email;
         let company_id=data.company_id;
