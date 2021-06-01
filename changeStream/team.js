@@ -35,7 +35,7 @@ const team = (conn, io) => {
         switch (change.operationType) {
             case "insert":
                 if(teamTemp.default==false)
-                    teamInsert(teamTemp,io,change._id, hash);
+                    await teamInsert(teamTemp,io,change._id, hash);
                 break;
             case "update":
                 let teamUpdateCheck = change.updateDescription.updatedFields;
@@ -51,10 +51,10 @@ const team = (conn, io) => {
                     teamUpdateCheck.deleted_at === null
                 ) {
                     if (teamUpdateCheck.deleted_at === null){
-                        teamUnarchived(teamTemp,io,change._id, hash);
+                        await teamUnarchived(teamTemp,io,change._id, hash);
                     }
                     else {
-                        teamArchived(teamTemp,io,change._id, hash);
+                        await teamArchived(teamTemp,io,change._id, hash);
                     }
                 }
                 break;

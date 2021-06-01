@@ -33,7 +33,7 @@ const company = (conn, io) => {
         let hash = createHash(companyTemp.created_at,change);
         switch (change.operationType) {
             case "insert":
-                companyInsert(companyTemp,io,change._id, hash);
+                await companyInsert(companyTemp,io,change._id, hash);
                 break;
             case "update":
                 let companyUpdateCheck = change.updateDescription.updatedFields;

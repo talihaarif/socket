@@ -31,7 +31,7 @@ const channel = (conn, io) => {
         switch (change.operationType) {
             case "insert":
                 if(channelTemp.default==false)
-                    channelInsert(channelTemp,io,change._id, hash);
+                    await channelInsert(channelTemp,io,change._id, hash);
                 break;
             case "update":
                 let channelUpdateCheck = change.updateDescription.updatedFields;
@@ -70,10 +70,10 @@ const channel = (conn, io) => {
                     if (
                         channelUpdateCheck.deleted_at === null
                     ){
-                        channelUnarchived(channelTemp,io,change._id, hash);
+                        await channelUnarchived(channelTemp,io,change._id, hash);
                     }
                     else{
-                        channelArchived(channelTemp,io,change._id, hash);
+                        await channelArchived(channelTemp,io,change._id, hash);
                     }
                         
                 } else if (channelUpdateCheck.creator_id) {
