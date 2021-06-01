@@ -2,6 +2,7 @@ const { joinChannel, newMemberInChannel, removedFromChannel, leaveChannel, muteC
 const { removedFromCompany, unarchivedFromCompany, addUserInNewCompany } = require("../listeners/companyListener");
 const { userAddedInTeam, usersAddedInTeams, leaveTeam, userRemovedFromTeam } = require("../listeners/teamListener");
 const { createHash } = require("../utils/hash");
+const { sendWebhookError } = require("../utils/webhook");
 
 const listenerEvent = (conn, io) => {
     /*
