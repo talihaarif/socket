@@ -16,11 +16,11 @@ const reminder = require("./changeStream/reminder");
 const permission = require("./changeStream/permission");
 const authentication = require("./listeners/authentication");
 const fs = require('fs');
-const { leaveCompanyRoom } = require("./utils/room");
 const resumeAfter = require("./listeners/resumeAfter");
 const error = require("./changeStream/error");
 const { default: axios } = require("axios");
 const pushError = require("./changeStream/errorPush");
+const listenerEvent = require("./changeStream/listenerEvent");
 
 // Configuration to send request to backend
 const configuration = {
@@ -148,7 +148,7 @@ connection.once("open", () => {
     reminder(connection, io);
     permission(connection, io);
     pushError(connection, io);
-
+    listenerEvent(connection,io);
 });
 
 server.listen(PORT, () => console.log(`Sever Started on Port ${PORT}`));
