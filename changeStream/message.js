@@ -111,6 +111,9 @@ const message = (conn, io) => {
                     else if (messageUpdateCheck.child_read){
                         break;
                     }
+                    else if (messageUpdateCheck.pinned_by){
+                        break;
+                    }
                     else if (messageUpdateCheck.delete_after){
                         io.to(messageTemp.sender_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash });
                     }
