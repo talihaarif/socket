@@ -20,22 +20,22 @@ const userListener = (io,socket) => {
 
     socket.on("getOnlineUsers", () => {
       try{
-      usersOnline(io,socket);
-    } catch (error) {
-      console.log(error);
-      sendWebhookError(error, "getOnlineUsers listener");
-    }
+        usersOnline(io,socket);
+      } catch (error) {
+        console.log(error);
+        sendWebhookError(error, "getOnlineUsers listener");
+      }
     });
 
   socket.on("switchCompany", (id) => {
     try{
-    console.log("switch from " ,socket.company_id);
-    console.log("switch to " ,id);
-    userOffline(socket);
-    socket.company_id = id;
-    saveUser(socket.id, socket.user_id, id);
-    userOnline(socket);
-    usersOnline(io,socket);
+      console.log("switch from " ,socket.company_id);
+      console.log("switch to " ,id);
+      userOffline(socket);
+      socket.company_id = id;
+      saveUser(socket.id, socket.user_id, id);
+      userOnline(socket);
+      usersOnline(io,socket);
     } catch (error) {
         console.log(error);
         sendWebhookError(error, "unarchivedFromCompany listener", id);

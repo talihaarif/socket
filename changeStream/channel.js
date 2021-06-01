@@ -37,7 +37,6 @@ const channel = (conn, io) => {
                 let channelUpdateCheck = change.updateDescription.updatedFields;
                 if (channelUpdateCheck.name) {
                     channelNameUpdate(channelTemp,io,change._id,hash);
-    
                 } else if (channelUpdateCheck.display_name) {
                     console.log("channel info:",channelTemp);
                     io.to(channelTemp.creator_id).emit("channelNameUpdate", {
