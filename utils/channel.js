@@ -236,9 +236,11 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
 */
 const publicChannelJoin=(io,data)=>{
     try {
+        console.log(data);
         let clients = io.sockets.adapter.rooms.get(data.team_id);
         if(!clients)
             return true;
+        console.log(clients);
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
             if(clientSocket.user_id != data.channel.creator_id)
