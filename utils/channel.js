@@ -240,9 +240,9 @@ const publicChannelJoin=(io,data)=>{
         let clients = io.sockets.adapter.rooms.get(data.team_id);
         if(!clients)
             return true;
-        console.log(clients);
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
+            console.log(clientSocket);
             if(clientSocket.user_id != data.channel.creator_id)
                 joinChannelRoom(clientSocket,[data.channel]);
         }
