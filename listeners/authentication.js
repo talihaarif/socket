@@ -53,6 +53,7 @@ const authentication = (socket, io) => {
                 let user_id = result.data._id;
                 socket.user_id = user_id;
                 socket.token = data.token;
+                socket.status = data.status;
                 socket.join(user_id);
                 socket.join(data.token);
                 joinCompanyRoom(socket,result.data.companies,true,data.selected_company);

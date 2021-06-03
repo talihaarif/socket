@@ -33,12 +33,12 @@ const userListener = (io,socket) => {
       console.log("switch to " ,id);
       userOffline(socket);
       socket.company_id = id;
-      saveUser(socket.id, socket.user_id, id);
+      saveUser(socket.id, socket.user_id, id, socket.status);
       userOnline(socket);
       usersOnline(io,socket);
     } catch (error) {
         console.log(error);
-        sendWebhookError(error, "unarchivedFromCompany listener", id);
+        sendWebhookError(error, "switchCompany listener", id);
     }
   });
 

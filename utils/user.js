@@ -6,13 +6,14 @@ let users = [];
 Save the data of the user which is connected to the socket
 to keep track of online and offline user.
 */
-const saveUser = async(socket_id, user_id, company_id) => {
+const saveUser = async(socket_id, user_id, company_id, status) => {
     try{
         users.push({
             socket_id: socket_id,
             user_id: user_id,
             company_id: company_id,
             active: false,
+            status:status,
         });
     } catch (error) {
         console.log(error);
@@ -121,6 +122,7 @@ const userOffline=(socket)=>{
             socket.to(socket.company_id).emit("userOffline", {
                 company_id: socket.company_id,
                 user_id: socket.user_id,
+                status: socket.status,
             });
         }
     } catch (error) {
@@ -135,6 +137,7 @@ const userOnline=(socket)=>{
         socket.to(socket.company_id).emit("userOnline", {
             company_id: socket.company_id,
             user_id: socket.user_id,
+            status: socket.status,
         });
     } catch (error) {
         console.log(error);

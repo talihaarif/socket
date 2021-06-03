@@ -47,31 +47,38 @@ const user = (conn, io) => {
                         hash:hash
                     });
                 });
-            } else if (userUpdateCheck.full_name) {
-                userTemp.company_ids.map((company_id) => {
-                    io.to(company_id).emit("userNameUpdate", {
+            } 
+            else if (userUpdateCheck.full_name || userUpdateCheck.two_fa || userUpdateCheck.two_fa===false || userUpdateCheck.custom_status || userUpdateCheck.custom_status===null || userUpdateCheck.designation) {
+                if(userUpdateCheck.two_fa || userUpdateCheck.two_fa===false){
+                    io.to(userTemp._id.toString()).emit("userTwoFaChange", {
                         user_id: userTemp._id,
-                        name: userTemp.full_name,
+                        two_fa:userTemp.two_fa,
                         user_token:change._id,
                         hash:hash
                     });
-                });
-            } else if(userUpdateCheck.two_fa){
-                io.to(userTemp._id).emit("userTwoFaChange", {
-                    user_id: userTemp._id,
-                    two_fa:userTemp.two_fa,
-                    user_token:change._id,
-                    hash:hash
-                });
-            } else if(userUpdateCheck.in_app_notification){
-                io.to(userTemp._id).emit("userInAppNotification", {
+                }
+                if(userUpdateCheck.full_name || userUpdateCheck.custom_status || userUpdateCheck.custom_status===null || userUpdateCheck.designation){
+                    userTemp.company_ids.map((company_id) => {
+                        io.to(company_id).emit("userSettingsUpdated", {
+                            user_id: userTemp._id,
+                            name: userTemp.full_name,
+                            custom_status: userTemp.custom_status,
+                            designation: userTemp.designation,
+                            user_token:change._id,
+                            hash:hash
+                        });
+                    });
+                }
+            } 
+             else if(userUpdateCheck.in_app_notification){
+                io.to(userTemp._id.toString()).emit("userInAppNotification", {
                     user_id: userTemp._id,
                     in_app_notification:userTemp.in_app_notification,
                     user_token:change._id,
                     hash:hash
                 });
-            } else if(userUpdateCheck.notification_sound){
-                io.to(userTemp._id).emit("userNotificationSound", {
+            } else if(userUpdateCheck.notification_sound===true || userUpdateCheck.notification_sound===false){
+                io.to(userTemp._id.toString()).emit("userNotificationSound", {
                     user_id: userTemp._id,
                     notification_sound:userTemp.notification_sound,
                     user_token:change._id,
@@ -89,15 +96,15 @@ const user = (conn, io) => {
                 });
             }
             else if(userUpdateCheck.push_notification){
-                io.to(userTemp._id).emit("userPushNotification", {
+                io.to(userTemp._id.toString()).emit("userPushNotification", {
                     user_id: userTemp._id,
                     push_notification:userTemp.push_notification,
                     user_token:change._id,
                     hash:hash
                 });
             } 
-            else if(userUpdateCheck.do_not_disturb){
-                io.to(userTemp._id).emit("userDoNotDisturb", {
+            else if(userUpdateCheck.do_not_disturb===true || userUpdateCheck.do_not_disturb===false){
+                io.to(userTemp._id.toString()).emit("userDoNotDisturb", {
                     user_id: userTemp._id,
                     do_not_disturb:userTemp.do_not_disturb,
                     user_token:change._id,
