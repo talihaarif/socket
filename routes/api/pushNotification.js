@@ -18,6 +18,9 @@ router.post("/channelUsers", async (req, res) => {
   else if(type =='direct' || type=='public' || message.includes('@channel')){
     user_ids=users;
   }
+  else if(type=='query'){
+    user_ids=users;
+  }
   else if(message.includes('@here')){
     user_ids=await getAllInactiveUsers(users);
   }
