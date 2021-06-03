@@ -38,6 +38,10 @@ router.post("/channelUsers", async (req, res) => {
   console.log("mention users",mention_users);
   console.log("user_ids",user_ids);
   console.log("new message",message_body);
+  if(message_body.replying_id)
+    console.log("yes");
+  else
+    console.log("no");
   const body = JSON.stringify({ message, user_ids,company_id,team_id,channel_id,channel_name,message_body,type });
   try {
       const result = axios.post(url+"api/sendPush", body, configuration);
