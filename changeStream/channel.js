@@ -38,7 +38,6 @@ const channel = (conn, io) => {
                 if (channelUpdateCheck.name) {
                     channelNameUpdate(channelTemp,io,change._id,hash);
                 } else if (channelUpdateCheck.display_name) {
-                    console.log("channel info:",channelTemp);
                     io.to(channelTemp.creator_id).emit("channelNameUpdate", {
                             channel: {name:channelTemp.display_name,_id: channelTemp._id},
                             type:channelTemp.type,
@@ -88,7 +87,6 @@ const channel = (conn, io) => {
                 break;
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "channel change stream", change);
     }
     });

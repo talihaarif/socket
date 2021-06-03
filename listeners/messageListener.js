@@ -22,7 +22,6 @@ const messageListener = (socket,io) => {
         socket.to(data.user_id).emit("multipleMessagesSeen", data);
         io.to(data.channel_id).emit("multipleMessagesRead", data);
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "messagesRead listener", data);
     }
     });
@@ -31,7 +30,6 @@ const messageListener = (socket,io) => {
         socket.to(data.user_id).emit("singleMessageSeen", data);
         io.to(data.channel_id).emit("singleMessageRead", data);
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "messageRead listener", data);
     }
     });
@@ -40,7 +38,6 @@ const messageListener = (socket,io) => {
         socket.to(data.user_id).emit("multipleReplySeen", data);
         socket.to(data.channel_id).emit("multipleReplyRead", data);
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "markSeenAllReplies listener", data);
     }
     });
@@ -50,7 +47,6 @@ const messageListener = (socket,io) => {
         socket.to(data.user_id).emit("singleReplySeen", data);
         socket.to(data.channel_id).emit("singleReplyRead", data);
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "markSeenAllReplies listener", data);
     }
     });
@@ -59,7 +55,6 @@ const messageListener = (socket,io) => {
         try {
             socket.to(data.channel_id).emit("addReplyReadBy", data);
         } catch (error) {
-            console.log(error);
             sendWebhookError(error, "replyReadBy listener", data);
         }
     });
@@ -68,7 +63,6 @@ const messageListener = (socket,io) => {
         try{
         socket.to(data.channel_id).emit("someoneIsTyping", data);
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "typing listener", data);
     }
     });
@@ -77,7 +71,6 @@ const messageListener = (socket,io) => {
         try{
         socket.to(data.channel_id).emit("someoneStopTyping", data);
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "stopTyping listener", data);
     }
     });

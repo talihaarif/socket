@@ -8,7 +8,6 @@ const addIds = (data) => {
     try{
         ids.push(data);
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "addIds", data);
     }
 };
@@ -22,7 +21,6 @@ const removeIds = (id) => {
             return el.channel_id != id;
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "removeIds", id);
     }
 };
@@ -38,7 +36,6 @@ const checkIds = (id) => {
         }
         return false;
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "checkIds", id);
     }
 };

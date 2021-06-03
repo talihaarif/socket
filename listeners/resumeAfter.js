@@ -32,7 +32,6 @@ const resumeAfter = (conn,io,data) => {
                     let body = JSON.stringify({ channel_id });
                     result =await axios.post(url+"api/teamAndCompanyId", body, configuration);
                 } catch (err) {
-                    console.log(err.response.data);
                     sendWebhookError(err);
                 }
                 // console.log("message resume",messageTemp);
@@ -65,7 +64,6 @@ const resumeAfter = (conn,io,data) => {
                 }
             }
         } catch (error) {
-            console.log(error);
             sendWebhookError(error, "resumeAfter listener", change);
         }
     });

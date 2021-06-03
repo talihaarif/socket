@@ -27,7 +27,6 @@ const message = (conn, io) => {
         let id = messageTemp.channel_id;
         delete messageTemp.channel_id;
         if(messageTemp.replying_id){
-            console.log("new query reply");
             io.to(id).emit("newReplyMessage", { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
             io.to(messageTemp.parent.sender_id).emit("newReplyMessage", { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
         }
@@ -36,7 +35,6 @@ const message = (conn, io) => {
             io.to(messageTemp.sender_id).emit("forwardMessage", { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
         } 
         else{
-            console.log("new query message");
             io.to(id).emit("newMessage", { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
             io.to(messageTemp.sender_id).emit("newMessage", { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
         }
@@ -127,12 +125,10 @@ const message = (conn, io) => {
                         delete messageTemp.channel_id;
                         io.to(messageTemp.reminded_to).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash});
                     } else if (messageTemp.replying_id) {
-                        console.log("new reply");
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
                         io.to(id).emit("newReplyMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
                     } else {
-                        console.log("new message");
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
                         io.to(id).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
@@ -168,7 +164,6 @@ const message = (conn, io) => {
                     break;
             }
         } catch (err) {
-            console.log(err.response);
             sendWebhookError(err, "message change stream", change);
         }
     });

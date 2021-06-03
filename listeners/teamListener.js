@@ -22,7 +22,6 @@ const userAddedInTeam = async(data,io) =>{
             createPublicPrivateChannelRoom(io, result.data);
             io.to(user_id).emit("addedInTeam", {company_id:data.company_id,team:result.data.team, public:result.data.public,hash:data.hash});
         } catch (err) {
-            console.log(err.response.data);
             sendWebhookError(err, "userAddedInTeam listener", data);
         }
     }
@@ -36,7 +35,6 @@ const usersAddedInTeams = (data,io) =>{
             io.to(team_id).emit("newUserAddedInTeam", {user_ids,team_id,company_id,hash:data.hash});
         })
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "usersAddedInTeams listener", data);
     }
 }
@@ -56,7 +54,6 @@ const leaveTeam =async (data,io)=>{
             hash:data.hash
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "leaveTeam listener", data);
     }
 }
@@ -71,7 +68,6 @@ const userRemovedFromTeam = async(data,io)=>{
             deletePublicPrivateChannelRoom(io, result.data);
             io.to(user_id).emit("removedFromTeam", {company_id:data.company_id,team_id:data.team_id,_id: user_id,hash:data.hash} );
         } catch (err) {
-            console.log(err.response.data);
             sendWebhookError(err, "userRemovedFromTeam listener", data);
         }
     }

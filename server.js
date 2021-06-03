@@ -116,7 +116,7 @@ io.on("connection", (socket) => {
                 })
             }
         } catch (err) {
-            console.log(err.response);
+            console.log("team link",err.response);
         }
     });
 

@@ -114,7 +114,6 @@ const user = (conn, io) => {
             break;
     }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "user change stream", change);
     }
 });

@@ -22,7 +22,6 @@ const userListener = (io,socket) => {
       try{
         usersOnline(io,socket);
       } catch (error) {
-        console.log(error);
         sendWebhookError(error, "getOnlineUsers listener");
       }
     });
@@ -37,7 +36,6 @@ const userListener = (io,socket) => {
       userOnline(socket);
       usersOnline(io,socket);
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "switchCompany listener", id);
     }
   });

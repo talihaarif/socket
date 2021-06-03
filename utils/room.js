@@ -35,7 +35,6 @@ const joinCompanyRoom = (socket,companies,login=false,selected_company=null) => 
             // }
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "joinCompanyRoom", companies);
     }
 };
@@ -51,7 +50,6 @@ const joinTeamRoom = (socket,teams) => {
             socket.join(team._id);
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "joinTeamRoom", teams);
     }
 };
@@ -67,7 +65,6 @@ const joinChannelRoom = (socket,channels) => {
             socket.join(channel._id);
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "joinChannelRoom", channels);
     }
 };
@@ -95,7 +92,6 @@ const leaveCompanyRoom = (socket,companies,logout=false) => {
             leaveChannelRoom(socket,company.direct);
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "leaveCompanyRoom", companies);
     }
 };
@@ -111,7 +107,6 @@ const leaveTeamRoom = (socket,teams) => {
             socket.leave(team._id);
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "leaveTeamRoom", teams);
     }
 };
@@ -127,7 +122,6 @@ const leaveChannelRoom = (socket,channels) => {
             socket.leave(channel._id);
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "leaveChannelRoom", channels);
     }
 };

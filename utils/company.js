@@ -30,7 +30,6 @@ const createCompanyRoom = (io,data) => {
             joinCompanyRoom(clientSocket,data.companies);
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "createCompanyRoom", data);
     }
 
@@ -54,7 +53,6 @@ const deleteCompanyRoom = (io,data) => {
             userOffline(clientSocket);
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "deleteCompanyRoom", data);
     }
 
@@ -79,7 +77,6 @@ const companyInsert=async(companyTemp,io,resumeToken, hash)=>{
         },3000);
         
     } catch (err) {
-        console.log(err);
         sendWebhookError(err, "companyInsert", companyTemp);
     }
 }

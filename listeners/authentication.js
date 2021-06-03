@@ -84,7 +84,6 @@ const authentication = (socket, io) => {
                 socket.emit("reconnect", "");       
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "authentication listener", data);
     }
     });

@@ -36,7 +36,7 @@ router.post("/channelUsers", async (req, res) => {
   };
   const url = config.get("url");
 
-  console.log(message_body);
+  console.log("new message",message_body);
   const body = JSON.stringify({ message, user_ids,company_id,team_id,channel_id,channel_name,message_body,type });
   try {
       const result = axios.post(url+"api/sendPush", body, configuration);
@@ -48,7 +48,6 @@ router.post("/channelUsers", async (req, res) => {
 });
 
 router.get("/test",(req,res)=>{
-  console.log("In test");
   res.json("hello new");
 });
 

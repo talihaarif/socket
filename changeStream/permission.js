@@ -29,7 +29,6 @@ const permission = (conn, io) => {
                 break;
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "permission change stream", change);
     }
     });

@@ -16,7 +16,6 @@ const saveUser = async(socket_id, user_id, company_id, status) => {
             status:status,
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "saveUser", user_id);
     }
 };
@@ -37,7 +36,6 @@ const findUser = (socket_id, user_id, company_id) => {
         }
         return false;
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "findUser", user_id);
     }
 };
@@ -55,7 +53,6 @@ const removeUser = (socket_id, user_id, company_id) => {
         }
         return false;
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "removeUser", user_id);
     }
 };
@@ -68,7 +65,6 @@ const allOnlineUsers = (company_id, user_id) => {
         });
         return onlineUsersArray;
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "allOnlineUsers", user_id);
     }
 };
@@ -82,7 +78,6 @@ const getAllOfflineUsers = (channelUser) => {
         });
         return offlineUsers;
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "getAllOfflineUsers", channelUser);
     }
 };
@@ -96,7 +91,6 @@ const getAllInactiveUsers = (channelUser) => {
         });
         return inactiveUsers;
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "getAllInactiveUsers", channelUser);
     }
 };
@@ -110,7 +104,6 @@ const setActiveStatus = (active,id) => {
             users[index].active = active;
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "setActiveStatus", id);
     }
 };
@@ -126,7 +119,6 @@ const userOffline=(socket)=>{
             });
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "userOffline", socket);
     }
 }
@@ -140,7 +132,6 @@ const userOnline=(socket)=>{
             status: socket.status,
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "userOnline", socket);
     }
 }
@@ -152,7 +143,6 @@ const usersOnline=(io,socket)=>{
             users: allOnlineUsers(socket.company_id, socket.user_id),
         });
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "usersOnline", socket);
     }
 }

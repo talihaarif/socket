@@ -39,7 +39,6 @@ const error = (conn, io) => {
                 break;
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "error change stream", change);
     }
     });

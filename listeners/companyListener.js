@@ -20,7 +20,6 @@ const removedFromCompany =async (data,io) =>{
         io.to(data.user_id).emit("removedCompany", data);
         io.to(data.company_id).emit("userRemovedFromCompany",data);
     } catch (err) {
-        console.log(err);
         sendWebhookError(err, "removedFromCompany listener", data);
     }
 }
@@ -36,7 +35,6 @@ const unarchivedFromCompany =async (data,io) =>{
         result.data.hash=data.hash
         io.to(data.user_id).emit("unarchivedCompany", result.data);
     } catch (err) {
-        console.log(err);
         sendWebhookError(err, "unarchivedFromCompany listener", data);
     }
 }
@@ -53,7 +51,6 @@ const addUserInNewCompany =async (data,io) =>{
             result.data.companies[0].hash=data.hash;
             io.to(user._id).emit("addedInNewCompany",result.data.companies[0]);
         } catch (err) {
-            console.log(err);
             sendWebhookError(err, "addUserInNewCompany listener", data);
         }
     }

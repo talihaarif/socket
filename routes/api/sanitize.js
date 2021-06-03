@@ -11,7 +11,6 @@ router.post("/sanitizeMessage", async (req, res) => {
         printList(html);
         return res.json(html);
     } catch(err) {
-        console.log(err);
         sendWebhookError(error, "/sanitizeMessage", req);
         return res.json({message: err});
     } 

@@ -35,7 +35,6 @@ const token = (conn, io) => {
                 break;
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "token change stream", change);
     }
     });

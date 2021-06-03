@@ -55,7 +55,6 @@ const company = (conn, io) => {
                 break;
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "company change stream", change);
     }
     });

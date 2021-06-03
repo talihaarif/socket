@@ -16,7 +16,6 @@ const url = config.get("url");
         io.to(data.user_ids[0]).emit('publicChannelJoined',data);
         io.to(data.channel_id).emit("userAddedInChannel",  data );
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "join channel listener", data);
     }
  }
@@ -33,12 +32,11 @@ const url = config.get("url");
                     createChannelRoom(io,result.data);
                     io.to(user_id).emit("addedInChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,hash:data.hash});
                 } catch (err) {
-                    console.log(err.response.data);
+                    sendWebhookError(err, "newMemberInChannel listener", data);
                 }
             }
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "newMemberInChannel listener", data);
     }
  }
@@ -50,18 +48,16 @@ const url = config.get("url");
                 let channel_id=data.channel._id;
                 try {
                     const body = JSON.stringify({ channel_id,user_id });
-                    console.log("body is:",body);
                     const result =await axios.post(url+"api/channelData", body, configuration);
                     deleteChannelRoom(io,result.data);
                     io.to(user_id).emit("removedChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:{_id:channel_id,name:result.data.channel.name},hash:data.hash});
                 } catch (err) {
-                    console.log(err.response.data);
+                    sendWebhookError(err, "removedFromChannel listener", data);
                 }
             }
         }
         io.to(data.channel._id).emit("usersRemovedFromChannel",  data );
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "removedFromChannel listener", data);
     }
  }
@@ -73,7 +69,6 @@ const url = config.get("url");
         io.to(data.user_id).emit('channelLeft',data);
         io.to(data.channel._id).emit("usersRemovedFromChannel",  data );
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "leaveChannel listener", data);
     }
  }
@@ -82,7 +77,6 @@ const url = config.get("url");
     try{
         io.to(data.user_id).emit("channelMuted",data);
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "muteChannel listener", data);
     }
  }
@@ -91,7 +85,6 @@ const url = config.get("url");
     try{
         io.to(data.user_id).emit("channelFlagged",data);
       } catch (error) {
-        console.log(error);
         sendWebhookError(error, "flagChannel listener", data);
       }
  }

@@ -30,7 +30,6 @@ const createTeamRoom = (io,data) => {
             joinTeamRoom(clientSocket,[data.team]);
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "createTeamRoom", data);
     }
 };
@@ -52,7 +51,6 @@ const deleteTeamRoom = (io,data) => {
             leaveTeamRoom(clientSocket,[data.team]);
         }
     } catch (error) {
-        console.log(error);
         sendWebhookError(error, "deleteTeamRoom", data);
     }
 };
@@ -89,7 +87,6 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
                     createPublicPrivateChannelRoom(io, result_data.data);
                     io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team, public:result_data.data.public ,team_token:resumeToken,hash:hash});
                 } catch (err) {
-                    console.log(err);
                     sendWebhookError(err, "teamInsert", teamTemp);
                 }
             }
@@ -116,7 +113,6 @@ const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
                 deleteTeamRoom(io,result.data);
                 deletePublicPrivateChannelRoom(io, result.data);
             } catch (err) {
-                console.log(err);
                 sendWebhookError(err, "teamArchived", teamTemp);
             }
         }
@@ -142,7 +138,6 @@ const teamUnarchived=async(teamTemp,io,resumeToken, hash)=>{
             createPublicPrivateChannelRoom(io, result.data);
             io.to(user_id).emit("teamUnArchived", {company_id:teamTemp.company_id,team:result.data.team,public:result.data.public , private:result.data.private , team_token:resumeToken,hash:hash});
         } catch (err) {
-            console.log(err.response.data);
             sendWebhookError(err, "teamUnarchived", teamTemp);
         }
     }
@@ -177,7 +172,6 @@ const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io, has
                     io.to(user_id).emit("teamUnArchived", {company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , private:result_data.data.private , team_token:resumeToken,hash:hash});
                 }
             } catch (err) {
-                console.log(err);
                 sendWebhookError(err, "teamUnarchiveEmitToSubAdmins", teamTemp);
             }
         }
