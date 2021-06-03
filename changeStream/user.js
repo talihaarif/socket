@@ -104,11 +104,13 @@ const user = (conn, io) => {
                 });
             } 
             else if(userUpdateCheck.do_not_disturb===true || userUpdateCheck.do_not_disturb===false){
-                io.to(userTemp._id.toString()).emit("userDoNotDisturb", {
-                    user_id: userTemp._id,
-                    do_not_disturb:userTemp.do_not_disturb,
-                    user_token:change._id,
-                    hash:hash
+                userTemp.company_ids.map((company_id) => {
+                    io.to(company_id).emit("userDoNotDisturb", {
+                        user_id: userTemp._id,
+                        do_not_disturb:userTemp.do_not_disturb,
+                        user_token:change._id,
+                        hash:hash
+                    });
                 });
             } 
             break;
