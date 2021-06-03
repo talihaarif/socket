@@ -34,9 +34,7 @@ router.post("/channelUsers", async (req, res) => {
     },
   };
   const url = config.get("url");
-  console.log("mention users",mention_users);
-  console.log("user_ids",user_ids);
-  console.log("new message",message_body);
+
   if(message_body.replying_id)
     event_name="socket_newReplyMessage";
   else
