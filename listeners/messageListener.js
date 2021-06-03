@@ -54,6 +54,15 @@ const messageListener = (socket,io) => {
         sendWebhookError(error, "markSeenAllReplies listener", data);
     }
     });
+
+    socket.on("replyReadBy", (data) => {
+        try {
+            socket.to(data.channel_id).emit("addReplyReadBy", data);
+        } catch (error) {
+            console.log(error);
+            sendWebhookError(error, "replyReadBy listener", data);
+        }
+    });
     
     socket.on("typing", (data) => {
         try{

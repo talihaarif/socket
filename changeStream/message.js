@@ -22,6 +22,47 @@ const message = (conn, io) => {
     };
     const url = config.get("url");
 
+
+    const queryMessageInsert=(messageTemp,ids)=>{
+        let id = messageTemp.channel_id;
+        delete messageTemp.channel_id;
+        if(messageTemp.replying_id){
+            io.to(id).emit("newReplyMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+            io.to(messageTemp.parent.sender_id).emit("newReplyMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+        }
+        else if (messageTemp.is_forwarded) {
+            io.to(id).emit("forwardMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+            io.to(messageTemp.sender_id).emit("forwardMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+        } 
+        else{
+            io.to(id).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+            io.to(messageTemp.sender_id).emit("newMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+        }
+        
+    }
+
+    const queryMessageUpdate=(messageUpdateCheck,ids,update_message_emit_name)=>{
+        
+        if (messageUpdateCheck.deleted_at) {
+            messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
+            io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash});
+            if(update_message_emit_name == "replyUpdateMessage"){
+                io.to(messageTemp.parent.sender_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash});
+            }else
+                io.to(messageTemp.sender_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash});
+        } 
+        else if (messageUpdateCheck.is_read || messageUpdateCheck.child_read || messageUpdateCheck.pinned_by || (messageUpdateCheck.updated_at && Object.keys(messageUpdateCheck).length == 1)) {
+            break;
+        }
+         else {
+            io.to(messageTemp.channel_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash });
+            if(update_message_emit_name == "replyUpdateMessage"){
+                io.to(messageTemp.parent.sender_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash });
+            }else
+                io.to(messageTemp.sender_id).emit(update_message_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash });
+        }
+    }
+
     /*
     ---Listening to message Table---
     When any changes occurs in messages table then this change event function runs and return 
@@ -67,7 +108,10 @@ const message = (conn, io) => {
                         result = await axios.post(url + "api/getMessage", body, configuration);
                         messageTemp.parent = result.data.message;
                     }
-                    if (messageTemp.is_forwarded) {
+                    if(ids.type == 'query'){
+                        queryMessageInsert(messageTemp,ids);
+                    }
+                    else if (messageTemp.is_forwarded) {
                         let id = messageTemp.channel_id;
                         delete messageTemp.channel_id;
                         io.to(id).emit("forwardMessage", { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
@@ -100,7 +144,10 @@ const message = (conn, io) => {
                         result = await axios.post(url + "api/getMessage", body, configuration);
                         messageTemp.parent = result.data.message;
                     }
-                    if (messageUpdateCheck.send_after === null) {
+                    if(ids.type == 'query'){
+                        queryMessageUpdate(messageUpdateCheck,ids,update_message_emit_name);
+                    }
+                    else if (messageUpdateCheck.send_after === null) {
                         io.to(messageTemp.channel_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash });
                     } else if (messageUpdateCheck.deleted_at) {
                         messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;

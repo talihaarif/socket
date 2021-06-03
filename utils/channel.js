@@ -119,7 +119,10 @@ const channelInsert= async(channelTemp,io,resumeToken, hash)=>{
         const body = JSON.stringify({ channel_id,user_id });
         result =await axios.post(url+"api/channelData", body, configuration);
         createChannelRoom(io,result.data);
-        io.to(user_id).emit("newChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+        if(channelTemp.type == 'query')
+            io.to(channelTemp.company_id).emit("newQueryChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+        else
+            io.to(user_id).emit("newChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
     } catch (err) {
         console.log(err);
         sendWebhookError(err, "channelInsert", channelTemp);
@@ -146,6 +149,16 @@ const channelNameUpdate=(channelTemp,io,resumeToken, hash)=>{
                 hash:hash
             });
             
+        }
+        else if(channelTemp.type == "query"){
+            io.to(channelTemp.company_id).emit("channelNameUpdate", {
+                channel:{name:channelTemp.name,_id: channelTemp._id},
+                type:channelTemp.type,
+                team_id:channelTemp.team_id,
+                company_id:channelTemp.company_id,
+                channel_token:resumeToken,
+                hash:hash
+            });
         }
         else{
             io.to(channelTemp._id.toString()).emit("channelNameUpdate", {
