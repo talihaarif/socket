@@ -4,6 +4,7 @@ const { default: axios } = require("axios");
 const config = require("config");
 const { sendWebhookError } = require("../../utils/webhook");
 const { ConnectionStates } = require("mongoose");
+const user = require("../../utils/user");
 const router = expess.Router();
 
 // @route   POST api/admin
@@ -13,21 +14,16 @@ router.post("/channelUsers", async (req, res) => {
   const { message, users,type,channel_id,team_id,company_id,channel_name,mention_users,webhooks,message_body } = req.body;
   let user_ids='';
   let event_name='';
-  if(webhooks === true){
-    user_ids=users;
-  }
-  else if(type =='direct' || type=='public' || message.includes('@channel')){
-    user_ids=users;
-  }
-  else if(type=='query'){
-    user_ids=users;
-  }
-  else if(message.includes('@here')){
+
+  mention_users.map((el)=>{
+    if(!users.includes(el))
+      user.push(el);
+  });
+
+  if(message.includes('@here')){
     user_ids=await getAllInactiveUsers(users);
   }
-  else if(mention_users.length > 0){
-    user_ids=mention_users;
-  }
+  
   if(user_ids=='' || user_ids==[])
     return res.json("oka");
   const configuration = {
