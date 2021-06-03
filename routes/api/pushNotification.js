@@ -17,9 +17,11 @@ router.post("/channelUsers", async (req, res) => {
 
   mention_users.map((el)=>{
     if(!users.includes(el))
-      user.push(el);
+      users.push(el);
   });
 
+  user_ids=users;
+  
   if(message.includes('@here')){
     user_ids=await getAllInactiveUsers(users);
   }
