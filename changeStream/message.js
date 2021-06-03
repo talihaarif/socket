@@ -23,7 +23,7 @@ const message = (conn, io) => {
     const url = config.get("url");
 
 
-    const queryMessageInsert=(messageTemp,ids)=>{
+    const queryMessageInsert=(messageTemp,ids,hash)=>{
         let id = messageTemp.channel_id;
         delete messageTemp.channel_id;
         if(messageTemp.replying_id){
@@ -41,7 +41,7 @@ const message = (conn, io) => {
         
     }
 
-    const queryMessageUpdate=(messageTemp,messageUpdateCheck,ids,update_message_emit_name)=>{
+    const queryMessageUpdate=(messageTemp,messageUpdateCheck,ids,update_message_emit_name,hash)=>{
         
         if (messageUpdateCheck.deleted_at) {
             messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
@@ -109,7 +109,7 @@ const message = (conn, io) => {
                         messageTemp.parent = result.data.message;
                     }
                     if(ids.type == 'query'){
-                        queryMessageInsert(messageTemp,ids);
+                        queryMessageInsert(messageTemp,ids,hash);
                     }
                     else if (messageTemp.is_forwarded) {
                         let id = messageTemp.channel_id;
@@ -145,7 +145,7 @@ const message = (conn, io) => {
                         messageTemp.parent = result.data.message;
                     }
                     if(ids.type == 'query'){
-                        queryMessageUpdate(messageTemp,messageUpdateCheck,ids,update_message_emit_name);
+                        queryMessageUpdate(messageTemp,messageUpdateCheck,ids,update_message_emit_name,hash);
                     }
                     else if (messageUpdateCheck.send_after === null) {
                         io.to(messageTemp.channel_id).emit(send_after_emit_name, { message_token: change._id, type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: messageTemp.channel_id, data: messageTemp,hash:hash });
