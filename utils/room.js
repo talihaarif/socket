@@ -30,7 +30,8 @@ const joinCompanyRoom = (socket,companies,login=false,selected_company=null) => 
             joinChannelRoom(socket,company.private);
             joinChannelRoom(socket,company.public);
             joinChannelRoom(socket,company.direct);
-            joinChannelRoom(socket,company.query);
+            if(company.query)
+                joinChannelRoom(socket,company.query);
             // }
         });
     } catch (error) {
