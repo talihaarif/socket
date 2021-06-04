@@ -228,7 +228,7 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
             result =await axios.post(url+"api/channelData", body, configuration);
             createChannelRoom(io,result.data);
             if(channelTemp.type=="query")
-                io.to(channelTemp.company_id).emit("channelUnArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:channelTemp,channel_token:resumeToken,hash:hash});
+                io.to(channelTemp.company_id).emit("channelUnArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
             else
                 io.to(result.data.channel.creator_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
         }
@@ -240,8 +240,15 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
                 if(channelTemp.type!="query")
                     io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
             };
-            if(channelTemp.type=="query")
-                io.to(channelTemp.company_id).emit("channelUnArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:channelTemp,channel_token:resumeToken,hash:hash});
+            if(channelTemp.type=="query"){
+                const body = JSON.stringify({ company_id:channelTemp.company_id });
+                result =await axios.post(url+"api/get_company_member_ids", body, configuration);
+                for (let user_id of result.data.users) {
+                    const body = JSON.stringify({ channel_id,user_id });
+                    result =await axios.post(url+"api/channelData", body, configuration);
+                    io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+                }
+            }
         }
         (channelTemp.type !="query") && await channelUnarchiveEmitForPublicPrivateChannels(channel_id,result, io, channelTemp, resumeToken, hash);
         (channelTemp.type !="query") &&await chanelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash);
