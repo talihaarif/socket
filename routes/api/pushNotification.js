@@ -14,7 +14,7 @@ router.post("/channelUsers", async (req, res) => {
   const { message, users,type,channel_id,team_id,company_id,channel_name,mention_users,webhooks,message_body } = req.body;
   let user_ids='';
   let event_name='';
-
+  console.log("before users are:", users);
   mention_users.map((el)=>{
     if(!users.includes(el))
       users.push(el);
@@ -34,6 +34,7 @@ router.post("/channelUsers", async (req, res) => {
     },
   };
   const url = config.get("url");
+  console.log("after users are:", user_ids);
 
   if(message_body.replying_id)
     event_name="socket_newReplyMessage";
