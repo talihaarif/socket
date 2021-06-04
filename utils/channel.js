@@ -184,20 +184,21 @@ const channelNameUpdate=(channelTemp,io,resumeToken, hash)=>{
 */
 const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
         if(channelTemp.type=="query")
-            io.to(channelTemp.company_id.toString()).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
-        else
+            io.to(channelTemp.company_id).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
+        else{
             io.to(channelTemp._id.toString()).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
-        let channel_id=channelTemp._id.toString();
-        for (let user_id of channelTemp.user_ids){
-            try {
-                const body = JSON.stringify({ channel_id,user_id });
-                const result =await axios.post(url+"api/channelData", body, configuration);
-                deleteChannelRoom(io,result.data);
-            } catch (err) {
-                sendWebhookError(err, "channelArchived", channelTemp);
+            let channel_id=channelTemp._id.toString();
+            for (let user_id of channelTemp.user_ids){
+                try {
+                    const body = JSON.stringify({ channel_id,user_id });
+                    const result =await axios.post(url+"api/channelData", body, configuration);
+                    deleteChannelRoom(io,result.data);
+                } catch (err) {
+                    sendWebhookError(err, "channelArchived", channelTemp);
+                }
             }
+            await channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io, hash);
         }
-        await channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io, hash);
 }
 
 /*
@@ -224,7 +225,7 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
             result =await axios.post(url+"api/channelData", body, configuration);
             createChannelRoom(io,result.data);
             if(channelTemp.type=="query")
-                io.to(channelTemp.company_id.toString()).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+                io.to(channelTemp.company_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
             else
                 io.to(result.data.channel.creator_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
         }
@@ -237,10 +238,10 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
                     io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
             };
             if(channelTemp.type=="query")
-                io.to(channelTemp.company_id.toString()).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+                io.to(channelTemp.company_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
         }
-        await channelUnarchiveEmitForPublicPrivateChannels(channel_id,result, io, channelTemp, resumeToken, hash);
-        await chanelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash);
+        (channelTemp.type !="query") && await channelUnarchiveEmitForPublicPrivateChannels(channel_id,result, io, channelTemp, resumeToken, hash);
+        (channelTemp.type !="query") &&await chanelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash);
     } catch (err) {
         sendWebhookError(err, "channelUnarchived", channelTemp);
     }
