@@ -22,7 +22,7 @@ const configuration = {
             body = JSON.stringify({ "error": serializeError(error),"data": error.response.data, "function":route, "function_data":JSON.stringify(function_data)});
         else
             body = JSON.stringify({"error":serializeError(error), "function":route, "function_data":JSON.stringify(function_data)});      
-        const result = await axios.post("https://schat.pf.com.pk/api/webhooks/60781aaf52876b510f1f772e", body, configuration);
+        const result = await axios.post("https://pf-testing.cloud.mattermost.com/hooks/aw417imsbign5nsbrp9h7k8hae", body, configuration);
     } catch (err) {
         console.log(err);
     }
