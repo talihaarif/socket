@@ -50,7 +50,9 @@ const channel = (conn, io) => {
                     channelUpdateCheck.description ||
                     channelUpdateCheck.description === null
                 ) {
-                    io.to(channelTemp._id.toString()).emit(
+                    let send_emit_to;
+                    send_emit_to = channelTemp.type=="query" ? channelTemp.company_id : channelTemp._id.toString();
+                    io.to(send_emit_to).emit(
                         "channelDescriptionUpdated",
                         { 
                             channel:{name:channelTemp.name,_id: channelTemp._id,description: channelTemp.description},
