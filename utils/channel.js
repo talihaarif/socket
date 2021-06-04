@@ -183,9 +183,6 @@ const channelNameUpdate=(channelTemp,io,resumeToken, hash)=>{
 * Call deleteChannelRoom function.
 */
 const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
-        console.log("type is:",channelTemp.type);
-        console.log("company_id is:",channelTemp.company_id);
-        console.log("channel is:", channelTemp);
         if(channelTemp.type=="query")
             io.to(channelTemp.company_id).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
         else{
