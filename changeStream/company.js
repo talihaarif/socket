@@ -1,7 +1,7 @@
 const { companyInsert } = require("../utils/company");
 const { sendWebhookError } = require("../utils/webhook");
 const { createHash } = require("../utils/hash");
-const { updateFileIps, updateFileStatus } = require("../utils/filesCheck");
+const { updateFileIps, updateFileStatus, addCompanyData } = require("../utils/filesCheck");
 
 const company = (conn, io) => {
     /*
@@ -34,6 +34,7 @@ const company = (conn, io) => {
         let hash = createHash(companyTemp.created_at,change);
         switch (change.operationType) {
             case "insert":
+                await addCompanyData(companyTemp);
                 await companyInsert(companyTemp,io,change._id, hash);
                 break;
             case "update":
