@@ -1,5 +1,5 @@
 const Company = require("../model/Company");
-const { sendWebhookError } = require("../utils/webhook");
+const { sendWebhookError } = require("./webhook");
 
 let companies = [];
 
