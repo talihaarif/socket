@@ -60,7 +60,7 @@ const checkUserIp = async (company_id,user_ip)=>{
             company_data = await Company.findById(company_id).select({ "file_status": 1,"file_ips":1});
             companies.push(company_data);
         }
-        if(company_data.file_status == true && !company_data.file_ips.includes(user_ip))
+        if(company_data.file_status == true && !company_data.file_ips.includes(user_ip.toString()))
             return false;
         return true;
     } catch (error) {
