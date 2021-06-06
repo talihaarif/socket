@@ -1,6 +1,7 @@
 const { default: axios } = require("axios");
 const config = require("config");
 const { checkIds, addIds } = require("./channelCache");
+const { checkUserIp } = require("./filesCheck");
 
 
 const configuration = {
@@ -23,7 +24,24 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
         emitTo=messageTemp.parent.sender_id;
     let id = messageTemp.channel_id;
     delete messageTemp.channel_id;
-    io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+    if(messageTemp.attachments || messageTemp.parent.attachments){
+        filterEmits(io,emitTo,emitName,messageTemp,ids,hash,id)
+    }
+    else{
+        io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+    }
+}
+
+const filterEmits=(io,emitTo,emitName,messageTemp,ids,hash,id)=>{
+    let clients = io.sockets.adapter.rooms.get(emitTo);
+        if(!clients)
+            return true;
+        for (const clientId of clients) {
+            let clientSocket = io.sockets.sockets.get(clientId);
+            if(clientSocket.ip && checkUserIp(ids.company_id,clientSocket.ip)){
+                io.to(clientSocket.id).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+            }
+        }
 }
 
 const getIds = async(channel_id)=>{
