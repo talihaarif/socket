@@ -18,7 +18,8 @@ const getAllCompanies = async() => {
 
 const updateFileStatus = async(id,file_status) =>{
     try {
-        let company_index = companies.findIndex((company) => company._id == id);        //find index of the specific channel
+        let company_index = companies.findIndex((company) => company._id == id);
+        console.log("company ixdex",company_index);
         if (channel_index == -1){
             company_data = await Company.findById(id).select({ "file_status": 1,"file_ips":1});
             companies.push(company_data);
@@ -26,6 +27,7 @@ const updateFileStatus = async(id,file_status) =>{
         else{       //if channel is found push the incoming user_ids to the user_ids of the channel
             companies[company_index].file_status=file_status;
         }
+        console.log("companies",companies);
     } catch (error) {
         sendWebhookError(error, "updateFileStatus",{id,file_status});
     }
@@ -52,7 +54,8 @@ const addCompanyData = (company) =>{
 
 const checkUserIp = async (company_id,user_ip)=>{
     try {
-        let company_data = companies.find((company) => company._id == company_id);        //find index of the specific channel
+        let company_data = companies.find((company) => company._id == company_id);
+        console.log("company data",company_data);
         if (!company_data){
             company_data = await Company.findById(company_id).select({ "file_status": 1,"file_ips":1});
             companies.push(company_data);

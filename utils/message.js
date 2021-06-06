@@ -25,6 +25,7 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
     let id = messageTemp.channel_id;
     delete messageTemp.channel_id;
     if(messageTemp.attachments || messageTemp.parent.attachments){
+        console.log("in attachment check");
         filterEmits(io,emitTo,emitName,messageTemp,ids,hash,id)
     }
     else{
@@ -38,6 +39,7 @@ const filterEmits=(io,emitTo,emitName,messageTemp,ids,hash,id)=>{
             return true;
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
+            console.log("socket user id",clientSocket.user_id);
             if(clientSocket.ip && checkUserIp(ids.company_id,clientSocket.ip)){
                 io.to(clientSocket.id).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
             }
