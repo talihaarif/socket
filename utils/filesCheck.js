@@ -1,7 +1,7 @@
 const Company = require("../model/Company");
 const { sendWebhookError } = require("../utils/webhook");
 
-let company = [];
+let companies = [];
 
 /*
 Get all the token from database and
@@ -10,14 +10,66 @@ user before opening connection with sockets
 */
 const getAllCompanies = async() => {
     try {
-        company = await Company.find({}).select({ "file_status": 1,"file_ips":1});
-        console.log(company);
+        companies = await Company.find({}).select({ "file_status": 1,"file_ips":1});
     } catch (error) {
         sendWebhookError(error, "getAllCompanies");
     }
 };
 
+const updateFileStatus = async(id,file_status) =>{
+    try {
+        let company_index = companies.findIndex((company) => company._id == id);        //find index of the specific channel
+        if (channel_index == -1){
+            company_data = await Company.findById(id).select({ "file_status": 1,"file_ips":1});
+            companies.push(company_data);
+        }
+        else{       //if channel is found push the incoming user_ids to the user_ids of the channel
+            companies[company_index].file_status=file_status;
+        }
+    } catch (error) {
+        sendWebhookError(error, "updateFileStatus");
+    }
+}
+
+const updateFileIps = async(company_id,file_ips) =>{
+    try {
+        let company_index = companies.findIndex((company) => company._id == company_id);        //find index of the specific channel
+        if (channel_index == -1){
+            company_data = await Company.findById(company_id).select({ "file_status": 1,"file_ips":1});
+            companies.push(company_data);
+        }
+        else{       //if channel is found push the incoming user_ids to the user_ids of the channel
+            companies[company_index].file_ips=file_ips;
+        }
+    } catch (error) {
+        sendWebhookError(error, "updateFileStatus");
+    }
+}
+
+const addCompanyData = (company) =>{
+    companies.push({_id:company._id,file_status:company.file_status,file_ips:company.file_ips});
+}
+
+const checkUserIp = async (company_id,user_ip)=>{
+    try {
+        let company_data = companies.find((company) => company._id == company_id);        //find index of the specific channel
+        if (!company_data){
+            company_data = await Company.findById(company_id).select({ "file_status": 1,"file_ips":1});
+            companies.push(company_data);
+        }
+        if(company_data.file_status == true && company_data.file_ips.includes(user_ip))
+            return false;
+        return true;
+    } catch (error) {
+        sendWebhookError(error, "updateFileStatus");
+    }
+}
+
 
 module.exports = {
-    getAllCompanies
+    getAllCompanies,
+    updateFileStatus,
+    updateFileIps,
+    checkUserIp,
+    addCompanyData
 };
