@@ -33,7 +33,7 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
     }
 }
 
-const filterEmits=(io,emitTo,emitName,messageTemp,ids,hash,id)=>{
+const filterEmits=async (io,emitTo,emitName,messageTemp,ids,hash,id)=>{
     let clients = io.sockets.adapter.rooms.get(emitTo);
         if(!clients)
             return true;
@@ -41,8 +41,8 @@ const filterEmits=(io,emitTo,emitName,messageTemp,ids,hash,id)=>{
             let clientSocket = io.sockets.sockets.get(clientId);
             console.log("socket user id",clientSocket.user_id);
             console.log("socket user ip",clientSocket.ip);
-            console.log("result of check",checkUserIp(ids.company_id,clientSocket.ip))
-            if(clientSocket.ip && checkUserIp(ids.company_id,clientSocket.ip)){
+            console.log("result of check",await checkUserIp(ids.company_id,clientSocket.ip))
+            if(clientSocket.ip && await checkUserIp(ids.company_id,clientSocket.ip)){
                 io.to(clientSocket.id).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
             }
         }
