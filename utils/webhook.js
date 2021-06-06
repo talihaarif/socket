@@ -15,7 +15,7 @@ const configuration = {
   * Otherwise set error message in case of server error from node.
   * Call the backend webhook route using axios.
   */
-  const sendWebhookError = async(error, route, function_data) => {
+  const sendWebhookError = async(error, route, function_data=null) => {
     try {
         let body = '';
         if (error && error.response && error.response.data)
