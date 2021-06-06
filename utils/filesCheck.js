@@ -16,11 +16,11 @@ const getAllCompanies = async() => {
     }
 };
 
-const updateFileStatus = async(id,file_status) =>{
+const updateFileStatus = async(company_id,file_status) =>{
     try {
-        let company_index = companies.findIndex((company) => company._id == id);
-        if (channel_index == -1){
-            company_data = await Company.findById(id).select({ "file_status": 1,"file_ips":1});
+        let company_index = companies.findIndex((company) => company._id == company_id);
+        if (company_index == -1){
+            company_data = await Company.findById(company_id).select({ "file_status": 1,"file_ips":1});
             companies.push(company_data);
         }
         else{       //if channel is found push the incoming user_ids to the user_ids of the channel
@@ -34,7 +34,7 @@ const updateFileStatus = async(id,file_status) =>{
 const updateFileIps = async(company_id,file_ips) =>{
     try {
         let company_index = companies.findIndex((company) => company._id == company_id);        //find index of the specific channel
-        if (channel_index == -1){
+        if (company_index == -1){
             company_data = await Company.findById(company_id).select({ "file_status": 1,"file_ips":1});
             companies.push(company_data);
         }
