@@ -12,7 +12,7 @@ const getAllCompanies = async() => {
     try {
         companies = await Company.find({}).select({ "file_status": 1,"file_ips":1});
     } catch (error) {
-        sendWebhookError(error, "getAllCompanies");
+        sendWebhookError(error, "getAllCompanies",null);
     }
 };
 
@@ -27,7 +27,7 @@ const updateFileStatus = async(id,file_status) =>{
             companies[company_index].file_status=file_status;
         }
     } catch (error) {
-        sendWebhookError(error, "updateFileStatus");
+        sendWebhookError(error, "updateFileStatus",{id,file_status});
     }
 }
 
@@ -42,7 +42,7 @@ const updateFileIps = async(company_id,file_ips) =>{
             companies[company_index].file_ips=file_ips;
         }
     } catch (error) {
-        sendWebhookError(error, "updateFileStatus");
+        sendWebhookError(error, "updateFileIps",{company_id,file_ips});
     }
 }
 
@@ -61,7 +61,7 @@ const checkUserIp = async (company_id,user_ip)=>{
             return false;
         return true;
     } catch (error) {
-        sendWebhookError(error, "updateFileStatus");
+        sendWebhookError(error, "checkUserIp",{company_id,user_ip});
     }
 }
 
