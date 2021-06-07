@@ -37,7 +37,7 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
         }
     } catch (error) {
         console.log(error);
-        sendWebhookError(error, "messageEmit", {io,emitTo,emitName,messageTemp,ids,hash});
+        sendWebhookError(error, "messageEmit", {emitTo,emitName,messageTemp,ids,hash});
     }
 }
 
