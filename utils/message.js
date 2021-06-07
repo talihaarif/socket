@@ -36,6 +36,7 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
             io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
         }
     } catch (error) {
+        console.log(error);
         sendWebhookError(error, "messageEmit", {io,emitTo,emitName,messageTemp,ids,hash});
     }
 }
