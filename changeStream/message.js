@@ -57,6 +57,7 @@ const message = (conn, io) => {
                     } else if (messageTemp.replying_id) {
                         await messageEmit(io,channel_id,"newReplyMessage",messageTemp,ids,hash);
                     } else {
+                        console.log("new message",messageTemp);
                         await messageEmit(io,channel_id,"newMessage",messageTemp,ids,hash);
                     }
                     break;
