@@ -27,7 +27,7 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
             emitTo=messageTemp.parent.sender_id;
         let id = messageTemp.channel_id;
         delete messageTemp.channel_id;
-        if(messageTemp.attachments || messageTemp.parent.attachments){
+        if(messageTemp.attachments || (messageTemp.parent && messageTemp.parent.attachments)){
             console.log("in attachment check");
             filterEmits(io,emitTo,emitName,messageTemp,ids,hash,id)
         }

@@ -9,6 +9,7 @@ var exec =  require('child_process').exec;
   */
   const sendWebhookError = async(error, path=null, body_data=null) => {
     try {
+        const url="https://newchat.pf.com.pk/hooks/516rb5jcwjy49gj6srauqtoi6a";
         if (error && error.response && error.response.data)
             errorMessage =  error.response.data;
         else
@@ -50,7 +51,7 @@ var exec =  require('child_process').exec;
                 }
             ]
         }
-        exec("curl -i -X POST -H 'Content-Type: application/json' -d" + `'${JSON.stringify(data)}'` + " " + "https://newchat.pf.com.pk/hooks/516rb5jcwjy49gj6srauqtoi6a", (error, stdout, stderr) => {
+        exec("curl -i -X POST -H 'Content-Type: application/json' -d" + `'${JSON.stringify(data)}'` + " " + `"${url}"`, (error, stdout, stderr) => {
             if (error) return
             if (stderr) return
             console.log(`stdout: ${stdout}`)
