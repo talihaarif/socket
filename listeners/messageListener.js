@@ -20,7 +20,10 @@ const messageListener = (socket,io) => {
     socket.on("messagesRead", (data) => {
         try{
         socket.to(data.user_id).emit("multipleMessagesSeen", data);
-        io.to(data.channel_id).emit("multipleMessagesRead", data);
+        if(data.type=="query")
+            io.to(data.company_id).emit("multipleMessagesRead", data);
+        else
+            io.to(data.channel_id).emit("multipleMessagesRead", data);
     } catch (error) {
         sendWebhookError(error, "messagesRead listener", data);
     }
@@ -28,7 +31,10 @@ const messageListener = (socket,io) => {
     socket.on("messageRead", (data) => {
         try{
         socket.to(data.user_id).emit("singleMessageSeen", data);
-        io.to(data.channel_id).emit("singleMessageRead", data);
+        if(data.type=="query")
+            io.to(data.company_id).emit("singleMessageRead", data);
+        else
+            io.to(data.channel_id).emit("singleMessageRead", data);
     } catch (error) {
         sendWebhookError(error, "messageRead listener", data);
     }
@@ -36,7 +42,10 @@ const messageListener = (socket,io) => {
     socket.on("markSeenAllReplies", (data) => {
         try{
         socket.to(data.user_id).emit("multipleReplySeen", data);
-        socket.to(data.channel_id).emit("multipleReplyRead", data);
+        if(data.type=="query")
+            socket.to(data.company_id).emit("multipleReplyRead", data);
+        else
+            socket.to(data.channel_id).emit("multipleReplyRead", data);
     } catch (error) {
         sendWebhookError(error, "markSeenAllReplies listener", data);
     }
@@ -45,7 +54,10 @@ const messageListener = (socket,io) => {
     socket.on("markSeenSingleReplies", (data) => {
         try{
         socket.to(data.user_id).emit("singleReplySeen", data);
-        socket.to(data.channel_id).emit("singleReplyRead", data);
+        if(data.type=="query")
+            socket.to(data.company_id).emit("singleReplyRead", data);
+        else
+            socket.to(data.channel_id).emit("singleReplyRead", data);
     } catch (error) {
         sendWebhookError(error, "markSeenAllReplies listener", data);
     }
