@@ -13,6 +13,8 @@ var exec =  require('child_process').exec;
             errorMessage =  error.response.data;
         else
             errorMessage = error;
+        
+        console.log("error message",errorMessage);
         let data = {
             "attachments": [
                 {
@@ -48,7 +50,7 @@ var exec =  require('child_process').exec;
                 }
             ]
         }
-        exec("curl -i -X POST -H 'Content-Type: application/json' -d" + `'${JSON.stringify(data)}'` + " " + `https://newchat.pf.com.pk/hooks/516rb5jcwjy49gj6srauqtoi6a`, (error, stdout, stderr) => {
+        exec("curl -i -X POST -H 'Content-Type: application/json' -d" + `'${JSON.stringify(data)}'` + " " + "https://newchat.pf.com.pk/hooks/516rb5jcwjy49gj6srauqtoi6a", (error, stdout, stderr) => {
             if (error) return
             if (stderr) return
             console.log(`stdout: ${stdout}`)
@@ -60,7 +62,7 @@ var exec =  require('child_process').exec;
         //     body = JSON.stringify({"error":serializeError(error), "function":route, "function_data":JSON.stringify(function_data)});      
         // const result = await axios.post("https://newchat.pf.com.pk/hooks/516rb5jcwjy49gj6srauqtoi6a", body, configuration);
     } catch (err) {
-        console.log(err);
+        console.log("error in webhook",err);
     }
 };
 
