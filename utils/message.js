@@ -2,6 +2,7 @@ const { default: axios } = require("axios");
 const config = require("config");
 const { checkIds, addIds } = require("./channelCache");
 const { checkUserIp } = require("./filesCheck");
+const { sendWebhookError } = require("./webhook");
 
 
 const configuration = {
@@ -13,24 +14,28 @@ const configuration = {
 const url = config.get("url");
 
 const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
-    let result;
-    if (messageTemp.replying_id) {
-        let message_id = messageTemp.replying_id;
-        let body = JSON.stringify({ message_id });
-        result = await axios.post(url + "api/getMessage", body, configuration);
-        messageTemp.parent = result.data.message;
-    }
-    if(emitTo===false)
-        emitTo=messageTemp.parent.sender_id;
-    let id = messageTemp.channel_id;
-    delete messageTemp.channel_id;
-    if(messageTemp.attachments || messageTemp.parent.attachments){
-        console.log("in attachment check");
-        filterEmits(io,emitTo,emitName,messageTemp,ids,hash,id)
-    }
-    else{
-        console.log("message emit ", messageTemp);
-        io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+    try {
+        let result;
+        if (messageTemp.replying_id) {
+            let message_id = messageTemp.replying_id;
+            let body = JSON.stringify({ message_id });
+            result = await axios.post(url + "api/getMessage", body, configuration);
+            messageTemp.parent = result.data.message;
+        }
+        if(emitTo===false)
+            emitTo=messageTemp.parent.sender_id;
+        let id = messageTemp.channel_id;
+        delete messageTemp.channel_id;
+        if(messageTemp.attachments || messageTemp.parent.attachments){
+            console.log("in attachment check");
+            filterEmits(io,emitTo,emitName,messageTemp,ids,hash,id)
+        }
+        else{
+            console.log("message emit ", messageTemp);
+            io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+        }
+    } catch (error) {
+        sendWebhookError(error, "messageEmit", {io,emitTo,emitName,messageTemp,ids,hash});
     }
 }
 

@@ -49,6 +49,7 @@ const message = (conn, io) => {
                         await queryMessageInsert(io,messageTemp,ids,hash);
                     }
                     else if (messageTemp.is_forwarded) {
+                        console.log("in forward message",messageTemp);
                         await messageEmit(io,channel_id,"forwardMessage",messageTemp,ids,hash);
                     } else if (messageTemp.send_after) {
                         let send_after_emit_name = messageTemp.replying_id ? "newReplyMessage" : "newMessage";
