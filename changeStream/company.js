@@ -1,6 +1,7 @@
 const { companyInsert } = require("../utils/company");
 const { sendWebhookError } = require("../utils/webhook");
 const { createHash } = require("../utils/hash");
+const { updateFileIps, updateFileStatus, addCompanyData } = require("../utils/filesCheck");
 
 const company = (conn, io) => {
     /*
@@ -33,6 +34,7 @@ const company = (conn, io) => {
         let hash = createHash(companyTemp.created_at,change);
         switch (change.operationType) {
             case "insert":
+                await addCompanyData(companyTemp);
                 await companyInsert(companyTemp,io,change._id, hash);
                 break;
             case "update":
@@ -51,6 +53,12 @@ const company = (conn, io) => {
                     io.to(companyTemp._id.toString()).emit("ipStatusChange",{company_id:companyTemp._id,ip_status:companyTemp.ip_status,company_token:change._id,hash:hash});
                 } else if(companyUpdateCheck.ips){
                     io.to(companyTemp._id.toString()).emit("ipsChange",{company_id:companyTemp._id,ips:companyTemp.ips,company_token:change._id,hash:hash});
+                }
+                else if(companyUpdateCheck.file_ips){
+                    await updateFileIps(companyTemp._id.toString(),companyTemp.file_ips)
+                }
+                else if(companyUpdateCheck.file_status){
+                    await updateFileStatus(companyTemp._id.toString(),companyTemp.file_status)
                 }
                 break;
         }
