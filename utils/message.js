@@ -13,7 +13,7 @@ const configuration = {
 };
 const url = config.get("url");
 
-const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
+const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash,channel_id) =>{
     try {
         let result;
         console.log("in message name",emitName);
@@ -26,15 +26,14 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
         }
         if(emitTo===false)
             emitTo=messageTemp.parent.sender_id;
-        let id = messageTemp.channel_id;
         delete messageTemp.channel_id;
         if(messageTemp.attachments || (messageTemp.parent && messageTemp.parent.attachments)){
             console.log("in attachment check");
-            filterEmits(io,emitTo,emitName,messageTemp,ids,hash,id)
+            filterEmits(io,emitTo,emitName,messageTemp,ids,hash,channel_id)
         }
         else{
             console.log("message emit ", messageTemp);
-            io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+            io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id, data: messageTemp,hash:hash });
         }
     } catch (error) {
         console.log(error);
@@ -42,14 +41,14 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
     }
 }
 
-const filterEmits=async (io,emitTo,emitName,messageTemp,ids,hash,id)=>{
+const filterEmits=async (io,emitTo,emitName,messageTemp,ids,hash,channel_id)=>{
     let clients = io.sockets.adapter.rooms.get(emitTo);
         if(!clients)
             return true;
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
             if(clientSocket.ip && await checkUserIp(ids.company_id,clientSocket.ip)){
-                io.to(clientSocket.id).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
+                io.to(clientSocket.id).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id, data: messageTemp,hash:hash });
             }
         }
 }
@@ -66,42 +65,42 @@ const getIds = async(channel_id)=>{
     return ids;
 }
 
-const queryMessageInsert=async(io,messageTemp,ids,hash)=>{
+const queryMessageInsert=async(io,messageTemp,ids,hash,channel_id)=>{
     console.log("message temp",messageTemp);
     if(messageTemp.replying_id){
-        await messageEmit(io,messageTemp.channel_id,"newReplyMessage",messageTemp,ids,hash);
-        await messageEmit(io,false,"newReplyMessage",messageTemp,ids,hash);
+        await messageEmit(io,messageTemp.channel_id,"newReplyMessage",messageTemp,ids,hash,channel_id);
+        await messageEmit(io,false,"newReplyMessage",messageTemp,ids,hash,channel_id);
     }
     else if (messageTemp.is_forwarded) {
-        await messageEmit(io,messageTemp.channel_id,"forwardMessage",messageTemp,ids,hash);
-        await messageEmit(io,messageTemp.sender_id,"forwardMessage",messageTemp,ids,hash);
+        await messageEmit(io,messageTemp.channel_id,"forwardMessage",messageTemp,ids,hash,channel_id);
+        await messageEmit(io,messageTemp.sender_id,"forwardMessage",messageTemp,ids,hash,channel_id);
     } 
     else{
-        await messageEmit(io,messageTemp.channel_id,"newMessage",messageTemp,ids,hash);
-        await messageEmit(io,messageTemp.sender_id,"newMessage",messageTemp,ids,hash);
+        await messageEmit(io,messageTemp.channel_id,"newMessage",messageTemp,ids,hash,channel_id);
+        await messageEmit(io,messageTemp.sender_id,"newMessage",messageTemp,ids,hash,channel_id);
     }
     
 }
 
-const queryMessageUpdate= async (io,messageTemp,messageUpdateCheck,ids,update_message_emit_name,hash)=>{
+const queryMessageUpdate= async (io,messageTemp,messageUpdateCheck,ids,update_message_emit_name,hash,channel_id)=>{
         
     if (messageUpdateCheck.deleted_at) {
         messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
-        await messageEmit(io,messageTemp.channel_id,update_message_emit_name,messageTemp,ids,hash);
+        await messageEmit(io,messageTemp.channel_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
         if(update_message_emit_name == "replyUpdateMessage"){
-            await messageEmit(io,false,update_message_emit_name,messageTemp,ids,hash);
+            await messageEmit(io,false,update_message_emit_name,messageTemp,ids,hash,channel_id);
         }else
-        await messageEmit(io,messageTemp.sender_id,update_message_emit_name,messageTemp,ids,hash);
+        await messageEmit(io,messageTemp.sender_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
     } 
     else if (messageUpdateCheck.is_read || messageUpdateCheck.child_read || messageUpdateCheck.pinned_by || (messageUpdateCheck.updated_at && Object.keys(messageUpdateCheck).length == 1)) {
         return 0;
     }
     else {
-        await messageEmit(io,messageTemp.channel_id,update_message_emit_name,messageTemp,ids,hash);
+        await messageEmit(io,messageTemp.channel_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
         if(update_message_emit_name == "replyUpdateMessage"){
-            await messageEmit(io,false,update_message_emit_name,messageTemp,ids,hash);
+            await messageEmit(io,false,update_message_emit_name,messageTemp,ids,hash,channel_id);
         }else
-            await messageEmit(io,messageTemp.sender_id,update_message_emit_name,messageTemp,ids,hash);
+            await messageEmit(io,messageTemp.sender_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
     }
 }
 

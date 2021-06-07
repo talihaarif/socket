@@ -46,19 +46,19 @@ const message = (conn, io) => {
             switch (change.operationType) {
                 case "insert":
                     if(ids.type == 'query'){
-                        await queryMessageInsert(io,messageTemp,ids,hash);
+                        await queryMessageInsert(io,messageTemp,ids,hash,channel_id);
                     }
                     else if (messageTemp.is_forwarded) {
                         console.log("in forward message",messageTemp);
-                        await messageEmit(io,channel_id,"forwardMessage",messageTemp,ids,hash);
+                        await messageEmit(io,channel_id,"forwardMessage",messageTemp,ids,hash,channel_id);
                     } else if (messageTemp.send_after) {
                         let send_after_emit_name = messageTemp.replying_id ? "newReplyMessage" : "newMessage";
-                        await messageEmit(io,messageTemp.sender_id,send_after_emit_name,messageTemp,ids,hash);
+                        await messageEmit(io,messageTemp.sender_id,send_after_emit_name,messageTemp,ids,hash,channel_id);
                     } else if (messageTemp.replying_id) {
-                        await messageEmit(io,channel_id,"newReplyMessage",messageTemp,ids,hash);
+                        await messageEmit(io,channel_id,"newReplyMessage",messageTemp,ids,hash,channel_id);
                     } else {
                         console.log("new message",messageTemp);
-                        await messageEmit(io,channel_id,"newMessage",messageTemp,ids,hash);
+                        await messageEmit(io,channel_id,"newMessage",messageTemp,ids,hash,channel_id);
                     }
                     break;
                 case "update":
@@ -66,21 +66,21 @@ const message = (conn, io) => {
                     let send_after_emit_name = messageTemp.replying_id ? "replySendAfterMessage" : "sendAfterMessage";
                     let update_message_emit_name = messageTemp.replying_id ? "replyUpdateMessage" : "updateMessage";
                     if(ids.type == 'query'){
-                        await queryMessageUpdate(io,messageTemp,messageUpdateCheck,ids,update_message_emit_name,hash);
+                        await queryMessageUpdate(io,messageTemp,messageUpdateCheck,ids,update_message_emit_name,hash,channel_id);
                     }
                     else if (messageUpdateCheck.send_after === null) {
-                        await messageEmit(io,channel_id,send_after_emit_name,messageTemp,ids,hash);
+                        await messageEmit(io,channel_id,send_after_emit_name,messageTemp,ids,hash,channel_id);
                     } else if (messageUpdateCheck.deleted_at) {
                         messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
-                        await messageEmit(io,channel_id,update_message_emit_name,messageTemp,ids,hash);
+                        await messageEmit(io,channel_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
                     } else if (messageUpdateCheck.is_read || messageUpdateCheck.child_read || messageUpdateCheck.pinned_by || (messageUpdateCheck.updated_at && Object.keys(messageUpdateCheck).length == 1)) {
                         break;
                     }
                     else if (messageUpdateCheck.delete_after){
-                        await messageEmit(io,messageTemp.sender_id,update_message_emit_name,messageTemp,ids,hash);
+                        await messageEmit(io,messageTemp.sender_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
                     }
                      else {
-                        await messageEmit(io,channel_id,update_message_emit_name,messageTemp,ids,hash);
+                        await messageEmit(io,channel_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
                     }
                     break;
             }
