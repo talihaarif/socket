@@ -46,7 +46,7 @@ const message = (conn, io) => {
             switch (change.operationType) {
                 case "insert":
                     if(ids.type == 'query'){
-                        queryMessageInsert(io,messageTemp,ids,hash);
+                        await queryMessageInsert(io,messageTemp,ids,hash);
                     }
                     else if (messageTemp.is_forwarded) {
                         await messageEmit(io,channel_id,"forwardMessage",messageTemp,ids,hash);
@@ -64,7 +64,7 @@ const message = (conn, io) => {
                     let send_after_emit_name = messageTemp.replying_id ? "replySendAfterMessage" : "sendAfterMessage";
                     let update_message_emit_name = messageTemp.replying_id ? "replyUpdateMessage" : "updateMessage";
                     if(ids.type == 'query'){
-                        queryMessageUpdate(io,messageTemp,messageUpdateCheck,ids,update_message_emit_name,hash);
+                        await queryMessageUpdate(io,messageTemp,messageUpdateCheck,ids,update_message_emit_name,hash);
                     }
                     else if (messageUpdateCheck.send_after === null) {
                         await messageEmit(io,channel_id,send_after_emit_name,messageTemp,ids,hash);

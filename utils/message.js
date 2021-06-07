@@ -29,6 +29,7 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
         filterEmits(io,emitTo,emitName,messageTemp,ids,hash,id)
     }
     else{
+        console.log("message emit ", messageTemp);
         io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id: id, data: messageTemp,hash:hash });
     }
 }
@@ -58,6 +59,7 @@ const getIds = async(channel_id)=>{
 }
 
 const queryMessageInsert=async(io,messageTemp,ids,hash)=>{
+    console.log("message temp",messageTemp);
     if(messageTemp.replying_id){
         await messageEmit(io,messageTemp.channel_id,"newReplyMessage",messageTemp,ids,hash);
         await messageEmit(io,false,"newReplyMessage",messageTemp,ids,hash);
