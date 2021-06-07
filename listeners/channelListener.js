@@ -23,7 +23,7 @@ const url = config.get("url");
  const newMemberInChannel =async(data,io)=>{
     try{
         io.to(data.channel_id).emit("userAddedInChannel", data );
-        if(data.type=='private'){
+        if(data.type=='private' || data.type=='query'){
             for (let user_id of data.user_ids){
                 let channel_id=data.channel_id;
                 try {
@@ -43,7 +43,7 @@ const url = config.get("url");
 
  const removedFromChannel = async(data,io)=>{
     try{
-        if(data.type=='private'){
+        if(data.type=='private' || data.type=='query'){
             for (let user_id of data.user_ids){
                 let channel_id=data.channel._id;
                 try {
@@ -64,7 +64,7 @@ const url = config.get("url");
 
  const leaveChannel = (data,io) =>{
     try{
-        if(data.channel.type=='private')
+        if(data.channel.type=='private' || data.channel.type=='query')
             deleteChannelRoom(io,data);
         io.to(data.user_id).emit('channelLeft',data);
         io.to(data.channel._id).emit("usersRemovedFromChannel",  data );
