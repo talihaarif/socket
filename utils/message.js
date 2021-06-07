@@ -16,6 +16,7 @@ const url = config.get("url");
 const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash) =>{
     try {
         let result;
+        console.log("in message name",emitName);
         console.log("in message emit",messageTemp);
         if (messageTemp.replying_id) {
             let message_id = messageTemp.replying_id;
