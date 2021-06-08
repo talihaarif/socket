@@ -19,9 +19,9 @@ var exec =  require('child_process').exec;
         let data = {
             "attachments": [
                 {
-                    "fallback": "Node JS Server 2",
+                    "fallback": "Node JS Server 1",
                     "color": "#ff0000",
-                    "text": errorMessage,
+                    "text": JSON.stringify(errorMessage),
                     "title": "Message",
                     "fields": [
                         {
