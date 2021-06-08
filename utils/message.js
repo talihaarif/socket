@@ -1,7 +1,6 @@
 const { default: axios } = require("axios");
 const config = require("config");
 const { checkIds, addIds } = require("./channelCache");
-const { checkUserIp } = require("./filesCheck");
 const { sendWebhookError } = require("./webhook");
 
 
@@ -16,8 +15,6 @@ const url = config.get("url");
 const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash,channel_id) =>{
     try {
         let result;
-        console.log("in message name",emitName);
-        console.log("in message emit",messageTemp);
         if (messageTemp.replying_id) {
             let message_id = messageTemp.replying_id;
             let body = JSON.stringify({ message_id });
@@ -27,30 +24,12 @@ const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash,channel_id) =
         if(emitTo===false)
             emitTo=messageTemp.parent.sender_id;
         delete messageTemp.channel_id;
-        if(messageTemp.attachments || (messageTemp.parent && messageTemp.parent.attachments)){
-            console.log("in attachment check");
-            filterEmits(io,emitTo,emitName,messageTemp,ids,hash,channel_id)
-        }
-        else{
-            console.log("message emit ", messageTemp);
-            io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id, data: messageTemp,hash:hash });
-        }
+        io.to(emitTo).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id, data: messageTemp,hash:hash });
+        
     } catch (error) {
         console.log(error);
         sendWebhookError(error, "messageEmit", {emitTo,emitName,messageTemp,ids,hash});
     }
-}
-
-const filterEmits=async (io,emitTo,emitName,messageTemp,ids,hash,channel_id)=>{
-    let clients = io.sockets.adapter.rooms.get(emitTo);
-        if(!clients)
-            return true;
-        for (const clientId of clients) {
-            let clientSocket = io.sockets.sockets.get(clientId);
-            if(clientSocket.ip && await checkUserIp(ids.company_id,clientSocket.ip)){
-                io.to(clientSocket.id).emit(emitName, { type: ids.type, company_id: ids.company_id, team_id: ids.team_id, channel_id, data: messageTemp,hash:hash });
-            }
-        }
 }
 
 const getIds = async(channel_id)=>{

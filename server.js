@@ -21,7 +21,6 @@ const error = require("./changeStream/error");
 const { default: axios } = require("axios");
 const pushError = require("./changeStream/errorPush");
 const listenerEvent = require("./changeStream/listenerEvent");
-const { getAllCompanies } = require("./utils/filesCheck");
 
 // Configuration to send request to backend
 const configuration = {
@@ -138,7 +137,6 @@ and call the change stream functions to start listening to changes in database
 connection.once("open", async() => {
     console.log("MongoDB database connected");
     console.log("Setting change streams");
-    await getAllCompanies();
     await getAllToken();
     channel(connection, io);
     company(connection, io);
