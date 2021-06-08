@@ -29,10 +29,11 @@ const userAddedInTeam = async(data,io) =>{
 
 const usersAddedInTeams = (data,io) =>{
     try{
-        user_ids=data.user_ids.map((el)=> {return el._id});
+        // user_ids=data.user_ids.filter((el)=> {return el._id});
+        // console.log("user_ids are: ", user_ids);
         data.team_ids.map((team_id)=>{
             company_id=data.company_id;
-            io.to(team_id).emit("newUserAddedInTeam", {user_ids,team_id,company_id,hash:data.hash});
+            io.to(team_id).emit("newUserAddedInTeam", {user_ids:data.user_ids,team_id,company_id,hash:data.hash});
         })
     } catch (error) {
         sendWebhookError(error, "usersAddedInTeams listener", data);
