@@ -159,6 +159,16 @@ const channelNameUpdate=(channelTemp,io,resumeToken, hash)=>{
                 hash:hash
             });
         }
+        else if(channelTemp.type == "public"){
+            io.to(channelTemp.team_id).emit("channelNameUpdate", {
+                channel:{name:channelTemp.name,_id: channelTemp._id},
+                type:channelTemp.type,
+                team_id:channelTemp.team_id,
+                company_id:channelTemp.company_id,
+                channel_token:resumeToken,
+                hash:hash
+            });
+        }
         else{
             io.to(channelTemp._id.toString()).emit("channelNameUpdate", {
                 channel:{name:channelTemp.name,_id: channelTemp._id},
@@ -255,29 +265,6 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
 }
 
 /*
-* This function sends the emit on publicChannelJoin.
-* If no clients found return true.
-* Otherwise For each client:
-* Get client socket id.
-* If user_id of client socket is not equal to creator_id of channel then call joinChannelRoom function.
-*/
-const publicChannelJoin=(io,data)=>{
-    try {
-        let clients = io.sockets.adapter.rooms.get(data.team_id);
-        if(!clients)
-            return true;
-        for (const clientId of clients) {
-            let clientSocket = io.sockets.sockets.get(clientId);
-            if(clientSocket.user_id != data.channel.creator_id)
-                joinChannelRoom(clientSocket,[data.channel]);
-        }
-    } catch (error) {
-
-        sendWebhookError(error, "publicChannelJoin", data);
-    }
-}
-
-/*
 * This function sends the emit on directChannelJoin.
 * If no clients found return true.
 * Otherwise For each client:
@@ -300,7 +287,7 @@ const directChannelJoin=(io,data)=>{
 }
 
 const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken, io, hash)=>{
-    if (channelTemp.type == "private"){
+    if (channelTemp.type == "private" || channelTemp.type == "public"){
         let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
         let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
         var result_data = null;
@@ -340,7 +327,6 @@ const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resu
                 if(!channelTemp.user_ids.includes(user_id)){
                     body = JSON.stringify({ channel_id,user_id });
                     result_data =await axios.post(url+"api/channelData", body, configuration);
-                    createChannelRoom(io,result_data.data);
                     io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
                 }
             } catch (err) {
@@ -354,7 +340,6 @@ const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resu
 * Call the api/channelData backend route using axios and store the response in a variable.
 * If channel type is public then : 
 *   Set new_message_count to 0, joined to false, muted to false and pinned to false.
-*   Call publicChannelJoin function.
 *   Send publicChannelUnArchived emit to team id of channel.
 *   Call saveChannelEmits function to store the event for one minute.
 */
@@ -367,7 +352,6 @@ const channelUnarchiveEmitForPublicPrivateChannels=async(channel_id, result, io,
             result.data.channel.joined=false;
             result.data.channel.muted=false;
             result.data.channel.pinned=false;
-            publicChannelJoin(io,result.data)
             io.to(channelTemp.team_id).emit("publicChannelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
         }
         // else if(channelTemp.type=='private'){
@@ -386,7 +370,6 @@ const channelUnarchiveEmitForPublicPrivateChannels=async(channel_id, result, io,
 * This function is used to send emit on channel insertion in case of public and direct channels.
 * If channel type is public then:
 *   Set new_message_count to 0, joined to false, muted to false and pinned to false.
-*   Call publicChannelJoin function.
 *   Send newPublicChannel emit to team id of channel.
 *   Call saveChannelEmits function to store the event for one minute.
 * Otherwise if channel type is direct and user is not the creator of the channel then:
@@ -403,7 +386,6 @@ const channelInserEmitInCaseOfPublicDirectChannels=(result, channelTemp, io, res
             resultClone.channel.joined=false;
             resultClone.channel.muted=false;
             resultClone.channel.pinned=false;
-            publicChannelJoin(io,resultClone)
             io.to(channelTemp.team_id).emit("newPublicChannel", {company_id:resultClone.company_id,team_id:resultClone.team_id,type:resultClone.type,channel:resultClone.channel,channel_token:resumeToken,hash:hash});
         }
         else if(channelTemp.type=='direct' && channelTemp.user_id != channelTemp.creator_id){
@@ -424,5 +406,5 @@ module.exports = {
     channelUnarchived,
     channelArchived,
     createPublicPrivateChannelRoom,
-    deletePublicPrivateChannelRoom
+    deletePublicPrivateChannelRoom,
 };

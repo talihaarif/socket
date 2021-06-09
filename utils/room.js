@@ -90,6 +90,8 @@ const leaveCompanyRoom = (socket,companies,logout=false) => {
             leaveChannelRoom(socket,company.private);
             leaveChannelRoom(socket,company.public);
             leaveChannelRoom(socket,company.direct);
+            if(company.query)
+                leaveChannelRoom(socket,company.query);
         });
     } catch (error) {
         sendWebhookError(error, "leaveCompanyRoom", companies);

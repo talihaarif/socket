@@ -83,8 +83,6 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
                 try {
                     body = JSON.stringify({ team_id,user_id });
                     result_data =await axios.post(url+"api/teamData", body, configuration);
-                    createTeamRoom(io,result_data.data);
-                    createPublicPrivateChannelRoom(io, result_data.data);
                     io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team, public:result_data.data.public ,team_token:resumeToken,hash:hash});
                 } catch (err) {
                     sendWebhookError(err, "teamInsert", teamTemp);
@@ -114,6 +112,18 @@ const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
                 deletePublicPrivateChannelRoom(io, result.data);
             } catch (err) {
                 sendWebhookError(err, "teamArchived", teamTemp);
+            }
+        }
+        result.data.sub_admins.push(result.data.admin);
+        for (let user_id of result.data.sub_admins){
+            if(!teamTemp.user_ids.includes(user_id)){
+                try {
+                    const body = JSON.stringify({ team_id,user_id });
+                    const result =await axios.post(url+"api/teamData", body, configuration);
+                    io.to(user_id).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team:result.data.team,public:result.data.public , private:result.data.private,team_token:resumeToken,hash:hash});
+                } catch (err) {
+                    sendWebhookError(err, "teamArchived", teamTemp);
+                }
             }
         }
 }
@@ -167,8 +177,6 @@ const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io, has
                 if(!teamTemp.user_ids.includes(user_id)){
                     body = JSON.stringify({ team_id,user_id });
                     result_data =await axios.post(url+"api/teamData", body, configuration);
-                    createTeamRoom(io,result_data.data);
-                    createPublicPrivateChannelRoom(io, result_data.data);
                     io.to(user_id).emit("teamUnArchived", {company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , private:result_data.data.private , team_token:resumeToken,hash:hash});
                 }
             } catch (err) {
