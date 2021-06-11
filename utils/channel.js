@@ -352,6 +352,7 @@ const channelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, res
         let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
         let result_data = null;
         result1.data.sub_admins.push(result1.data.admin);
+        team_id = channelTemp.team_id;
         const body2 = JSON.stringify({ team_id });
         const result2 =await axios.post(url+"api/get_team_member_ids", body2, configuration);
         for (let user_id of result1.data.sub_admins){
