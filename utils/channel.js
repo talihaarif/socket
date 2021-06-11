@@ -198,6 +198,7 @@ const channelNameUpdate=async(channelTemp,io,resumeToken, hash)=>{
 * Call deleteChannelRoom function.
 */
 const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
+        let channel_id=channelTemp._id.toString();
         if(channelTemp.type=="query")
             io.to(channelTemp.company_id).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
         else{
@@ -212,7 +213,6 @@ const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
             }
             else{
                 io.to(channelTemp._id.toString()).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
-                let channel_id=channelTemp._id.toString();
                 for (let user_id of channelTemp.user_ids){
                     try {
                         const body = JSON.stringify({ channel_id,user_id });
