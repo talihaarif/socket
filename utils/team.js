@@ -111,10 +111,11 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
 const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
         io.to(teamTemp._id.toString()).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken,hash:hash});
         let team_id=teamTemp._id.toString();
+        let result;
         for (let user_id of teamTemp.user_ids){
             try {
                 const body = JSON.stringify({ team_id,user_id });
-                const result =await axios.post(url+"api/teamData", body, configuration);
+                result = await axios.post(url+"api/teamData", body, configuration);
                 deleteTeamRoom(io,result.data);
                 deletePublicPrivateChannelRoom(io, result.data);
             } catch (err) {
