@@ -19,7 +19,7 @@ const url = config.get("url");
         const body = JSON.stringify({ channel_id,user_id });
         result =await axios.post(url+"api/channelData", body, configuration);
         createChannelRoom(io,result.data);
-        io.to(data.user_ids[0]).emit('addedInChannel',{company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+        io.to(data.user_ids[0]).emit("addedInChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,hash:data.hash});
     } catch (error) {
         sendWebhookError(error, "join channel listener", data);
     }
