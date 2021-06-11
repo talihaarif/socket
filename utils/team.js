@@ -78,12 +78,19 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
             const result =await axios.post(url+"api/teamData", body, configuration);
             createTeamRoom(io,result.data);
             createPublicPrivateChannelRoom(io, result.data);
+            company_id = teamTemp.company_id;
             io.to(result.data.user_id).emit("newTeamCreated",{company_id:result.data.company_id,team:result.data.team, public:result.data.public , private:result.data.private , team_token:resumeToken,hash:hash});
-            for (let user_id of result.data.sub_admins){
+            let body1 = JSON.stringify({ company_id, attribute:"team", operation:"update" });
+            let result1 =await axios.post(url+"api/getSubAdmins", body1, configuration);
+            result1.data.sub_admins.push(result1.data.admin);
+            for (let user_id of result1.data.sub_admins){
                 try {
-                    body = JSON.stringify({ team_id,user_id });
-                    result_data =await axios.post(url+"api/teamData", body, configuration);
-                    io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team, public:result_data.data.public ,team_token:resumeToken,hash:hash});
+                    if(user_id != result.data.user_id){
+                        body = JSON.stringify({ team_id,user_id });
+                        result_data =await axios.post(url+"api/teamData", body, configuration);
+                        createTeamRoom(io,result_data.data);
+                        io.to(user_id).emit("newTeamCreated", {company_id:result_data.data.company_id,team:result_data.data.team, public:result_data.data.public ,team_token:resumeToken,hash:hash});
+                    }
                 } catch (err) {
                     sendWebhookError(err, "teamInsert", teamTemp);
                 }
@@ -120,7 +127,7 @@ const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
                 try {
                     const body = JSON.stringify({ team_id,user_id });
                     const result =await axios.post(url+"api/teamData", body, configuration);
-                    io.to(user_id).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team:result.data.team,public:result.data.public , private:result.data.private,team_token:resumeToken,hash:hash});
+                    deleteTeamRoom(io,result.data);
                 } catch (err) {
                     sendWebhookError(err, "teamArchived", teamTemp);
                 }
@@ -177,6 +184,7 @@ const teamUnarchiveEmitToSubAdmins=async(teamTemp, team_id, resumeToken, io, has
                 if(!teamTemp.user_ids.includes(user_id)){
                     body = JSON.stringify({ team_id,user_id });
                     result_data =await axios.post(url+"api/teamData", body, configuration);
+                    createTeamRoom(io,result.data);
                     io.to(user_id).emit("teamUnArchived", {company_id:result_data.data.company_id,team:result_data.data.team,public:result_data.data.public , private:result_data.data.private , team_token:resumeToken,hash:hash});
                 }
             } catch (err) {

@@ -136,7 +136,7 @@ const channelInsert= async(channelTemp,io,resumeToken, hash)=>{
 * Otherwise send channelNameUpdate emit to channel room.
 *   Call saveChannelEmits function to store the event for one minute.
 */
-const channelNameUpdate=(channelTemp,io,resumeToken, hash)=>{
+const channelNameUpdate=async(channelTemp,io,resumeToken, hash)=>{
     try{
         if (channelTemp.type == "direct"){
             io.to(channelTemp.user_id).emit("channelNameUpdate", {
@@ -160,14 +160,18 @@ const channelNameUpdate=(channelTemp,io,resumeToken, hash)=>{
             });
         }
         else if(channelTemp.type == "public"){
-            io.to(channelTemp.team_id).emit("channelNameUpdate", {
-                channel:{name:channelTemp.name,_id: channelTemp._id},
-                type:channelTemp.type,
-                team_id:channelTemp.team_id,
-                company_id:channelTemp.company_id,
-                channel_token:resumeToken,
-                hash:hash
-            });
+            const body = JSON.stringify({ team_id });
+            const result =await axios.post(url+"api/get_team_member_ids", body, configuration);
+            for(let user_id of result.data.users){
+                io.to(user_id).emit("channelNameUpdate", {
+                    channel:{name:channelTemp.name,_id: channelTemp._id},
+                    type:channelTemp.type,
+                    team_id:channelTemp.team_id,
+                    company_id:channelTemp.company_id,
+                    channel_token:resumeToken,
+                    hash:hash
+                });
+            }
         }
         else{
             io.to(channelTemp._id.toString()).emit("channelNameUpdate", {
@@ -196,18 +200,28 @@ const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
         if(channelTemp.type=="query")
             io.to(channelTemp.company_id).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
         else{
-            io.to(channelTemp._id.toString()).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
-            let channel_id=channelTemp._id.toString();
-            for (let user_id of channelTemp.user_ids){
-                try {
-                    const body = JSON.stringify({ channel_id,user_id });
-                    const result =await axios.post(url+"api/channelData", body, configuration);
-                    deleteChannelRoom(io,result.data);
-                } catch (err) {
-                    sendWebhookError(err, "channelArchived", channelTemp);
+            if(channelTemp.type=="public"){
+                const body = JSON.stringify({ team_id });
+                const result =await axios.post(url+"api/get_team_member_ids", body, configuration);
+                for(let user_id of result.data.users){
+                    io.to(user_id).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
                 }
+                await channelArchiveEmitToSubAdminsForPublicChannel(channel_id, channelTemp, resumeToken, io, hash, result.data.users)
             }
-            await channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io, hash);
+            else{
+                io.to(channelTemp._id.toString()).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
+                let channel_id=channelTemp._id.toString();
+                for (let user_id of channelTemp.user_ids){
+                    try {
+                        const body = JSON.stringify({ channel_id,user_id });
+                        const result =await axios.post(url+"api/channelData", body, configuration);
+                        deleteChannelRoom(io,result.data);
+                    } catch (err) {
+                        sendWebhookError(err, "channelArchived", channelTemp);
+                    }
+                }
+                await channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io, hash);
+            }
         }
 }
 
@@ -224,7 +238,7 @@ const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
 *   Send channelUnArchived emit to creator of the channel.
 *   Call saveChannelEmits function to store the event for one minute.
 * Call channelUnarchiveEmitForPublicPrivateChannels function.
-* Call chanelUnArchiveEmitToSubAdmins function.
+* Call channelUnArchiveEmitToSubAdmins function.
 */
 const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
     try {
@@ -258,7 +272,7 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
             }
         }
         (channelTemp.type !="query") && await channelUnarchiveEmitForPublicPrivateChannels(channel_id,result, io, channelTemp, resumeToken, hash);
-        (channelTemp.type !="query") &&await chanelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash);
+        (channelTemp.type !="query") &&await channelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash);
     } catch (err) {
         sendWebhookError(err, "channelUnarchived", channelTemp);
     }
@@ -287,21 +301,37 @@ const directChannelJoin=(io,data)=>{
 }
 
 const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken, io, hash)=>{
-    if (channelTemp.type == "private" || channelTemp.type == "public"){
-        let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
-        let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
-        var result_data = null;
-        result1.data.sub_admins.push(result1.data.admin);
-        for (let user_id of result1.data.sub_admins){
-            try {
-                if(!channelTemp.user_ids.includes(user_id)){
-                    let body2 = JSON.stringify({ channel_id,user_id });
-                    result_data =await axios.post(url+"api/channelData", body2, configuration);
-                    io.to(user_id).emit("channelArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:result_data.data.channel,channel_token:resumeToken,hash:hash});
-                }
-            } catch (err) {
-                sendWebhookError(err, "channelArchiveEmitToSubAdmins", channelTemp);
+    let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
+    let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
+    var result_data = null;
+    result1.data.sub_admins.push(result1.data.admin);
+    for (let user_id of result1.data.sub_admins){
+        try {
+            if(!channelTemp.user_ids.includes(user_id)){
+                let body2 = JSON.stringify({ channel_id,user_id });
+                result_data =await axios.post(url+"api/channelData", body2, configuration);
+                io.to(user_id).emit("channelArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:result_data.data.channel,channel_token:resumeToken,hash:hash});
             }
+        } catch (err) {
+            sendWebhookError(err, "channelArchiveEmitToSubAdmins", channelTemp);
+        }
+    }
+}
+
+const channelArchiveEmitToSubAdminsForPublicChannel= async(channel_id, channelTemp, resumeToken, io, hash, team_users)=>{
+    let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
+    let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
+    var result_data = null;
+    result1.data.sub_admins.push(result1.data.admin);
+    for (let user_id of result1.data.sub_admins){
+        try {
+            if(!channelTemp.user_ids.includes(user_id) && !team_users.includes(user_id)){
+                let body2 = JSON.stringify({ channel_id,user_id });
+                result_data =await axios.post(url+"api/channelData", body2, configuration);
+                io.to(user_id).emit("channelArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:result_data.data.channel,channel_token:resumeToken,hash:hash});
+            }
+        } catch (err) {
+            sendWebhookError(err, "channelArchiveEmitToSubAdmins", channelTemp);
         }
     }
 }
@@ -317,20 +347,22 @@ const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken,
 *   Send channelUnArchived emit to sub admin.
 *   Call saveChannelEmits function to store the event for one minute.
 */
-const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resumeToken, io, hash)=>{
+const channelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resumeToken, io, hash)=>{
         let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
         let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
         let result_data = null;
         result1.data.sub_admins.push(result1.data.admin);
+        const body2 = JSON.stringify({ team_id });
+        const result2 =await axios.post(url+"api/get_team_member_ids", body2, configuration);
         for (let user_id of result1.data.sub_admins){
             try {
-                if(!channelTemp.user_ids.includes(user_id)){
+                if((channelTemp.type!="public" && !channelTemp.user_ids.includes(user_id)) || (channelTemp.type=="public" && !channelTemp.user_ids.includes(user_id) && !result2.data.users.includes(user_id))){
                     body = JSON.stringify({ channel_id,user_id });
                     result_data =await axios.post(url+"api/channelData", body, configuration);
                     io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
                 }
             } catch (err) {
-                sendWebhookError(err, "chanelUnArchiveEmitToSubAdmins", channelTemp);
+                sendWebhookError(err, "channelUnArchiveEmitToSubAdmins", channelTemp);
             }
         }
 }
@@ -344,15 +376,23 @@ const chanelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resu
 *   Call saveChannelEmits function to store the event for one minute.
 */
 const channelUnarchiveEmitForPublicPrivateChannels=async(channel_id, result, io, channelTemp, resumeToken, hash)=>{
-    try{
-        let body = JSON.stringify({ channel_id,admin:true });
-        result = await axios.post(url+"api/channelData", body, configuration);
+    try{       
         if(channelTemp.type=='public'){
+            let body = JSON.stringify({ channel_id,admin:true });
+            result = await axios.post(url+"api/channelData", body, configuration);  
             result.data.channel.new_message_count=0;
             result.data.channel.joined=false;
             result.data.channel.muted=false;
             result.data.channel.pinned=false;
-            io.to(channelTemp.team_id).emit("publicChannelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+            result.data.messages=[];   
+            team_id = channelTemp.team_id;
+            const body2 = JSON.stringify({ team_id });
+            const result2 =await axios.post(url+"api/get_team_member_ids", body2, configuration);
+            for(let user_id of result2.data.users){
+                if(!channelTemp.user_ids.includes(user_id)){
+                    io.to(user_id).emit("publicChannelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+                }
+            }
         }
         // else if(channelTemp.type=='private'){
         //     if(!channelTemp.user_ids.includes(result.admin_id)){
@@ -407,4 +447,5 @@ module.exports = {
     channelArchived,
     createPublicPrivateChannelRoom,
     deletePublicPrivateChannelRoom,
+    channelArchiveEmitToSubAdminsForPublicChannel,
 };
