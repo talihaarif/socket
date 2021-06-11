@@ -39,6 +39,7 @@ const url = config.get("url");
                 sendWebhookError(err, "newMemberInChannel listener", data);
             }
         }
+        
     } catch (error) {
         sendWebhookError(error, "newMemberInChannel listener", data);
     }
