@@ -160,6 +160,7 @@ const channelNameUpdate=async(channelTemp,io,resumeToken, hash)=>{
             });
         }
         else if(channelTemp.type == "public"){
+            team_id = channelTemp.team_id;
             const body = JSON.stringify({ team_id });
             const result =await axios.post(url+"api/get_team_member_ids", body, configuration);
             for(let user_id of result.data.users){
@@ -201,6 +202,7 @@ const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
             io.to(channelTemp.company_id).emit("channelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
         else{
             if(channelTemp.type=="public"){
+                team_id = channelTemp.team_id;
                 const body = JSON.stringify({ team_id });
                 const result =await axios.post(url+"api/get_team_member_ids", body, configuration);
                 for(let user_id of result.data.users){
