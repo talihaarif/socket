@@ -17,7 +17,7 @@ const url = config.get("url");
         let channel_id= data.channel_id;
         let user_id = data.user_ids[0];
         const body = JSON.stringify({ channel_id,user_id });
-        result =await axios.post(url+"api/channelData", body, configuration);
+        const result =await axios.post(url+"api/channelData", body, configuration);
         createChannelRoom(io,result.data);
         io.to(data.user_ids[0]).emit("addedInChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,hash:data.hash});
     } catch (error) {
