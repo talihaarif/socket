@@ -28,19 +28,18 @@ const url = config.get("url");
  const newMemberInChannel =async(data,io)=>{
     try{
         io.to(data.channel_id).emit("userAddedInChannel", data );
-        if(data.type=='private' || data.type=='query' || data.type=='public'){
-            for (let user_id of data.user_ids){
-                let channel_id=data.channel_id;
-                try {
-                    const body = JSON.stringify({ channel_id,user_id });
-                    const result =await axios.post(url+"api/channelData", body, configuration);
-                    createChannelRoom(io,result.data);
-                    io.to(user_id).emit("addedInChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,hash:data.hash});
-                } catch (err) {
-                    sendWebhookError(err, "newMemberInChannel listener", data);
-                }
+        for (let user_id of data.user_ids){
+            let channel_id=data.channel_id;
+            try {
+                const body = JSON.stringify({ channel_id,user_id });
+                const result =await axios.post(url+"api/channelData", body, configuration);
+                createChannelRoom(io,result.data);
+                io.to(user_id).emit("addedInChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,hash:data.hash});
+            } catch (err) {
+                sendWebhookError(err, "newMemberInChannel listener", data);
             }
         }
+        
     } catch (error) {
         sendWebhookError(error, "newMemberInChannel listener", data);
     }
@@ -48,17 +47,15 @@ const url = config.get("url");
 
  const removedFromChannel = async(data,io)=>{
     try{
-        if(data.type=='private' || data.type=='query' || data.typ=='public'){
-            for (let user_id of data.user_ids){
-                let channel_id=data.channel._id;
-                try {
-                    const body = JSON.stringify({ channel_id,user_id });
-                    const result =await axios.post(url+"api/channelData", body, configuration);
-                    deleteChannelRoom(io,result.data);
-                    io.to(user_id).emit("removedChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:{_id:channel_id,name:result.data.channel.name},hash:data.hash});
-                } catch (err) {
-                    sendWebhookError(err, "removedFromChannel listener", data);
-                }
+        for (let user_id of data.user_ids){
+            let channel_id=data.channel._id;
+            try {
+                const body = JSON.stringify({ channel_id,user_id });
+                const result =await axios.post(url+"api/channelData", body, configuration);
+                deleteChannelRoom(io,result.data);
+                io.to(user_id).emit("removedChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:{_id:channel_id,name:result.data.channel.name},hash:data.hash});
+            } catch (err) {
+                sendWebhookError(err, "removedFromChannel listener", data);
             }
         }
         io.to(data.channel._id).emit("usersRemovedFromChannel",  data );
@@ -69,8 +66,7 @@ const url = config.get("url");
 
  const leaveChannel = (data,io) =>{
     try{
-        if(data.channel.type=='private' || data.channel.type=='query' || data.channel.type=='public')
-            deleteChannelRoom(io,data);
+        deleteChannelRoom(io,data);
         io.to(data.user_id).emit('channelLeft',data);
         io.to(data.channel._id).emit("usersRemovedFromChannel",  data );
     } catch (error) {
