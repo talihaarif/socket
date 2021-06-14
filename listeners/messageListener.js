@@ -15,61 +15,64 @@ const { sendWebhookError } = require("../utils/webhook");
      *      Send someoneStopTyping emit to channel room.
     */
 
-const messageListener = (socket,io) => {
-   
-    socket.on("messagesRead", (data) => {
-        try{
-        socket.to(data.user_id).emit("multipleMessagesSeen", data);
-        if(data.type=="query")
-            io.to(data.company_id).emit("multipleMessagesRead", data);
-        else
-            io.to(data.channel_id).emit("multipleMessagesRead", data);
+
+   const messagesRead =(data,io)=>{
+    try{
+    io.to(data.user_id).emit("multipleMessagesSeen", data);
+    if(data.type=="query")
+        io.to(data.company_id).emit("multipleMessagesRead", data);
+    else
+        io.to(data.channel_id).emit("multipleMessagesRead", data);
     } catch (error) {
         sendWebhookError(error, "messagesRead listener", data);
     }
-    });
-    socket.on("messageRead", (data) => {
+    }
+
+    const messageRead =(data,io)=>{
         try{
-        socket.to(data.user_id).emit("singleMessageSeen", data);
+        io.to(data.user_id).emit("singleMessageSeen", data);
         if(data.type=="query")
             io.to(data.company_id).emit("singleMessageRead", data);
         else
             io.to(data.channel_id).emit("singleMessageRead", data);
-    } catch (error) {
-        sendWebhookError(error, "messageRead listener", data);
+        } catch (error) {
+            sendWebhookError(error, "messageRead listener", data);
+        }
     }
-    });
-    socket.on("markSeenAllReplies", (data) => {
-        try{
-        socket.to(data.user_id).emit("multipleReplySeen", data);
-        if(data.type=="query")
-            socket.to(data.company_id).emit("multipleReplyRead", data);
-        else
-            socket.to(data.channel_id).emit("multipleReplyRead", data);
-    } catch (error) {
-        sendWebhookError(error, "markSeenAllReplies listener", data);
-    }
-    });
 
-    socket.on("markSeenSingleReplies", (data) => {
+    const markSeenAllReplies =(data,io)=>{
         try{
-        socket.to(data.user_id).emit("singleReplySeen", data);
+        io.to(data.user_id).emit("multipleReplySeen", data);
         if(data.type=="query")
-            socket.to(data.company_id).emit("singleReplyRead", data);
+            io.to(data.company_id).emit("multipleReplyRead", data);
         else
-            socket.to(data.channel_id).emit("singleReplyRead", data);
-    } catch (error) {
-        sendWebhookError(error, "markSeenAllReplies listener", data);
+            io.to(data.channel_id).emit("multipleReplyRead", data);
+        } catch (error) {
+            sendWebhookError(error, "markSeenAllReplies listener", data);
+        }
     }
-    });
 
-    socket.on("replyReadBy", (data) => {
+    const markSeenSingleReplies =(data,io)=>{
+        try{
+        io.to(data.user_id).emit("singleReplySeen", data);
+        if(data.type=="query")
+            io.to(data.company_id).emit("singleReplyRead", data);
+        else
+            io.to(data.channel_id).emit("singleReplyRead", data);
+        } catch (error) {
+            sendWebhookError(error, "markSeenAllReplies listener", data);
+        }
+    }
+
+    const replyReadBy =(data,io)=>{
         try {
-            socket.to(data.channel_id).emit("addReplyReadBy", data);
+            io.to(data.channel_id).emit("addReplyReadBy", data);
         } catch (error) {
             sendWebhookError(error, "replyReadBy listener", data);
         }
-    });
+    }
+
+const messageListener = (socket,io) => {
     
     socket.on("typing", (data) => {
         try{
@@ -88,4 +91,11 @@ const messageListener = (socket,io) => {
     });
 };
 
-module.exports = messageListener;
+module.exports = {
+    messageListener,
+    messagesRead,
+    messageRead,
+    markSeenAllReplies,
+    markSeenSingleReplies,
+    replyReadBy
+};
