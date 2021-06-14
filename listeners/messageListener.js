@@ -79,13 +79,13 @@ const messageListener = (socket,io) => {
     }
     });
 
-    socket.on("stopTyping", (data) => {
-        try{
-        socket.to(data.channel_id).emit("someoneStopTyping", data);
-    } catch (error) {
-        sendWebhookError(error, "stopTyping listener", data);
-    }
-    });
+    // socket.on("stopTyping", (data) => {
+    //     try{
+    //     socket.to(data.channel_id).emit("someoneStopTyping", data);
+    // } catch (error) {
+    //     sendWebhookError(error, "stopTyping listener", data);
+    // }
+    // });
 };
 
 module.exports = messageListener;
