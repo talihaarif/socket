@@ -112,18 +112,19 @@ const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
         io.to(teamTemp._id.toString()).emit("teamArchived", {company_id:teamTemp.company_id,team_id:teamTemp._id.toString(),team_token:resumeToken,hash:hash});
         let team_id=teamTemp._id.toString();
         let result;
+        let sub_admins = [];
         for (let user_id of teamTemp.user_ids){
             try {
                 const body = JSON.stringify({ team_id,user_id });
                 result = await axios.post(url+"api/teamData", body, configuration);
+                sub_admins = result.data.sub_admins.push(result.data.admin);
                 deleteTeamRoom(io,result.data);
                 deletePublicPrivateChannelRoom(io, result.data);
             } catch (err) {
                 sendWebhookError(err, "teamArchived", teamTemp);
             }
         }
-        result.data.sub_admins.push(result.data.admin);
-        for (let user_id of result.data.sub_admins){
+        for (let user_id of sub_admins){
             if(!teamTemp.user_ids.includes(user_id)){
                 try {
                     const body = JSON.stringify({ team_id,user_id });
