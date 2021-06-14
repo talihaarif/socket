@@ -124,14 +124,16 @@ const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
                 sendWebhookError(err, "teamArchived", teamTemp);
             }
         }
-        for (let user_id of sub_admins){
-            if(!teamTemp.user_ids.includes(user_id)){
-                try {
-                    const body = JSON.stringify({ team_id,user_id });
-                    const result =await axios.post(url+"api/teamData", body, configuration);
-                    deleteTeamRoom(io,result.data);
-                } catch (err) {
-                    sendWebhookError(err, "teamArchived", teamTemp);
+        if(sub_admins.length>0){
+            for (let user_id of sub_admins){
+                if(!teamTemp.user_ids.includes(user_id)){
+                    try {
+                        const body = JSON.stringify({ team_id,user_id });
+                        const result =await axios.post(url+"api/teamData", body, configuration);
+                        deleteTeamRoom(io,result.data);
+                    } catch (err) {
+                        sendWebhookError(err, "teamArchived", teamTemp);
+                    }
                 }
             }
         }
