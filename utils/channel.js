@@ -359,7 +359,7 @@ const channelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, res
         const result2 =await axios.post(url+"api/get_team_member_ids", body2, configuration);
         for (let user_id of result1.data.sub_admins){
             try {
-                if((channelTemp.type!="public" && !channelTemp.user_ids.includes(user_id)) || (channelTemp.type=="public" && !channelTemp.user_ids.includes(user_id) && !result2.data.users.includes(user_id))){
+                if(user_id != result.data.channel.creator_id && (channelTemp.type!="public" && !channelTemp.user_ids.includes(user_id)) || (channelTemp.type=="public" && !channelTemp.user_ids.includes(user_id) && !result2.data.users.includes(user_id))){
                     body = JSON.stringify({ channel_id,user_id });
                     result_data =await axios.post(url+"api/channelData", body, configuration);
                     io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
