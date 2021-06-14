@@ -246,10 +246,12 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
     try {
         let channel_id=channelTemp._id.toString();
         let result;
+        let creator_id = null;
         if(channelTemp.user_ids.length==0){
             const body = JSON.stringify({ channel_id });
             result =await axios.post(url+"api/channelData", body, configuration);
             createChannelRoom(io,result.data);
+            creator_id = result.data.channel.creator_id;
             if(channelTemp.type=="query")
                 io.to(channelTemp.company_id).emit("channelUnArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
             else
@@ -274,7 +276,7 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
             }
         }
         (channelTemp.type !="query") && await channelUnarchiveEmitForPublicPrivateChannels(channel_id,result, io, channelTemp, resumeToken, hash);
-        (channelTemp.type !="query") &&await channelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash);
+        (channelTemp.type !="query") &&await channelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash, creator_id);
     } catch (err) {
         sendWebhookError(err, "channelUnarchived", channelTemp);
     }
@@ -349,7 +351,7 @@ const channelArchiveEmitToSubAdminsForPublicChannel= async(channel_id, channelTe
 *   Send channelUnArchived emit to sub admin.
 *   Call saveChannelEmits function to store the event for one minute.
 */
-const channelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resumeToken, io, hash)=>{
+const channelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, resumeToken, io, hash, creator_id)=>{
         let body1 = JSON.stringify({ channel_id, attribute:"channel", operation:"update" });
         let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
         let result_data = null;
@@ -359,7 +361,7 @@ const channelUnArchiveEmitToSubAdmins=async(channel_id, result, channelTemp, res
         const result2 =await axios.post(url+"api/get_team_member_ids", body2, configuration);
         for (let user_id of result1.data.sub_admins){
             try {
-                if(user_id != result.data.channel.creator_id && (channelTemp.type!="public" && !channelTemp.user_ids.includes(user_id)) || (channelTemp.type=="public" && !channelTemp.user_ids.includes(user_id) && !result2.data.users.includes(user_id))){
+                if(user_id != creator_id && (channelTemp.type!="public" && !channelTemp.user_ids.includes(user_id)) || (channelTemp.type=="public" && !channelTemp.user_ids.includes(user_id) && !result2.data.users.includes(user_id))){
                     body = JSON.stringify({ channel_id,user_id });
                     result_data =await axios.post(url+"api/channelData", body, configuration);
                     io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
