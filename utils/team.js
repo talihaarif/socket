@@ -76,7 +76,7 @@ const teamInsert=async(teamTemp,io,resumeToken, hash)=>{
     let result_data = null;
     setTimeout(async()=>{
             const result =await axios.post(url+"api/teamData", body, configuration);
-            createTeamRoom(io,result.data);
+            createTeamRoom(io,result.data);   //issue
             createPublicPrivateChannelRoom(io, result.data);
             company_id = teamTemp.company_id;
             io.to(result.data.user_id).emit("newTeamCreated",{company_id:result.data.company_id,team:result.data.team, public:result.data.public , private:result.data.private , team_token:resumeToken,hash:hash});
@@ -117,7 +117,7 @@ const teamArchived=async(teamTemp,io,resumeToken, hash)=>{
             try {
                 const body = JSON.stringify({ team_id,user_id });
                 result = await axios.post(url+"api/teamData", body, configuration);
-                sub_admins = result.data.sub_admins.push(result.data.admin);
+                sub_admins = result.data.sub_admins.push(result.data.admin);   //issue
                 deleteTeamRoom(io,result.data);
                 deletePublicPrivateChannelRoom(io, result.data);
             } catch (err) {

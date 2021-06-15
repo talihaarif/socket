@@ -59,7 +59,7 @@ const authentication = (socket, io) => {
                 joinCompanyRoom(socket,result.data.companies,true,data.selected_company);
                 console.log("user connected", user_id);
                 socket.emit("okay", "");            
-                userOnline(socket);
+                // userOnline(socket);
                 usersOnline(io,socket);
                 //----------listening to emits from frontend start here----------
                 if(!socket.check){

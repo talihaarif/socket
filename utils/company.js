@@ -50,7 +50,7 @@ const deleteCompanyRoom = (io,data) => {
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
             leaveCompanyRoom(clientSocket,data.companies);
-            userOffline(clientSocket);
+            // userOffline(clientSocket);
         }
     } catch (error) {
         sendWebhookError(error, "deleteCompanyRoom", data);

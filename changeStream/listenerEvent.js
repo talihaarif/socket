@@ -1,6 +1,7 @@
 const { joinChannel, newMemberInChannel, removedFromChannel, leaveChannel, muteChannel, flagChannel } = require("../listeners/channelListener");
 const { removedFromCompany, unarchivedFromCompany, addUserInNewCompany } = require("../listeners/companyListener");
 const { userAddedInTeam, usersAddedInTeams, leaveTeam, userRemovedFromTeam } = require("../listeners/teamListener");
+const { messagesRead, messageRead, markSeenAllReplies, markSeenSingleReplies, replyReadBy } = require("../listeners/messageListener");
 const { createHash } = require("../utils/hash");
 const { sendWebhookError } = require("../utils/webhook");
 
@@ -59,6 +60,18 @@ const listenerEvent = (conn, io) => {
                     leaveTeam(listenerEventTemp.data,io);
                 else if(listenerEventTemp.listener_name == "userRemovedFromTeam")
                     userRemovedFromTeam(listenerEventTemp.data,io);
+
+                //message
+                else if(listenerEventTemp.listener_name == "messagesRead")
+                    messagesRead(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "messageRead")
+                    messageRead(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "markSeenAllReplies")
+                    markSeenAllReplies(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "markSeenSingleReplies")
+                    markSeenSingleReplies(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "replyReadBy")
+                    replyReadBy(listenerEventTemp.data,io);
 
                 break;
         }
