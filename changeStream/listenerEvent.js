@@ -1,7 +1,7 @@
 const { joinChannel, newMemberInChannel, removedFromChannel, leaveChannel, muteChannel, flagChannel } = require("../listeners/channelListener");
 const { removedFromCompany, unarchivedFromCompany, addUserInNewCompany } = require("../listeners/companyListener");
 const { userAddedInTeam, usersAddedInTeams, leaveTeam, userRemovedFromTeam } = require("../listeners/teamListener");
-const { messagesRead, messageRead, markSeenAllReplies, markSeenSingleReplies, replyReadBy } = require("../listeners/messageListener");
+const { messagesRead, messageRead, markSeenAllReplies, markSeenSingleReplies, replyReadBy, removeReaction, addReaction } = require("../listeners/messageListener");
 const { userAllowAccessModified } = require("../listeners/userListener");
 const { createHash } = require("../utils/hash");
 const { sendWebhookError } = require("../utils/webhook");
@@ -73,12 +73,14 @@ const listenerEvent = (conn, io) => {
                     markSeenSingleReplies(listenerEventTemp.data,io);
                 else if(listenerEventTemp.listener_name == "replyReadBy")
                     replyReadBy(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "addReaction")
+                    addReaction(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "removeReaction")
+                    removeReaction(listenerEventTemp.data,io);
 
                 //user
-                else if(listenerEventTemp.listener_name == "userAllowAccessModified"){
-                    console.log("in listener event change stream");
+                else if(listenerEventTemp.listener_name == "userAllowAccessModified")
                     userAllowAccessModified(listenerEventTemp.data,io);
-                }
 
                 break;
         }

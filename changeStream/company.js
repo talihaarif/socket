@@ -51,7 +51,7 @@ const company = (conn, io) => {
                     io.to(companyTemp._id.toString()).emit("ipStatusChange",{company_id:companyTemp._id,ip_status:companyTemp.ip_status,company_token:change._id,hash:hash});
                 } else if(companyUpdateCheck.ips){
                     io.to(companyTemp._id.toString()).emit("ipsChange",{company_id:companyTemp._id,ips:companyTemp.ips,company_token:change._id,hash:hash});
-                } else if(companyUpdateCheck.file_access){
+                } else if(companyUpdateCheck.file_status){
                     companyFileStatusUpdate(companyTemp,io,change._id, hash);
                 } else if(companyUpdateCheck.file_ips){
                     companyFileIpsUpdate(companyTemp,io,change._id, hash);

@@ -72,6 +72,22 @@ const { sendWebhookError } = require("../utils/webhook");
         }
     }
 
+    const removeReaction =(data,io)=>{
+        try {
+            io.to(data.channel_id).emit("reactionRemoved", data);
+        } catch (error) {
+            sendWebhookError(error, "removeReaction listener", data);
+        }
+    }
+
+    const addReaction =(data,io)=>{
+        try {
+            io.to(data.channel_id).emit("reactionAdded", data);
+        } catch (error) {
+            sendWebhookError(error, "addReaction listener", data);
+        }
+    }
+
 const messageListener = (socket) => {
     
     socket.on("typing", (data) => {
@@ -97,5 +113,7 @@ module.exports = {
     messageRead,
     markSeenAllReplies,
     markSeenSingleReplies,
-    replyReadBy
+    replyReadBy,
+    removeReaction,
+    addReaction,
 };
