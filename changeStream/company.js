@@ -45,13 +45,13 @@ const company = (conn, io) => {
                     io.to(companyTemp._id.toString()).emit("deleteFileTimeChange",{company_id:companyTemp._id,delete_file_after:companyTemp.delete_file_after,company_token:change._id,hash:hash});
                 } else if(companyUpdateCheck.shareable_link === true || companyUpdateCheck.shareable_link === false){
                     io.to(companyTemp._id.toString()).emit("shareAbleLinkChange",{company_id:companyTemp._id,shareable_link:companyTemp.shareable_link,company_token:change._id,hash:hash});
-                } else if(companyUpdateCheck.two_fa){
+                } else if(companyUpdateCheck.two_fa || companyUpdateCheck.two_fa === false){
                     io.to(companyTemp._id.toString()).emit("companyTwoFaChange",{company_id:companyTemp._id,two_fa:companyTemp.two_fa,company_token:change._id,hash:hash});
-                } else if(companyUpdateCheck.ip_status){
+                } else if(companyUpdateCheck.ip_status===true || companyUpdateCheck.ip_status===false){
                     io.to(companyTemp._id.toString()).emit("ipStatusChange",{company_id:companyTemp._id,ip_status:companyTemp.ip_status,company_token:change._id,hash:hash});
                 } else if(companyUpdateCheck.ips){
                     io.to(companyTemp._id.toString()).emit("ipsChange",{company_id:companyTemp._id,ips:companyTemp.ips,company_token:change._id,hash:hash});
-                } else if(companyUpdateCheck.file_status){
+                } else if(companyUpdateCheck.file_status===true || companyUpdateCheck.file_status===false){
                     companyFileStatusUpdate(companyTemp,io,change._id, hash);
                 } else if(companyUpdateCheck.file_ips){
                     companyFileIpsUpdate(companyTemp,io,change._id, hash);
