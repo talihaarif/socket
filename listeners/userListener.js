@@ -1,5 +1,16 @@
 const { saveUser, userOffline, userOnline, usersOnline } = require("../utils/user");
 const { sendWebhookError } = require("../utils/webhook");
+const { default: axios } = require("axios");
+const config = require("config");
+
+
+const configuration = {
+  headers: {
+    "Content-Type": "application/json",
+    "token":"MyNodeToken"
+  },
+};
+const url = config.get("url");
 
 /**
  * This is the code for User Listener. This is called when emit is send from frontend on user operations.
@@ -53,7 +64,7 @@ const userAllowAccessModified = async(data,io) =>{
         io.to(user_id).emit("userAllowAccessModified", {company_id:data.company_id,user_id:data.user_id, allow_access:data.allow_access,hash:hash});
     }
   } catch (err) {
-    sendWebhookError(err, "channelArchiveEmitToSubAdmins", channelTemp);
+    sendWebhookError(err, "userAllowAccessModified listener", channelTemp);
   }
 }
 

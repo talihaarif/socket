@@ -81,8 +81,38 @@ const companyInsert=async(companyTemp,io,resumeToken, hash)=>{
     }
 }
 
+const companyFileStatusUpdate=async(companyTemp,io,resumeToken, hash)=>{
+    try{
+        let company_id=companyTemp._id.toString();
+        let body1 = JSON.stringify({ company_id, attribute:"attachments", operation:"update" });
+        let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
+        result1.data.sub_admins.push(result1.data.admin);
+        for (let user_id of result1.data.sub_admins){
+            io.to(user_id).emit("companyFileStatusChanged",{company_id:companyTemp._id, file_status:companyTemp.file_status ,company_token:resumeToken,hash:hash});
+        }
+    } catch (err) {
+        sendWebhookError(err, "companyFileStatusUpdate", companyTemp);
+    }
+}
+
+const companyFileIpsUpdate=async(companyTemp,io,resumeToken, hash)=>{
+    try{
+        let company_id=companyTemp._id.toString();
+        let body1 = JSON.stringify({ company_id, attribute:"attachments", operation:"update" });
+        let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
+        result1.data.sub_admins.push(result1.data.admin);
+        for (let user_id of result1.data.sub_admins){
+            io.to(user_id).emit("companyFileIpsChanged",{company_id:companyTemp._id, file_ips:companyTemp.file_ips ,company_token:resumeToken,hash:hash});
+        }
+    } catch (err) {
+        sendWebhookError(err, "companyFileIpsUpdate", companyTemp);
+    }
+}
+
 module.exports = {
     createCompanyRoom,
     deleteCompanyRoom,
-    companyInsert
+    companyInsert,
+    companyFileStatusUpdate,
+    companyFileIpsUpdate,
 };
