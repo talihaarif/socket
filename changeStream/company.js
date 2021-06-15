@@ -52,9 +52,9 @@ const company = (conn, io) => {
                 } else if(companyUpdateCheck.ips){
                     io.to(companyTemp._id.toString()).emit("ipsChange",{company_id:companyTemp._id,ips:companyTemp.ips,company_token:change._id,hash:hash});
                 } else if(companyUpdateCheck.file_access){
-                    await companyFileStatusUpdate(companyTemp,io,change._id, hash);
+                    companyFileStatusUpdate(companyTemp,io,change._id, hash);
                 } else if(companyUpdateCheck.file_ips){
-                    await companyFileIpsUpdate(companyTemp,io,change._id, hash);
+                    companyFileIpsUpdate(companyTemp,io,change._id, hash);
                 }
                 break;
         }
