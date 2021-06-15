@@ -54,8 +54,9 @@ const userListener = (io,socket) => {
 };
 
 const userAllowAccessModified = async(data,io) =>{
-
+  console.log("in userAllowAccessModified");
   try {
+    console.log("in try");
     let company_id = data.company_id;
     let body1 = JSON.stringify({ company_id, attribute:"company_member", operation:"update" });
     let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);

@@ -75,8 +75,10 @@ const listenerEvent = (conn, io) => {
                     replyReadBy(listenerEventTemp.data,io);
 
                 //user
-                else if(listenerEventTemp.listener_name == "userAllowAccessModified")
+                else if(listenerEventTemp.listener_name == "userAllowAccessModified"){
+                    console.log("in listener event change stream");
                     userAllowAccessModified(listenerEventTemp.data,io);
+                }
 
                 break;
         }
