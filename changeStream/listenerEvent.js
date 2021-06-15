@@ -2,6 +2,7 @@ const { joinChannel, newMemberInChannel, removedFromChannel, leaveChannel, muteC
 const { removedFromCompany, unarchivedFromCompany, addUserInNewCompany } = require("../listeners/companyListener");
 const { userAddedInTeam, usersAddedInTeams, leaveTeam, userRemovedFromTeam } = require("../listeners/teamListener");
 const { messagesRead, messageRead, markSeenAllReplies, markSeenSingleReplies, replyReadBy } = require("../listeners/messageListener");
+const { userAllowAccessModified } = require("../listeners/userListener");
 const { createHash } = require("../utils/hash");
 const { sendWebhookError } = require("../utils/webhook");
 
@@ -72,6 +73,10 @@ const listenerEvent = (conn, io) => {
                     markSeenSingleReplies(listenerEventTemp.data,io);
                 else if(listenerEventTemp.listener_name == "replyReadBy")
                     replyReadBy(listenerEventTemp.data,io);
+
+                //user
+                else if(listenerEventTemp.listener_name == "userAllowAccessModified")
+                    userAllowAccessModified(listenerEventTemp.data,io);
 
                 break;
         }
