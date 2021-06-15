@@ -124,7 +124,7 @@ io.on("connection", (socket) => {
         console.log("socket.io disconnected: ", socket.id);
         if (socket.user_id) {
             //Sending emit to the companies that particular is offline if false is returned from removeSocket function
-            userOffline(socket);
+            // userOffline(socket);
         }
     });
 });
