@@ -1,6 +1,6 @@
 const { checkToken } = require("../utils/token");
 var moment = require('moment');
-const messageListener = require("./messageListener");
+const {messageListener} = require("./messageListener");
 const userListener = require("./userListener");
 const { usersOnline, userOnline } = require("../utils/user");
 const { joinCompanyRoom } = require("../utils/room");
@@ -63,7 +63,7 @@ const authentication = (socket, io) => {
                 usersOnline(io,socket);
                 //----------listening to emits from frontend start here----------
                 if(!socket.check){
-                    messageListener(socket,io);
+                    messageListener(socket);
                     userListener(io,socket);
                 }
                 socket.check=true;

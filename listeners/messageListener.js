@@ -72,7 +72,7 @@ const { sendWebhookError } = require("../utils/webhook");
         }
     }
 
-const messageListener = (socket,io) => {
+const messageListener = (socket) => {
     
     socket.on("typing", (data) => {
         try{
