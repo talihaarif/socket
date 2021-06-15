@@ -66,7 +66,7 @@ const userAllowAccessModified = async(data,io) =>{
         io.to(user_id).emit("userAllowAccessModified", {company_id:data.company_id,user_id:data.user_id, allow_access:data.allow_access,hash:hash});
     }
   } catch (err) {
-    sendWebhookError(err, "userAllowAccessModified listener", channelTemp);
+    sendWebhookError(err, "userAllowAccessModified listener", data);
   }
 }
 
