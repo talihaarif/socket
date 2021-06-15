@@ -1,7 +1,7 @@
 const { checkToken } = require("../utils/token");
 var moment = require('moment');
 const {messageListener} = require("./messageListener");
-const userListener = require("./userListener");
+const {userListener} = require("./userListener");
 const { usersOnline, userOnline } = require("../utils/user");
 const { joinCompanyRoom } = require("../utils/room");
 const { sendWebhookError } = require("../utils/webhook");
