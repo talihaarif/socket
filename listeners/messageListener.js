@@ -43,10 +43,10 @@ const { sendWebhookError } = require("../utils/webhook");
     const markSeenAllReplies =(data,io)=>{
         try{
         io.to(data.user_id).emit("multipleReplySeen", data);
-        if(data.type=="query")
-            io.to(data.company_id).emit("multipleReplyRead", data);
-        else
-            io.to(data.channel_id).emit("multipleReplyRead", data);
+        // if(data.type=="query")
+        //     io.to(data.company_id).emit("multipleReplyRead", data);
+        // else
+        //     io.to(data.channel_id).emit("multipleReplyRead", data);
         } catch (error) {
             sendWebhookError(error, "markSeenAllReplies listener", data);
         }
@@ -55,10 +55,10 @@ const { sendWebhookError } = require("../utils/webhook");
     const markSeenSingleReplies =(data,io)=>{
         try{
         io.to(data.user_id).emit("singleReplySeen", data);
-        if(data.type=="query")
-            io.to(data.company_id).emit("singleReplyRead", data);
-        else
-            io.to(data.channel_id).emit("singleReplyRead", data);
+        // if(data.type=="query")
+        //     io.to(data.company_id).emit("singleReplyRead", data);
+        // else
+        //     io.to(data.channel_id).emit("singleReplyRead", data);
         } catch (error) {
             sendWebhookError(error, "markSeenAllReplies listener", data);
         }
