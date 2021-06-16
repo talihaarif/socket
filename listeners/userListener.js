@@ -41,7 +41,7 @@ const userListener = (io,socket) => {
     try{
       console.log("switch from " ,socket.company_id);
       console.log("switch to " ,id);
-      // userOffline(socket);
+      userOffline(socket);
       socket.company_id = id;
       saveUser(socket.id, socket.user_id, id, socket.status);
       // userOnline(socket);

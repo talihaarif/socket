@@ -43,15 +43,15 @@ const findUser = (socket_id, user_id, company_id) => {
 This function remove object from user array based
 on socket id when any socket is disconnected.
 */
-const removeUser = (socket_id, user_id, company_id) => {
+const removeUser = (socket_id, user_id) => {
     try{
         users = users.filter((el) => {
             return el.socket_id != socket_id;
         });
-        if (findUser(socket_id, user_id, company_id)) {
-            return true;
-        }
-        return false;
+        // if (findUser(socket_id, user_id, company_id)) {
+        //     return true;
+        // }
+        // return false;
     } catch (error) {
         sendWebhookError(error, "removeUser", user_id);
     }
@@ -111,13 +111,14 @@ const setActiveStatus = (active,id) => {
 //this function sets userOffline emit to company room if user gets offline.
 const userOffline=(socket)=>{
     try{
-        if (!removeUser(socket.id, socket.user_id, socket.company_id)) {
-            socket.to(socket.company_id).emit("userOffline", {
-                company_id: socket.company_id,
-                user_id: socket.user_id,
-                status: socket.status,
-            });
-        }
+        removeUser(socket.id, socket.user_id);
+        // if (!removeUser(socket.id, socket.user_id, socket.company_id)) {
+        //     socket.to(socket.company_id).emit("userOffline", {
+        //         company_id: socket.company_id,
+        //         user_id: socket.user_id,
+        //         status: socket.status,
+        //     });
+        // }
     } catch (error) {
         sendWebhookError(error, "userOffline", socket);
     }
