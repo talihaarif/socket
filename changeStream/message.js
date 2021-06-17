@@ -74,7 +74,7 @@ const message = (conn, io) => {
                     } else if (messageUpdateCheck.deleted_at) {
                         messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
                         await messageEmit(io,channel_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
-                    } else if (messageUpdateCheck.is_read || messageUpdateCheck.child_read || messageUpdateCheck.pinned_by || (messageUpdateCheck.updated_at && Object.keys(messageUpdateCheck).length == 1)) {
+                    } else if (messageUpdateCheck.is_read || messageUpdateCheck.child_read || messageUpdateCheck.pinned_by || messageUpdateCheck.replied_ids || messageUpdateCheck.replied_created_at || messageUpdateCheck.replied_sender_id || (messageUpdateCheck.updated_at && Object.keys(messageUpdateCheck).length == 1)) {
                         break;
                     }
                     else if (messageUpdateCheck.delete_after){
