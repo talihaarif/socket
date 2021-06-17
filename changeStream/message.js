@@ -62,6 +62,7 @@ const message = (conn, io) => {
                     }
                     break;
                 case "update":
+                    console.log("message update",change);
                     let messageUpdateCheck = change.updateDescription.updatedFields;
                     let send_after_emit_name = messageTemp.replying_id ? "replySendAfterMessage" : "sendAfterMessage";
                     let update_message_emit_name = messageTemp.replying_id ? "replyUpdateMessage" : "updateMessage";
