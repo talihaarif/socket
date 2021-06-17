@@ -1,5 +1,4 @@
 const { default: axios } = require("axios");
-const config = require("config");
 const { sendWebhookError } = require("../utils/webhook");
 
 const resumeAfter = (conn,io,data) => {
@@ -19,7 +18,7 @@ const resumeAfter = (conn,io,data) => {
               "token":"MyNodeToken"
             },
           };
-        const url = config.get("url");
+        const url = process.env.URL;
 
 
         message.on("change",async (change) => {

@@ -1,5 +1,4 @@
 const { default: axios } = require("axios");
-const config = require("config");
 const { deleteChannelRoom, createChannelRoom } = require("../utils/channel");
 const { sendWebhookError } = require("../utils/webhook");
 
@@ -9,7 +8,7 @@ const configuration = {
       "token":"MyNodeToken"
     },
   };
-const url = config.get("url");
+const url = process.env.URL;
 
  const joinChannel = async(data,io)=>{
     try{

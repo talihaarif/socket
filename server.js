@@ -1,9 +1,9 @@
+require('dotenv').config();
 const express = require("express");
 var cors = require("cors");
 const app = express();
 const https = require("https");
 const mongoose = require("mongoose");
-const config = require("config");
 const { getAllToken } = require("./utils/token");
 const { userOffline } = require("./utils/user");
 const channel = require("./changeStream/channel");
@@ -37,8 +37,8 @@ const options = {
 };
 
 
-const db = config.get("mongoURI");
-const url = config.get("url");
+const db = process.env.MONGO_URI;
+const url = process.env.URL;
 const PORT = process.env.PORT || 5000;
 const server = https.createServer(options, app);
 

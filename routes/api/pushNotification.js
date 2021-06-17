@@ -1,10 +1,7 @@
 const expess = require("express");
-const { getAllOfflineUsers,getAllInactiveUsers } = require("../../utils/user");
+const { getAllInactiveUsers } = require("../../utils/user");
 const { default: axios } = require("axios");
-const config = require("config");
 const { sendWebhookError } = require("../../utils/webhook");
-const { ConnectionStates } = require("mongoose");
-const user = require("../../utils/user");
 const router = expess.Router();
 
 // @route   POST api/admin
@@ -32,7 +29,7 @@ router.post("/channelUsers", async (req, res) => {
       "Content-Type": "application/json",
     },
   };
-  const url = config.get("url");
+  const url = process.env.URL;
   
   if(message_body.replying_id)
     event_name="socket_newReplyMessage";

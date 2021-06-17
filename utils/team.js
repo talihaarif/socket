@@ -1,6 +1,5 @@
 const { joinTeamRoom, leaveTeamRoom } = require("./room");
 const { default: axios } = require("axios");
-const config = require("config");
 const { sendWebhookError } = require("../utils/webhook");
 const { createChannelRoom , deletePublicPrivateChannelRoom, createPublicPrivateChannelRoom} = require("./channel");
 
@@ -11,7 +10,7 @@ const configuration = {
       "token":"MyNodeToken"
     },
   };
-const url = config.get("url");
+const url = process.env.URL;
 
 /*
 * This function is used to create the team room.

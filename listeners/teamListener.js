@@ -1,6 +1,5 @@
 const { createTeamRoom, deleteTeamRoom } = require("../utils/team");
 const { default: axios } = require("axios");
-const config = require("config");
 const { sendWebhookError } = require("../utils/webhook");
 const { deletePublicPrivateChannelRoom, createPublicPrivateChannelRoom } = require("../utils/channel");
 const configuration = {
@@ -9,7 +8,7 @@ const configuration = {
       "token":"MyNodeToken"
     },
   };
-const url = config.get("url");
+const url = process.env.URL;
 
 const userAddedInTeam = async(data,io) =>{
     io.to(data.team_id).emit("newUserAddedInTeam", data);

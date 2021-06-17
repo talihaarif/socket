@@ -1,5 +1,4 @@
 const { default: axios } = require("axios");
-const config = require("config");
 const { checkIds, addIds } = require("./channelCache");
 const { sendWebhookError } = require("./webhook");
 
@@ -10,7 +9,7 @@ const configuration = {
         "token": "MyNodeToken"
     },
 };
-const url = config.get("url");
+const url = process.env.URL;
 
 const messageEmit = async (io,emitTo,emitName,messageTemp,ids,hash,channel_id) =>{
     try {

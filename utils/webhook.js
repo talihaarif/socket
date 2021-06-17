@@ -9,7 +9,7 @@ var exec =  require('child_process').exec;
   */
   const sendWebhookError = async(error, path=null, body_data=null) => {
     try {
-        const url="https://newchat.pf.com.pk/hooks/516rb5jcwjy49gj6srauqtoi6a";
+        const url=process.env.WEBHOOK_URL;
         if (error && error.response && error.response.data)
             errorMessage =  error.response.data;
         else

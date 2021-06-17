@@ -1,7 +1,6 @@
 const {  userOffline } = require("./user");
 const { joinCompanyRoom, leaveCompanyRoom } = require("./room");
 const { default: axios } = require("axios");
-const config = require("config");
 const { sendWebhookError } = require("../utils/webhook");
 
 // Declare configuration variable to store headers which will be send with axios requests.
@@ -11,7 +10,7 @@ const configuration = {
       "token":"MyNodeToken"
     },
   };
-const url = config.get("url");
+const url = process.env.URL;
 
 /*
 * This function is used to create the company room.

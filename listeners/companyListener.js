@@ -1,6 +1,5 @@
 const { default: axios } = require("axios");
 const { deleteCompanyRoom, createCompanyRoom } = require("../utils/company");
-const config = require("config");
 const { sendWebhookError } = require("../utils/webhook");
 const configuration = {
     headers: {
@@ -8,7 +7,7 @@ const configuration = {
       "token":"MyNodeToken"
     },
   };
-const url = config.get("url");
+const url = process.env.URL;
 
 const removedFromCompany =async (data,io) =>{
     let email=data.user_email;

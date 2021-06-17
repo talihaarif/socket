@@ -1,8 +1,6 @@
 const { saveUser, userOffline, userOnline, usersOnline } = require("../utils/user");
 const { sendWebhookError } = require("../utils/webhook");
 const { default: axios } = require("axios");
-const config = require("config");
-
 
 const configuration = {
   headers: {
@@ -10,7 +8,7 @@ const configuration = {
     "token":"MyNodeToken"
   },
 };
-const url = config.get("url");
+const url = process.env.URL;
 
 /**
  * This is the code for User Listener. This is called when emit is send from frontend on user operations.
