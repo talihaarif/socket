@@ -63,16 +63,16 @@ const listenerEvent = (conn, io) => {
                     userRemovedFromTeam(listenerEventTemp.data,io);
 
                 //message
-                else if(listenerEventTemp.listener_name == "messagesRead")
-                    messagesRead(listenerEventTemp.data,io);
-                else if(listenerEventTemp.listener_name == "messageRead")
-                    messageRead(listenerEventTemp.data,io);
-                else if(listenerEventTemp.listener_name == "markSeenAllReplies")
-                    markSeenAllReplies(listenerEventTemp.data,io);
-                else if(listenerEventTemp.listener_name == "markSeenSingleReplies")
-                    markSeenSingleReplies(listenerEventTemp.data,io);
-                else if(listenerEventTemp.listener_name == "replyReadBy")
-                    replyReadBy(listenerEventTemp.data,io);
+                // else if(listenerEventTemp.listener_name == "messagesRead")
+                //     messagesRead(listenerEventTemp.data,io);
+                // else if(listenerEventTemp.listener_name == "messageRead")
+                //     messageRead(listenerEventTemp.data,io);
+                // else if(listenerEventTemp.listener_name == "markSeenAllReplies")
+                //     markSeenAllReplies(listenerEventTemp.data,io);
+                // else if(listenerEventTemp.listener_name == "markSeenSingleReplies")
+                //     markSeenSingleReplies(listenerEventTemp.data,io);
+                // else if(listenerEventTemp.listener_name == "replyReadBy")
+                //     replyReadBy(listenerEventTemp.data,io);
                 else if(listenerEventTemp.listener_name == "addReaction")
                     addReaction(listenerEventTemp.data,io);
                 else if(listenerEventTemp.listener_name == "removeReaction")
