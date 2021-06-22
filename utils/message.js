@@ -46,26 +46,26 @@ const getIds = async(channel_id)=>{
 const queryMessageInsert=async(io,messageTemp,ids,hash,channel_id)=>{
     console.log("message temp",messageTemp);
     if(messageTemp.replying_id){
-        await messageEmit(io,messageTemp.channel_id,"newReplyMessage",messageTemp,ids,hash,channel_id);
-        await messageEmit(io,false,"newReplyMessage",messageTemp,ids,hash,channel_id);
+        await messageEmit(io,messageTemp.channel_id,"newSupportChannelReplyMessage",messageTemp,ids,hash,channel_id);
+        await messageEmit(io,false,"newSupportChannelReplyMessage",messageTemp,ids,hash,channel_id);
     }
     else if (messageTemp.is_forwarded) {
-        await messageEmit(io,messageTemp.channel_id,"forwardMessage",messageTemp,ids,hash,channel_id);
-        await messageEmit(io,messageTemp.sender_id,"forwardMessage",messageTemp,ids,hash,channel_id);
+        await messageEmit(io,messageTemp.channel_id,"supportChannelForwardMessage",messageTemp,ids,hash,channel_id);
+        await messageEmit(io,messageTemp.sender_id,"supportChannelForwardMessage",messageTemp,ids,hash,channel_id);
     } 
     else{
-        await messageEmit(io,messageTemp.channel_id,"newMessage",messageTemp,ids,hash,channel_id);
-        await messageEmit(io,messageTemp.sender_id,"newMessage",messageTemp,ids,hash,channel_id);
+        await messageEmit(io,messageTemp.channel_id,"newSupportChannelMessage",messageTemp,ids,hash,channel_id);
+        await messageEmit(io,messageTemp.sender_id,"newSupportChannelMessage",messageTemp,ids,hash,channel_id);
     }
     
 }
 
 const queryMessageUpdate= async (io,messageTemp,messageUpdateCheck,ids,update_message_emit_name,hash,channel_id)=>{
-        
+     update_message_emit_name = messageTemp.replying_id ? "replySupportChannelUpdateMessage" : "updateSupportChannelMessage";
     if (messageUpdateCheck.deleted_at) {
         messageTemp.message = messageTemp.attachments = messageTemp.audio_video_file = null;
         await messageEmit(io,messageTemp.channel_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
-        if(update_message_emit_name == "replyUpdateMessage"){
+        if(update_message_emit_name == "replySupportChannelUpdateMessage"){
             await messageEmit(io,false,update_message_emit_name,messageTemp,ids,hash,channel_id);
         }else
         await messageEmit(io,messageTemp.sender_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
@@ -75,7 +75,7 @@ const queryMessageUpdate= async (io,messageTemp,messageUpdateCheck,ids,update_me
     }
     else {
         await messageEmit(io,messageTemp.channel_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
-        if(update_message_emit_name == "replyUpdateMessage"){
+        if(update_message_emit_name == "replySupportChannelUpdateMessage"){
             await messageEmit(io,false,update_message_emit_name,messageTemp,ids,hash,channel_id);
         }else
             await messageEmit(io,messageTemp.sender_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
