@@ -55,7 +55,7 @@ const authentication = (socket, io) => {
                 socket.status = data.status;
                 socket.join(user_id);
                 socket.join(data.token);
-                joinCompanyRoom(socket,result.data.companies,true,data.selected_company);
+                joinCompanyRoom(socket,result.data.support_channels,result.data.companies,true,data.selected_company);
                 console.log("user connected", user_id);
                 socket.emit("okay", "");            
                 // userOnline(socket);

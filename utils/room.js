@@ -14,7 +14,7 @@ const { sendWebhookError } = require("../utils/webhook");
 *       Call joinChannelRoom function for public channels.
 *       Call joinChannelRoom function for direct channels.
 */
-const joinCompanyRoom = (socket,companies,login=false,selected_company=null) => {
+const joinCompanyRoom = (socket,support_channels, companies,login=false,selected_company=null) => {
     try{
         companies.map((company, index) => {
             // if (company.users) {
@@ -29,9 +29,9 @@ const joinCompanyRoom = (socket,companies,login=false,selected_company=null) => 
             joinTeamRoom(socket,company.teams);
             joinChannelRoom(socket,company.private);
             joinChannelRoom(socket,company.public);
-            joinChannelRoom(socket,company.direct);
-            if(company.query)
-                joinChannelRoom(socket,company.query);
+            joinChannelRoom(socket,company.direct);            
+            if(support_channels)
+                joinChannelRoom(socket,support_channels);
             // }
         });
     } catch (error) {
@@ -80,7 +80,7 @@ const joinChannelRoom = (socket,channels) => {
 *     Call leaveChannelRoom function for public channels.
 *     Call leaveChannelRoom function for direct channels.
 */
-const leaveCompanyRoom = (socket,companies,logout=false) => {
+const leaveCompanyRoom = (socket,support_channels,companies,logout=false) => {
     try{
         if(logout)
             socket.company_id = null;
@@ -90,8 +90,8 @@ const leaveCompanyRoom = (socket,companies,logout=false) => {
             leaveChannelRoom(socket,company.private);
             leaveChannelRoom(socket,company.public);
             leaveChannelRoom(socket,company.direct);
-            if(company.query)
-                leaveChannelRoom(socket,company.query);
+            if(support_channels)
+                leaveChannelRoom(socket,support_channels);
         });
     } catch (error) {
         sendWebhookError(error, "leaveCompanyRoom", companies);

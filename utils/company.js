@@ -26,7 +26,7 @@ const createCompanyRoom = (io,data) => {
             return true;
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
-            joinCompanyRoom(clientSocket,data.companies);
+            joinCompanyRoom(clientSocket,result.data.support_channels,data.companies);
         }
     } catch (error) {
         sendWebhookError(error, "createCompanyRoom", data);
@@ -48,7 +48,7 @@ const deleteCompanyRoom = (io,data) => {
             return true;
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
-            leaveCompanyRoom(clientSocket,data.companies);
+            leaveCompanyRoom(clientSocket,data.support_channels,data.companies);
             userOffline(clientSocket);
         }
     } catch (error) {
