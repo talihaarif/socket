@@ -222,7 +222,7 @@ const channelArchived=async(channelTemp,io,resumeToken, hash)=>{
                     }
                 }
                 channelTemp.type!="support" && await channelArchiveEmitToSubAdmins(channel_id, channelTemp, resumeToken, io, hash);
-                channelTemp.type=="support" && await channelArchiveEmitToSubAdminsForSupportChannels(channel_id, channelTemp, resumeToken, io, hash);
+                // channelTemp.type=="support" && await channelArchiveEmitToSubAdminsForSupportChannels(channel_id, channelTemp, resumeToken, io, hash);
             }
         // }
 }
@@ -277,7 +277,7 @@ const channelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
         }
         (channelTemp.type !="support") && await channelUnarchiveEmitForPublicPrivateChannels(channel_id,result, io, channelTemp, resumeToken, hash);
         (channelTemp.type !="support") &&await channelUnArchiveEmitToSubAdmins(channel_id, result, channelTemp, resumeToken, io, hash, creator_id);
-        (channelTemp.type =="support") && await channelUnArchiveEmitToSubAdminsForSupportChannels(channel_id, result, channelTemp, resumeToken, io, hash, creator_id);
+        // (channelTemp.type =="support") && await channelUnArchiveEmitToSubAdminsForSupportChannels(channel_id, result, channelTemp, resumeToken, io, hash, creator_id);
     } catch (err) {
         sendWebhookError(err, "channelUnarchived", channelTemp);
     }
