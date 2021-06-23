@@ -26,7 +26,7 @@ const createCompanyRoom = (io,data) => {
             return true;
         for (const clientId of clients) {
             let clientSocket = io.sockets.sockets.get(clientId);
-            joinCompanyRoom(clientSocket,result.data.support_channels,data.companies);
+            joinCompanyRoom(clientSocket,data.support_channels,data.companies);
         }
     } catch (error) {
         sendWebhookError(error, "createCompanyRoom", data);
