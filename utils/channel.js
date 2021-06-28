@@ -185,7 +185,7 @@ const supportChannelDataObjectUpdate= async(data, io, emit_name)=>{
                 const body = JSON.stringify({ channel_id,user_id });
                 const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
                 createChannelRoom(io,result1.data);
-                io.to(user_id).emit(emit_name, {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,hash:data.hash});
+                io.to(user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
             }
         }
         else if(channel_object.team_ids!=[]){
@@ -302,15 +302,39 @@ const supportChannelArchived=async(channelTemp,io,resumeToken, hash)=>{
 }
 
 const send_emit_to_users_who_access_this_channel=async(channelTemp,io,resumeToken,hash)=>{
+    let channel_id=channelTemp._id.toString();
     for (let channel_object of channelTemp.data){
-        if(channel_object.user_ids==[] && channel_object.team_ids==[])
-            io.to(channel_object.company_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
-        else if(channel_object.user_ids!=[]){
-            for (let user_id of channel_object.user_ids)
-                io.to(user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
+        if(channel_object.user_ids==[] && channel_object.team_ids==[]){
+            let company_id = channelTemp.company_id;
+            const body = JSON.stringify({ company_id });
+            const result =await axios.post(url+"api/get_company_member_ids", body, configuration);
+            for(let user_id of result.data.users){
+                const body = JSON.stringify({ channel_id,user_id });
+                const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
+                deleteChannelRoom(io,result1.data);
+                io.to(channel_object.user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,channel_token:resumeToken,hash:hash});
+            }
         }
-        else if(channel_object.team_ids!=[])
-            io.to(channel_object.team_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
+        else if(channel_object.user_ids!=[]){
+            for (let user_id of channel_object.user_ids){
+                const body = JSON.stringify({ channel_id,user_id });
+                const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
+                deleteChannelRoom(io,result1.data);
+                io.to(user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,channel_token:resumeToken,hash:hash});
+            }
+        }
+        else if(channel_object.team_ids!=[]){
+            for (let team_id of channel_object.team_ids){
+                const body = JSON.stringify({ team_id });
+                const result =await axios.post(url+"api/get_team_member_ids", body, configuration);
+                for(let user_id of result.data.users){
+                    const body = JSON.stringify({ channel_id,user_id });
+                    const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
+                    deleteChannelRoom(io,result1.data);
+                    io.to(channel_object.user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,channel_token:resumeToken,hash:hash});
+                }
+            }
+        }
     }
 }
 
