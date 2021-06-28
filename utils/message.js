@@ -69,7 +69,7 @@ const queryMessageUpdate= async (io,messageTemp,messageUpdateCheck,ids,update_me
         }else
         await messageEmit(io,messageTemp.sender_id,update_message_emit_name,messageTemp,ids,hash,channel_id);
     } 
-    else if (messageUpdateCheck.is_read || messageUpdateCheck.child_read || messageUpdateCheck.pinned_by || messageUpdateCheck.replied_created_at || messageUpdateCheck.replied_sender_id || (Object.keys(messageUpdateCheck)[0].search('reactions') && Object.keys(messageUpdateCheck).length == 1 )|| (messageUpdateCheck.updated_at && Object.keys(messageUpdateCheck).length == 1)) {
+    else if (messageUpdateCheck.is_read || messageUpdateCheck.child_read || messageUpdateCheck.pinned_by || messageUpdateCheck.replied_created_at || messageUpdateCheck.replied_sender_id || (Object.keys(messageUpdateCheck)[0].search('reactions') >= 0 && Object.keys(messageUpdateCheck).length == 1 )|| (messageUpdateCheck.updated_at && Object.keys(messageUpdateCheck).length == 1)) {
         return 0;
     }
     else {
