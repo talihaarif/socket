@@ -129,6 +129,192 @@ const channelInsert= async(channelTemp,io,resumeToken, hash)=>{
 }
 
 /*
+* This function sends the emit on new channel insertion
+* Call api/channelData backend route using axios and store the response in a variable.
+* Call createChannelRoom function.
+* Send newChannel emit to the user who created the channel.
+* Call saveChannelEmits function to store the event for one minute.
+* Call channelInserEmitInCaseOfPublicDirectChannels function.
+*/
+const supportChannelInsert= async(channelTemp,io,resumeToken, hash)=>{
+    let channel_id=channelTemp._id.toString();
+    let user_id=channelTemp.creator_id;
+    let result;
+    try {
+        const body = JSON.stringify({ channel_id,user_id });
+        result =await axios.post(url+"api/supportChannelData", body, configuration);
+        createChannelRoom(io,result.data);
+        io.to(user_id).emit("newSupportChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+    } catch (err) {
+        sendWebhookError(err, "channelInsert", channelTemp);
+    }
+    channelTemp.public_option==true && await supportChannelInsertEmitInCaseOfPublic(channelTemp, io, resumeToken, hash, "newSupportChannel");
+}
+
+const supportChannelInsertEmitInCaseOfPublic=async(channelTemp, io, resumeToken, hash, emit_name)=>{
+    try{
+        channel_id = channelTemp._id.toString();
+        const result =await axios.post(url+"api/get_all_user_ids", body, configuration);
+        for(let user_id of result.data.users){
+            const body = JSON.stringify({ channel_id,user_id });
+            let result_data =await axios.post(url+"api/supportChannelData", body, configuration);
+            createChannelRoom(io,result_data.data);
+            io.to(user_id).emit(emit_name, {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:result_data.data.channel,channel_token:resumeToken,hash:hash});
+        }
+    } catch (err) {
+        sendWebhookError(err, "supportChannelInsertEmitInCaseOfPublic", channelTemp);
+    }
+}
+
+const supportChannelDataObjectUpdate= async(data, io, emit_name)=>{
+    let channel_id = data.channel_id!=null ?  data.channel_id : data._id.toString() ;
+    for (let channel_object of data.data){
+        if(channel_object.user_ids==[] && channel_object.team_ids==[]){
+            let company_id = channel_object.company_id;
+            const body = JSON.stringify({ company_id });
+            const result =await axios.post(url+"api/get_company_member_ids", body, configuration);
+            for(let user_id of result.data.users){
+                const body = JSON.stringify({ channel_id,user_id });
+                const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
+                createChannelRoom(io,result1.data);
+                io.to(channel_object.user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
+            }
+        }
+        else if(channel_object.user_ids!=[]){
+            for (let user_id of channel_object.user_ids){
+                const body = JSON.stringify({ channel_id,user_id });
+                const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
+                createChannelRoom(io,result1.data);
+                io.to(user_id).emit(emit_name, {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,hash:data.hash});
+            }
+        }
+        else if(channel_object.team_ids!=[]){
+            for (let team_id of channel_object.team_ids){
+                const body = JSON.stringify({ team_id });
+                const result =await axios.post(url+"api/get_team_member_ids", body, configuration);
+                for(let user_id of result.data.users){
+                    const body = JSON.stringify({ channel_id,user_id });
+                    const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
+                    createChannelRoom(io,result1.data);
+                    io.to(channel_object.user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
+                }
+            }
+        }
+    }
+}
+
+const supportChannelUnarchived=async(channelTemp,io,resumeToken, hash)=>{
+    try {
+        let channel_id=channelTemp._id.toString();
+        let result;
+        let creator_id = channelTemp.creator_id;
+        if(channelTemp.public_option==false){
+            if(channelTemp.user_ids.length==0){
+                let user_id = channelTemp.creator_id;
+                const body = JSON.stringify({ user_id,channel_id });
+                result =await axios.post(url+"api/supportChannelData", body, configuration);
+                createChannelRoom(io,result.data);
+                io.to(channelTemp.creator_id).emit("supportChannelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+            }
+            else{
+                for (let user_id of channelTemp.user_ids) {
+                    const body = JSON.stringify({ channel_id,user_id });
+                    result =await axios.post(url+"api/supportChannelData", body, configuration);
+                    createChannelRoom(io,result.data);
+                    io.to(user_id).emit("supportChannelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+                };
+            }
+            channelTemp.hash = hash;
+            await supportChannelDataObjectUpdate(channelTemp,io, "supportChannelUnArchived");
+            (channelTemp.type =="support") && await channelUnArchiveEmitToSubAdminsForSupportChannels(channel_id, result, channelTemp, resumeToken, io, hash, creator_id);
+        }
+        else if(channelTemp.public_option==true)
+            supportChannelInsertEmitInCaseOfPublic(channelTemp, io, resumeToken, hash, "supportChannelUnArchived");
+    } catch (err) {
+        sendWebhookError(err, "supportChannelUnarchived", channelTemp);
+    }
+}
+
+// const channelUnarchiveEmitToDataObject= async(channelTemp,io,resumeToken, hash)=>{
+//     let channel_id =data._id.toString();
+//     for (let channel_object of channelTemp.data){
+//         if(channel_object.user_ids==[] && channel_object.team_ids==[]){
+//             let company_id = channel_object.company_id;
+//             const body = JSON.stringify({ company_id });
+//             const result =await axios.post(url+"api/get_company_member_ids", body, configuration);
+//             for(let user_id of result.data.users){
+//                 const body = JSON.stringify({ channel_id,user_id });
+//                 const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
+//                 io.to(channel_object.user_id).emit("newSupportChannel", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,channel_token:resumeToken,hash:hash});
+//             }
+//         }
+//         else if(channel_object.user_ids!=[]){
+//             for (let user_id of channel_object.user_ids){
+//                 const body = JSON.stringify({ channel_id,user_id });
+//                 const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
+//                 io.to(user_id).emit("newSupportChannel", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,channel_token:resumeToken,hash:hash});
+//             }
+//         }
+//         else if(channel_object.team_ids!=[]){
+//             for (let team_id of channel_object.team_ids){
+//                 const body = JSON.stringify({ team_id });
+//                 const result =await axios.post(url+"api/get_team_member_ids", body, configuration);
+//                 for(let user_id of result.data.users){
+//                     const body = JSON.stringify({ channel_id,user_id });
+//                     const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
+//                     io.to(channel_object.user_id).emit("newSupportChannel", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,channel_token:resumeToken,hash:hash});
+//                 }
+//             }
+//         }
+//     }
+// }
+
+const supportChannelArchived=async(channelTemp,io,resumeToken, hash)=>{
+    let channel_id=channelTemp._id.toString();
+    if(channelTemp.public_option==false){
+        io.to(channelTemp._id.toString()).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
+        await send_emit_to_users_who_access_this_channel(channelTemp,io,resumeToken,hash);
+        for (let user_id of channelTemp.user_ids){
+            try {
+                const body = JSON.stringify({ channel_id,user_id });
+                const result =await axios.post(url+"api/supportChannelData", body, configuration);
+                deleteChannelRoom(io,result.data);
+            } catch (err) {
+                sendWebhookError(err, "supportChannelArchived", channelTemp);
+            }
+        }
+    }
+    else if(channelTemp.public_option==true){
+        let body1 = JSON.stringify({ channel_id, attribute:"support_channel", operation:"update" });
+        let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
+        result1.data.sub_admins.push(result1.data.admin);
+        const result =await axios.post(url+"api/get_all_user_ids", body, configuration);
+        for(let user_id of result.data.users){
+            if(!result1.data.sub_admins.includes(user_id)){
+                const body = JSON.stringify({ channel_id,user_id });
+                const result =await axios.post(url+"api/supportChannelData", body, configuration);
+                deleteChannelRoom(io,result.data);
+                io.to(user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
+            }
+        }
+    }
+    channelTemp.type=="support" && await channelArchiveEmitToSubAdminsForSupportChannels(channel_id, channelTemp, resumeToken, io, hash, result);
+}
+
+const send_emit_to_users_who_access_this_channel=async(channelTemp,io,resumeToken,hash)=>{
+    for (let channel_object of channelTemp.data){
+        if(channel_object.user_ids==[] && channel_object.team_ids==[])
+            io.to(channel_object.company_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
+        else if(channel_object.user_ids!=[]){
+            for (let user_id of channel_object.user_ids)
+                io.to(user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
+        }
+        else if(channel_object.team_ids!=[])
+            io.to(channel_object.team_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
+    }
+}
+
+/*
 * This function sends the emit on channel name update.
 * If channel type is direct then send channelNameUpdate emit to the user.
 *   Call saveChannelEmits function to store the event for one minute.
@@ -323,7 +509,7 @@ const channelArchiveEmitToSubAdmins= async(channel_id, channelTemp, resumeToken,
     }
 }
 
-const channelArchiveEmitToSubAdminsForSupportChannels= async(channel_id, channelTemp, resumeToken, io, hash)=>{
+const channelArchiveEmitToSubAdminsForSupportChannels= async(channel_id, channelTemp, resumeToken, io, hash, result)=>{
     let body1 = JSON.stringify({ channel_id, attribute:"support_channel", operation:"update" });
     let result1 = await axios.post(url+"api/getSubAdmins", body1, configuration);
     var result_data = null;
@@ -332,8 +518,8 @@ const channelArchiveEmitToSubAdminsForSupportChannels= async(channel_id, channel
         try {
             if(!channelTemp.user_ids.includes(user_id)){
                 let body2 = JSON.stringify({ channel_id,user_id });
-                result_data =await axios.post(url+"api/channelData", body2, configuration);
-                io.to(user_id).emit("channelArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:result_data.data.channel,channel_token:resumeToken,hash:hash});
+                result_data =await axios.post(url+"api/supportChannelData", body2, configuration);
+                io.to(user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id,team_id:channelTemp.team_id,type:channelTemp.type,channel:result_data.data.channel,channel_token:resumeToken,hash:hash});
             }
         } catch (err) {
             sendWebhookError(err, "channelArchiveEmitToSubAdmins", channelTemp);
@@ -399,10 +585,10 @@ const channelUnArchiveEmitToSubAdminsForSupportChannels=async(channel_id, result
         try {
             console.log("user_id is: ",user_id);
             console.log("creator_id is: ",creator_id);
-            if(user_id != creator_id && (channelTemp.type!="public" && !channelTemp.user_ids.includes(user_id)) || (channelTemp.type=="public" && !channelTemp.user_ids.includes(user_id))){
+            if(user_id != creator_id && (channelTemp.type!="public" && !channelTemp.user_ids.includes(user_id))){
                 body = JSON.stringify({ channel_id,user_id });
-                result_data =await axios.post(url+"api/channelData", body, configuration);
-                io.to(user_id).emit("channelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
+                result_data =await axios.post(url+"api/supportChannelData", body, configuration);
+                io.to(user_id).emit("supportChannelUnArchived", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
             }
         } catch (err) {
             sendWebhookError(err, "channelUnArchiveEmitToSubAdmins", channelTemp);
@@ -489,6 +675,7 @@ module.exports = {
     createChannelRoom,
     deleteChannelRoom,
     channelInsert,
+    supportChannelInsert,
     channelNameUpdate,
     channelUnarchived,
     channelArchived,
@@ -497,4 +684,7 @@ module.exports = {
     channelArchiveEmitToSubAdminsForPublicChannel,
     channelArchiveEmitToSubAdminsForSupportChannels,
     channelUnArchiveEmitToSubAdminsForSupportChannels,
+    supportChannelDataObjectUpdate,
+    supportChannelUnarchived,
+    supportChannelArchived,
 };

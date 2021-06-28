@@ -1,4 +1,4 @@
-const {  channelInsert, channelNameUpdate, channelUnarchived, channelArchived } = require("../utils/channel");
+const {  channelInsert, supportChannelInsert, channelNameUpdate, channelUnarchived,supportChannelUnarchived, supportChannelArchived, channelArchived } = require("../utils/channel");
 const { sendWebhookError } = require("../utils/webhook");
 const { createHash } = require("../utils/hash");
 
@@ -31,7 +31,7 @@ const channel = (conn, io) => {
         switch (change.operationType) {
             case "insert":
                 if(channelTemp.default==false)
-                    await channelInsert(channelTemp,io,change._id, hash);
+                    channelTemp.type == 'support' ? await supportChannelInsert(channelTemp,io,change._id, hash): await channelInsert(channelTemp,io,change._id, hash);
                 break;
             case "update":
                 let channelUpdateCheck = change.updateDescription.updatedFields;
@@ -70,14 +70,23 @@ const channel = (conn, io) => {
                     if (
                         channelUpdateCheck.deleted_at === null
                     ){
-                        await channelUnarchived(channelTemp,io,change._id, hash);
+                        channelTemp.type == "support" ? await supportChannelUnarchived(channelTemp,io,change._id, hash): await channelUnarchived(channelTemp,io,change._id, hash);
                     }
                     else{
-                        await channelArchived(channelTemp,io,change._id, hash);
+                        channelTemp.type == "support" ? await supportChannelArchived(channelTemp,io,change._id, hash): await channelArchived(channelTemp,io,change._id, hash);
                     }
                         
-                } else if (channelUpdateCheck.creator_id) {
+                } else if (channelUpdateCheck.creator_id && channelTemp.type!='support') {
                     io.to(channelTemp._id.toString()).emit("channelCreatorUpdate", {
+                        channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
+                        type:channelTemp.type,
+                        team_id:channelTemp.team_id,
+                        company_id:channelTemp.company_id,
+                        channel_token:change._id,
+                        hash:hash
+                    });
+                }else if (channelUpdateCheck.creator_id && channelTemp.type=='support') {
+                    io.to(channelTemp._id.toString()).emit("supportChannelCreatorUpdate", {
                         channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
                         type:channelTemp.type,
                         team_id:channelTemp.team_id,

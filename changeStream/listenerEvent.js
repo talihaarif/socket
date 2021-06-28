@@ -1,10 +1,11 @@
-const { joinChannel, newMemberInChannel, removedFromChannel, leaveChannel, muteChannel, flagChannel } = require("../listeners/channelListener");
+const { joinChannel, newMemberInChannel, removedFromChannel, leaveChannel, addMemberInSupportChannel, removeMemberInSupportChannel, leaveSupportChannel, addCreatorInSupportChannel, removeCreatorInSupportChannel, joinPublicSupportChannel, leavePublicSupportChannel, muteChannel, flagChannel } = require("../listeners/channelListener");
 const { removedFromCompany, unarchivedFromCompany, addUserInNewCompany } = require("../listeners/companyListener");
 const { userAddedInTeam, usersAddedInTeams, leaveTeam, userRemovedFromTeam } = require("../listeners/teamListener");
 const { messagesRead, messageRead, markSeenAllReplies, markSeenSingleReplies, replyReadBy, removeReaction, addReaction } = require("../listeners/messageListener");
 const { userAllowAccessModified } = require("../listeners/userListener");
 const { createHash } = require("../utils/hash");
 const { sendWebhookError } = require("../utils/webhook");
+const { supportChannelDataObjectUpdate } = require("../utils/channel");
 
 const listenerEvent = (conn, io) => {
     /*
@@ -81,6 +82,24 @@ const listenerEvent = (conn, io) => {
                 //user
                 else if(listenerEventTemp.listener_name == "userAllowAccessModified")
                     userAllowAccessModified(listenerEventTemp.data,io);
+
+                //support_channel
+                else if(listenerEventTemp.listener_name == "addMemberInSupportChannel")
+                    addMemberInSupportChannel(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "removeMemberInSupportChannel")
+                    removeMemberInSupportChannel(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "leaveSupportChannel")
+                    leaveSupportChannel(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "addCreatorInSupportChannel")
+                    addCreatorInSupportChannel(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "removeCreatorInSupportChannel")
+                    removeCreatorInSupportChannel(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "joinPublicSupportChannel")
+                    joinPublicSupportChannel(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "leavePublicSupportChannel")
+                    leavePublicSupportChannel(listenerEventTemp.data,io);
+                else if(listenerEventTemp.listener_name == "supportChannelInsert")
+                    supportChannelDataObjectUpdate(listenerEventTemp.data,io, "newSupportChannel");
 
                 break;
         }
