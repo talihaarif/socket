@@ -63,6 +63,8 @@ const message = (conn, io) => {
                     break;
                 case "update":
                     let messageUpdateCheck = change.updateDescription.updatedFields;
+                    console.log('message reaction',messageUpdateCheck);
+                    console.log("type",Object.keys(messageUpdateCheck));
                     let send_after_emit_name = messageTemp.replying_id ? "replySendAfterMessage" : "sendAfterMessage";
                     let update_message_emit_name = messageTemp.replying_id ? "replyUpdateMessage" : "updateMessage";
                     if(ids.type == 'support'){
