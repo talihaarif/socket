@@ -156,13 +156,14 @@ const supportChannelInsertEmitInCaseOfPublic = async (channelTemp, io, resumeTok
     console.log('supportChannelInsertEmitInCaseOfPublic');
     try {
         channel_id = channelTemp._id.toString();
-        const body = JSON.stringify({});
         const result = await axios.post(url + "api/get_all_user_ids", body, configuration);
         for (let user_id of result.data.users) {
-            const body = JSON.stringify({ channel_id, user_id });
-            let result_data = await axios.post(url + "api/supportChannelData", body, configuration);
-            createChannelRoom(io, result_data.data);
-            io.to(user_id).emit(emit_name, { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: result_data.data.channel, channel_token: resumeToken, hash: hash });
+            if (user_id != channelTemp.creator_id) {
+                const body = JSON.stringify({ channel_id, user_id });
+                let result_data = await axios.post(url + "api/supportChannelData", body, configuration);
+                createChannelRoom(io, result_data.data);
+                io.to(user_id).emit(emit_name, { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: result_data.data.channel, channel_token: resumeToken, hash: hash });
+            }
         }
     } catch (err) {
         sendWebhookError(err, "supportChannelInsertEmitInCaseOfPublic", channelTemp);
