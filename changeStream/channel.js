@@ -30,6 +30,7 @@ const channel = (conn, io) => {
         let hash = createHash(channelTemp.created_at,change);
         switch (change.operationType) {
             case "insert":
+                console.log('channelTemp is: ', channelTemp);
                 if(channelTemp.default==false)
                     channelTemp.type == 'support' ? await supportChannelInsert(channelTemp,io,change._id, hash): await channelInsert(channelTemp,io,change._id, hash);
                 break;
