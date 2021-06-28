@@ -312,7 +312,7 @@ const send_emit_to_users_who_access_this_channel=async(channelTemp,io,resumeToke
                 const body = JSON.stringify({ channel_id,user_id });
                 const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
                 deleteChannelRoom(io,result1.data);
-                io.to(channel_object.user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,channel_token:resumeToken,hash:hash});
+                io.to(channel_object.user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
             }
         }
         else if(channel_object.user_ids!=[]){
@@ -320,7 +320,7 @@ const send_emit_to_users_who_access_this_channel=async(channelTemp,io,resumeToke
                 const body = JSON.stringify({ channel_id,user_id });
                 const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
                 deleteChannelRoom(io,result1.data);
-                io.to(user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,channel_token:resumeToken,hash:hash});
+                io.to(user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
             }
         }
         else if(channel_object.team_ids!=[]){
@@ -331,7 +331,7 @@ const send_emit_to_users_who_access_this_channel=async(channelTemp,io,resumeToke
                     const body = JSON.stringify({ channel_id,user_id });
                     const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
                     deleteChannelRoom(io,result1.data);
-                    io.to(channel_object.user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:result1.data.channel,channel_token:resumeToken,hash:hash});
+                    io.to(channel_object.user_id).emit("supportChannelArchived", {company_id:channelTemp.company_id ,team_id:channelTemp.team_id,type:channelTemp.type,channel:{_id:channelTemp._id.toString(),name:channelTemp.name},channel_token:resumeToken,hash:hash});
                 }
             }
         }
