@@ -137,7 +137,6 @@ const channelInsert = async (channelTemp, io, resumeToken, hash) => {
 * Call channelInserEmitInCaseOfPublicDirectChannels function.
 */
 const supportChannelInsert = async (channelTemp, io, resumeToken, hash) => {
-    console.log("supportChannelInsert");
     let channel_id = channelTemp._id.toString();
     let user_id = channelTemp.creator_id;
     let result;
@@ -153,13 +152,12 @@ const supportChannelInsert = async (channelTemp, io, resumeToken, hash) => {
 }
 
 const supportChannelInsertEmitInCaseOfPublic = async (channelTemp, io, resumeToken, hash, emit_name) => {
-    console.log('supportChannelInsertEmitInCaseOfPublic');
     try {
         channel_id = channelTemp._id.toString();
         const body = JSON.stringify({});
         const result = await axios.post(url + "api/get_all_user_ids", body, configuration);
         for (let user_id of result.data.users) {
-            if ((emit_name=="newSupportChannel" && user_id != channelTemp.creator_id)|| emit_name=="supportChannelUnArchived") {
+            if ((emit_name=="newSupportChannel" && user_id != channelTemp.creator_id)|| emit_name=="supportChannelUnArchived" || emit_name=="channelNameUpdate") {
                 const body = JSON.stringify({ channel_id, user_id });
                 let result_data = await axios.post(url + "api/supportChannelData", body, configuration);
                 io.to(user_id).emit(emit_name, { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: result_data.data.channel, channel_token: resumeToken, hash: hash });
@@ -173,12 +171,10 @@ const supportChannelInsertEmitInCaseOfPublic = async (channelTemp, io, resumeTok
 const supportChannelDataObjectUpdate= async(data, io, emit_name)=>{
     let channel_id = data.channel_id!=null ?  data.channel_id : data._id.toString() ;
     for (let channel_object of data.data){
-        console.log("channel_object is: ",channel_object);
         if(channel_object.user_ids.length==0 && channel_object.team_ids.length==0){
             let company_id = channel_object.company_id;
             const body = JSON.stringify({ company_id });
             const result =await axios.post(url+"api/get_company_member_ids", body, configuration);
-            console.log("company_members are: ", result.data.users);
             for(let user_id of result.data.users){
                 if (user_id != data.creator_id && !data.user_ids.includes(user_id)) {
                     const body = JSON.stringify({ channel_id,user_id });
@@ -315,12 +311,10 @@ const supportChannelArchived = async (channelTemp, io, resumeToken, hash) => {
 const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resumeToken, hash) => {
     let channel_id = channelTemp._id.toString();
     for (let channel_object of channelTemp.data) {
-        console.log("channel_object is: ",channel_object.company_id);
         if (channel_object.user_ids.length == 0 && channel_object.team_ids.length == 0) {
             let company_id = channelTemp.company_id;
             const body = JSON.stringify({ company_id });
             const result = await axios.post(url + "api/get_company_member_ids", body, configuration);
-            console.log("send_emit_to_users_who_access_this_channel result is: ", result.data.users);
             for (let user_id of result.data.users) {
                 if(!channelTemp.user_ids.includes(user_id)){
                     io.to(user_id).emit("supportChannelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: { _id: channelTemp._id.toString(), name: channelTemp.name }, channel_token: resumeToken, hash: hash });
@@ -393,6 +387,21 @@ const channelNameUpdate = async (channelTemp, io, resumeToken, hash) => {
                 });
             }
         }
+        else if(channelTemp.type == "support") {
+            if(channelTemp.public_option!=true){
+                io.to(channelTemp._id.toString()).emit("channelNameUpdate", {
+                    channel: { name: channelTemp.name, _id: channelTemp._id },
+                    type: channelTemp.type,
+                    team_id: channelTemp.team_id,
+                    company_id: channelTemp.company_id,
+                    channel_token: resumeToken,
+                    hash: hash
+                });
+                await supportChannelDataObjectUpdate(channelTemp, io, "channelNameUpdate");
+            }
+            else
+                await supportChannelInsertEmitInCaseOfPublic(channelTemp, io, resumeToken, hash, "channelNameUpdate");
+        }
         else {
             io.to(channelTemp._id.toString()).emit("channelNameUpdate", {
                 channel: { name: channelTemp.name, _id: channelTemp._id },
@@ -402,6 +411,7 @@ const channelNameUpdate = async (channelTemp, io, resumeToken, hash) => {
                 channel_token: resumeToken,
                 hash: hash
             });
+            (channelTemp.type == "support" && channelTemp.public_option!=true) && await supportChannelDataObjectUpdate(channelTemp, io, "channelNameUpdate")
         }
     } catch (error) {
 
@@ -597,8 +607,6 @@ const channelUnArchiveEmitToSubAdmins = async (channel_id, result, channelTemp, 
     result1.data.sub_admins.push(result1.data.admin);
     for (let user_id of result1.data.sub_admins) {
         try {
-            console.log("user_id is: ", user_id);
-            console.log("creator_id is: ", creator_id);
             if (user_id != creator_id && (channelTemp.type != "public" && !channelTemp.user_ids.includes(user_id)) || (channelTemp.type == "public" && !channelTemp.user_ids.includes(user_id))) {
                 body = JSON.stringify({ channel_id, user_id });
                 result_data = await axios.post(url + "api/channelData", body, configuration);
@@ -617,8 +625,6 @@ const channelUnArchiveEmitToSubAdminsForSupportChannels = async (channel_id, res
     result1.data.sub_admins.push(result1.data.admin);
     for (let user_id of result1.data.sub_admins) {
         try {
-            console.log("user_id is: ", user_id);
-            console.log("creator_id is: ", creator_id);
             if (user_id != creator_id && !channelTemp.user_ids.includes(user_id)) {
                 body = JSON.stringify({ channel_id, user_id });
                 result_data = await axios.post(url + "api/supportChannelData", body, configuration);
@@ -721,4 +727,5 @@ module.exports = {
     supportChannelDataObjectUpdate,
     supportChannelUnarchived,
     supportChannelArchived,
+    supportChannelInsertEmitInCaseOfPublic,
 };
