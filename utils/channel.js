@@ -226,7 +226,7 @@ const supportChannelUnarchived = async (channelTemp, io, resumeToken, hash) => {
                 io.to(result.data.channel.creator_id).emit("supportChannelUnArchived", { company_id: result.data.company_id, team_id: result.data.team_id, type: result.data.type, channel: result.data.channel, channel_token: resumeToken, hash: hash });
             }
             else {
-                channelTemp.user_ids.push(channelTemp.creator_id);
+                !channelTemp.user_ids.includes(channelTemp.creator_id) && channelTemp.user_ids.push(channelTemp.creator_id);
                 for (let user_id of channelTemp.user_ids) {
                     const body = JSON.stringify({ channel_id, user_id });
                     result = await axios.post(url + "api/supportChannelData", body, configuration);
