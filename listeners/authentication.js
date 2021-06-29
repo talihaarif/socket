@@ -1,7 +1,7 @@
 const { checkToken } = require("../utils/token");
 var moment = require('moment');
-const {messageListener} = require("./messageListener");
-const {userListener} = require("./userListener");
+const { messageListener } = require("./messageListener");
+const { userListener } = require("./userListener");
 const { usersOnline, userOnline } = require("../utils/user");
 const { joinCompanyRoom } = require("../utils/room");
 const { sendWebhookError } = require("../utils/webhook");
@@ -28,63 +28,63 @@ const url = process.env.URL;
  *
  */
 const authentication = (socket, io) => {
-    socket.on("authenticate",async(data) => {
-        try{
-        // console.log("middleware");
-        // console.log(data.email);
-        // data = JSON.parse(data.toString());
-        if (checkToken(data)) {
-            // Declare configuration variable to store headers which will be send with axios requests.
-            const configuration = {
-                headers: {
-                "Content-Type": "application/json",
-                "token":data.token
-                },
-            };
-            let result='';
-            try {
-                console.log("user connected token",data.token);
-                // ip=socket.ip;
-                const body = JSON.stringify({ip:"127.0.0.1"});
-                result = await axios.post(url+"api/get_ids", body, configuration);
-                console.log("user connected id from req",result.data._id);
-                console.log("user connected email from req",result.data.email);
-                let user_id = result.data._id;
-                socket.user_id = user_id;
-                socket.token = data.token;
-                socket.status = data.status;
-                socket.join(user_id);
-                socket.join(data.token);
-                joinCompanyRoom(socket,result.data.support_channels,result.data.companies,true,data.selected_company);
-                console.log("user connected", user_id);
-                socket.emit("okay", "");            
-                // userOnline(socket);
-                usersOnline(io,socket);
-                //----------listening to emits from frontend start here----------
-                if(!socket.check){
-                    messageListener(socket);
-                    userListener(io,socket);
+    socket.on("authenticate", async (data) => {
+        try {
+            // console.log("middleware");
+            // console.log(data.email);
+            // data = JSON.parse(data.toString());
+            if (checkToken(data)) {
+                // Declare configuration variable to store headers which will be send with axios requests.
+                const configuration = {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "token": data.token
+                    },
+                };
+                let result = '';
+                try {
+                    console.log("user connected token", data.token);
+                    // ip=socket.ip;
+                    const body = JSON.stringify({ ip: "127.0.0.1" });
+                    result = await axios.post(url + "api/get_ids", body, configuration);
+                    console.log("user connected id from req", result.data._id);
+                    console.log("user connected email from req", result.data.email);
+                    let user_id = result.data._id;
+                    socket.user_id = user_id;
+                    socket.token = data.token;
+                    socket.status = data.status;
+                    socket.join(user_id);
+                    socket.join(data.token);
+                    joinCompanyRoom(socket, result.data.support_channels, result.data.companies, true, data.selected_company);
+                    console.log("user connected", user_id);
+                    socket.emit("okay", "");
+                    // userOnline(socket);
+                    usersOnline(io, socket);
+                    //----------listening to emits from frontend start here----------
+                    if (!socket.check) {
+                        messageListener(socket);
+                        userListener(io, socket);
+                    }
+                    socket.check = true;
+                    //----------listening to emits from frontend end here----------
+                    socket.on("ping", () => {
+                        socket.emit("pong", true);
+                    });
+                } catch (error) {
+                    // socket.emit("reconnect", "");
+                    sendWebhookError(error);
                 }
-                socket.check=true;
-                //----------listening to emits from frontend end here----------
-                socket.on("ping", ()=>{
-                    socket.emit("pong",true);
-                }); 
-            } catch (error) {
-                // socket.emit("reconnect", "");
-                sendWebhookError(error);
             }
+            else {
+                if (!socket.reconnectTime)
+                    socket.reconnectTime = moment();
+                let t2 = moment();
+                if (moment.duration(t2.diff(socket.reconnectTime)).asSeconds() < 60)
+                    socket.emit("reconnect", "");
+            }
+        } catch (error) {
+            sendWebhookError(error, "authentication listener", data);
         }
-        else{
-            if(!socket.reconnectTime)
-                socket.reconnectTime=moment();
-            let t2 = moment();
-            if(moment.duration(t2.diff(socket.reconnectTime)).asSeconds()<60)
-                socket.emit("reconnect", "");       
-        }
-    } catch (error) {
-        sendWebhookError(error, "authentication listener", data);
-    }
     });
 };
 module.exports = authentication;
