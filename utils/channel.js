@@ -21,6 +21,7 @@ const url = process.env.URL;
 const createChannelRoom = (io,data) => {
     try {
         let clients = io.sockets.adapter.rooms.get(data.user_id);
+        console.log('createChannelRoom user_id is:  ', data.user_id);
         if(!clients)
             return true;
         for (const clientId of clients) {
@@ -144,6 +145,7 @@ const supportChannelInsert= async(channelTemp,io,resumeToken, hash)=>{
         const body = JSON.stringify({ channel_id,user_id });
         result =await axios.post(url+"api/supportChannelData", body, configuration);
         createChannelRoom(io,result.data);
+        console.log("supportChannelInsert user_id is: ",user_id);
         io.to(user_id).emit("newSupportChannel", {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,channel_token:resumeToken,hash:hash});
     } catch (err) {
         sendWebhookError(err, "channelInsert", channelTemp);
@@ -171,18 +173,20 @@ const supportChannelInsertEmitInCaseOfPublic=async(channelTemp, io, resumeToken,
 const supportChannelDataObjectUpdate= async(data, io, emit_name)=>{
     let channel_id = data.channel_id!=null ?  data.channel_id : data._id.toString() ;
     for (let channel_object of data.data){
-        if(channel_object.user_ids==[] && channel_object.team_ids==[]){
+        console.log("channel_object is: ",channel_object);
+        if(channel_object.user_ids.length==0 && channel_object.team_ids.length==0){
             let company_id = channel_object.company_id;
             const body = JSON.stringify({ company_id });
             const result =await axios.post(url+"api/get_company_member_ids", body, configuration);
+            console.log("company_members are: ", result.data.users);
             for(let user_id of result.data.users){
                 const body = JSON.stringify({ channel_id,user_id });
                 const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
                 createChannelRoom(io,result1.data);
-                io.to(channel_object.user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
+                io.to(user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
             }
         }
-        else if(channel_object.user_ids!=[]){
+        else if(channel_object.user_ids.length>0){
             for (let user_id of channel_object.user_ids){
                 const body = JSON.stringify({ channel_id,user_id });
                 const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
@@ -190,7 +194,7 @@ const supportChannelDataObjectUpdate= async(data, io, emit_name)=>{
                 io.to(user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
             }
         }
-        else if(channel_object.team_ids!=[]){
+        else if(channel_object.team_ids.length>0){
             for (let team_id of channel_object.team_ids){
                 const body = JSON.stringify({ team_id });
                 const result =await axios.post(url+"api/get_team_member_ids", body, configuration);
@@ -198,7 +202,7 @@ const supportChannelDataObjectUpdate= async(data, io, emit_name)=>{
                     const body = JSON.stringify({ channel_id,user_id });
                     const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
                     createChannelRoom(io,result1.data);
-                    io.to(channel_object.user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
+                    io.to(user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
                 }
             }
         }
@@ -386,6 +390,7 @@ const channelNameUpdate=async(channelTemp,io,resumeToken, hash)=>{
             }
         }
         else{
+            console.log(channelTemp._id.toString());
             io.to(channelTemp._id.toString()).emit("channelNameUpdate", {
                 channel:{name:channelTemp.name,_id: channelTemp._id},
                 type:channelTemp.type,
