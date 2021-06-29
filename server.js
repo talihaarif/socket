@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require("express");
 var cors = require("cors");
 const app = express();
-const http = require("http");
+const https = require("https");
 const mongoose = require("mongoose");
 const { getAllToken } = require("./utils/token");
 const { userOffline } = require("./utils/user");
@@ -32,15 +32,15 @@ const configuration = {
 
 //https certificate 
 const options = {
-    // key: fs.readFileSync('privkey.pem'),
-    // cert: fs.readFileSync('cert.pem'),
+    key: fs.readFileSync('privkey.pem'),
+    cert: fs.readFileSync('cert.pem'),
 };
 
 
 const db = process.env.MONGO_URI;
 const url = process.env.URL;
 const PORT = process.env.PORT || 5000;
-const server = http.createServer(options, app);
+const server = https.createServer(options, app);
 
 //Init Middleware
 app.use(cors());
@@ -54,10 +54,10 @@ app.use("/api", require("./routes/api/sanitize"));
 
 //Database Connection
 mongoose.connect(process.env.DB_URI || db, {
-    // useNewUrlParser: true,
-    // useCreateIndex: true,
-    // useUnifiedTopology: true,
-    // useFindAndModify: false,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
 });
 
 const connection = mongoose.connection;
