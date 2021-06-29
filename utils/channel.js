@@ -162,7 +162,6 @@ const supportChannelInsertEmitInCaseOfPublic = async (channelTemp, io, resumeTok
             if (user_id != channelTemp.creator_id) {
                 const body = JSON.stringify({ channel_id, user_id });
                 let result_data = await axios.post(url + "api/supportChannelData", body, configuration);
-                createChannelRoom(io, result_data.data);
                 io.to(user_id).emit(emit_name, { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: result_data.data.channel, channel_token: resumeToken, hash: hash });
             }
         }
@@ -184,7 +183,6 @@ const supportChannelDataObjectUpdate= async(data, io, emit_name)=>{
                 if (user_id != data.creator_id && !data.user_ids.includes(user_id)) {
                     const body = JSON.stringify({ channel_id,user_id });
                     const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
-                    createChannelRoom(io,result1.data);
                     io.to(user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
                 }
             }
@@ -194,7 +192,6 @@ const supportChannelDataObjectUpdate= async(data, io, emit_name)=>{
                 if (user_id != data.creator_id && !data.user_ids.includes(user_id)) {
                     const body = JSON.stringify({ channel_id,user_id });
                     const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
-                    createChannelRoom(io,result1.data);
                     io.to(user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
                 }
             }
@@ -207,7 +204,6 @@ const supportChannelDataObjectUpdate= async(data, io, emit_name)=>{
                     if (user_id != data.creator_id && !data.user_ids.includes(user_id)) {
                         const body = JSON.stringify({ channel_id,user_id });
                         const result1 =await axios.post(url+"api/supportChannelData", body, configuration);
-                        createChannelRoom(io,result1.data);
                         io.to(user_id).emit(emit_name, {company_id:data.company_id ,team_id:data.team_id,type:data.type,channel:result1.data.channel,hash:data.hash});
                     }
                 }
@@ -328,7 +324,6 @@ const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resum
                 if(!channelTemp.user_ids.includes(user_id)){
                     const body = JSON.stringify({ channel_id, user_id });
                     const result1 = await axios.post(url + "api/supportChannelData", body, configuration);
-                    deleteChannelRoom(io, result1.data);
                     io.to(user_id).emit("supportChannelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: { _id: channelTemp._id.toString(), name: channelTemp.name }, channel_token: resumeToken, hash: hash });
                 }
             }
@@ -338,7 +333,6 @@ const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resum
                 if(!channelTemp.user_ids.includes(user_id)){
                     const body = JSON.stringify({ channel_id, user_id });
                     const result1 = await axios.post(url + "api/supportChannelData", body, configuration);
-                    deleteChannelRoom(io, result1.data);
                     io.to(user_id).emit("supportChannelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: { _id: channelTemp._id.toString(), name: channelTemp.name }, channel_token: resumeToken, hash: hash });
                 }
             }
@@ -351,7 +345,6 @@ const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resum
                     if(!channelTemp.user_ids.includes(user_id)){
                         const body = JSON.stringify({ channel_id, user_id });
                         const result1 = await axios.post(url + "api/supportChannelData", body, configuration);
-                        deleteChannelRoom(io, result1.data);
                         io.to(user_id).emit("supportChannelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: { _id: channelTemp._id.toString(), name: channelTemp.name }, channel_token: resumeToken, hash: hash });
                     }
                 }
