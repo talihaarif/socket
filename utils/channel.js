@@ -159,7 +159,7 @@ const supportChannelInsertEmitInCaseOfPublic = async (channelTemp, io, resumeTok
         const body = JSON.stringify({});
         const result = await axios.post(url + "api/get_all_user_ids", body, configuration);
         for (let user_id of result.data.users) {
-            if (user_id != channelTemp.creator_id) {
+            if ((emit_name=="newSupportChannel" && user_id != channelTemp.creator_id)|| emit_name=="supportChannelUnArchived") {
                 const body = JSON.stringify({ channel_id, user_id });
                 let result_data = await axios.post(url + "api/supportChannelData", body, configuration);
                 io.to(user_id).emit(emit_name, { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: result_data.data.channel, channel_token: resumeToken, hash: hash });
