@@ -226,7 +226,7 @@ const supportChannelUnarchived = async (channelTemp, io, resumeToken, hash) => {
                 io.to(result.data.channel.creator_id).emit("supportChannelUnArchived", { company_id: result.data.company_id, team_id: result.data.team_id, type: result.data.type, channel: result.data.channel, channel_token: resumeToken, hash: hash });
             }
             else {
-                channelTemp.user_ids.push(channelTemp.creator_id);
+                !channelTemp.user_ids.includes(channelTemp.creator_id) && channelTemp.user_ids.push(channelTemp.creator_id);
                 for (let user_id of channelTemp.user_ids) {
                     const body = JSON.stringify({ channel_id, user_id });
                     result = await axios.post(url + "api/supportChannelData", body, configuration);
@@ -315,6 +315,7 @@ const supportChannelArchived = async (channelTemp, io, resumeToken, hash) => {
 const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resumeToken, hash) => {
     let channel_id = channelTemp._id.toString();
     for (let channel_object of channelTemp.data) {
+        console.log("channel_object is: ",channel_object.company_id);
         if (channel_object.user_ids.length == 0 && channel_object.team_ids.length == 0) {
             let company_id = channelTemp.company_id;
             const body = JSON.stringify({ company_id });
@@ -322,8 +323,6 @@ const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resum
             console.log("send_emit_to_users_who_access_this_channel result is: ", result.data.users);
             for (let user_id of result.data.users) {
                 if(!channelTemp.user_ids.includes(user_id)){
-                    const body = JSON.stringify({ channel_id, user_id });
-                    const result1 = await axios.post(url + "api/supportChannelData", body, configuration);
                     io.to(user_id).emit("supportChannelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: { _id: channelTemp._id.toString(), name: channelTemp.name }, channel_token: resumeToken, hash: hash });
                 }
             }
@@ -331,8 +330,6 @@ const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resum
         else if (channel_object.user_ids.length > 0) {
             for (let user_id of channel_object.user_ids) {
                 if(!channelTemp.user_ids.includes(user_id)){
-                    const body = JSON.stringify({ channel_id, user_id });
-                    const result1 = await axios.post(url + "api/supportChannelData", body, configuration);
                     io.to(user_id).emit("supportChannelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: { _id: channelTemp._id.toString(), name: channelTemp.name }, channel_token: resumeToken, hash: hash });
                 }
             }
@@ -343,8 +340,6 @@ const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resum
                 const result = await axios.post(url + "api/get_team_member_ids", body, configuration);
                 for (let user_id of result.data.users) {
                     if(!channelTemp.user_ids.includes(user_id)){
-                        const body = JSON.stringify({ channel_id, user_id });
-                        const result1 = await axios.post(url + "api/supportChannelData", body, configuration);
                         io.to(user_id).emit("supportChannelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: { _id: channelTemp._id.toString(), name: channelTemp.name }, channel_token: resumeToken, hash: hash });
                     }
                 }
