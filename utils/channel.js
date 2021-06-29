@@ -319,10 +319,11 @@ const supportChannelArchived = async (channelTemp, io, resumeToken, hash) => {
 const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resumeToken, hash) => {
     let channel_id = channelTemp._id.toString();
     for (let channel_object of channelTemp.data) {
-        if (channel_object.user_ids.length == 0 && channel_object.length == 0) {
+        if (channel_object.user_ids.length == 0 && channel_object.team_ids.length == 0) {
             let company_id = channelTemp.company_id;
             const body = JSON.stringify({ company_id });
             const result = await axios.post(url + "api/get_company_member_ids", body, configuration);
+            console.log("send_emit_to_users_who_access_this_channel result is: ", result.data.users);
             for (let user_id of result.data.users) {
                 if(!channelTemp.user_ids.includes(user_id)){
                     const body = JSON.stringify({ channel_id, user_id });
