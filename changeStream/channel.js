@@ -1,4 +1,4 @@
-const {  channelInsert, channelNameUpdate, channelUnarchived, channelArchived } = require("../utils/channel");
+const { channelInsert, supportChannelInsert, channelNameUpdate, channelUnarchived, supportChannelUnarchived, supportChannelArchived, channelArchived } = require("../utils/channel");
 const { sendWebhookError } = require("../utils/webhook");
 const { createHash } = require("../utils/hash");
 
@@ -24,75 +24,85 @@ const channel = (conn, io) => {
         e) if channel creator_id is changed then emit is send to the channel room.
     After any emit is send then saveChannelEmits function is called to store the event for one minute.
     */
-    channel.on("change", async(change) => {
-        try{
-        let channelTemp = change.fullDocument;
-        let hash = createHash(channelTemp.created_at,change);
-        switch (change.operationType) {
-            case "insert":
-                if(channelTemp.default==false)
-                    await channelInsert(channelTemp,io,change._id, hash);
-                break;
-            case "update":
-                let channelUpdateCheck = change.updateDescription.updatedFields;
-                if (channelUpdateCheck.name) {
-                    channelNameUpdate(channelTemp,io,change._id,hash);
-                } else if (channelUpdateCheck.display_name) {
-                    io.to(channelTemp.creator_id).emit("channelNameUpdate", {
-                            channel: {name:channelTemp.display_name,_id: channelTemp._id},
-                            type:channelTemp.type,
-                            team_id:channelTemp.team_id,
-                            company_id:channelTemp.company_id,
-                            channel_token:change._id,
-                            hash:hash
-                    });
-                }  else if (
-                    channelUpdateCheck.description ||
-                    channelUpdateCheck.description === null
-                ) {
-                    let send_emit_to;
-                    send_emit_to = channelTemp._id.toString();
-                    io.to(send_emit_to).emit(
-                        "channelDescriptionUpdated",
-                        { 
-                            channel:{name:channelTemp.name,_id: channelTemp._id,description: channelTemp.description},
-                            type:channelTemp.type,
-                            team_id:channelTemp.team_id,
-                            company_id:channelTemp.company_id,
-                            channel_token:change._id,
-                            hash:hash
-                        }
-                    );
-                } else if (
-                    channelUpdateCheck.deleted_at ||
-                    channelUpdateCheck.deleted_at === null
-                ) {
-                    if (
+    channel.on("change", async (change) => {
+        try {
+            let channelTemp = change.fullDocument;
+            let hash = createHash(channelTemp.created_at, change);
+            switch (change.operationType) {
+                case "insert":
+                    console.log('channelTemp is: ', channelTemp);
+                    if (channelTemp.default == false || channelTemp.type == 'support')
+                        channelTemp.type == 'support' ? await supportChannelInsert(channelTemp, io, change._id, hash) : await channelInsert(channelTemp, io, change._id, hash);
+                    break;
+                case "update":
+                    let channelUpdateCheck = change.updateDescription.updatedFields;
+                    if (channelUpdateCheck.name) {
+                        channelNameUpdate(channelTemp, io, change._id, hash);
+                    } else if (channelUpdateCheck.display_name) {
+                        io.to(channelTemp.creator_id).emit("channelNameUpdate", {
+                            channel: { name: channelTemp.display_name, _id: channelTemp._id },
+                            type: channelTemp.type,
+                            team_id: channelTemp.team_id,
+                            company_id: channelTemp.company_id,
+                            channel_token: change._id,
+                            hash: hash
+                        });
+                    } else if (
+                        channelUpdateCheck.description ||
+                        channelUpdateCheck.description === null
+                    ) {
+                        let send_emit_to;
+                        send_emit_to = channelTemp._id.toString();
+                        io.to(send_emit_to).emit(
+                            "channelDescriptionUpdated",
+                            {
+                                channel: { name: channelTemp.name, _id: channelTemp._id, description: channelTemp.description },
+                                type: channelTemp.type,
+                                team_id: channelTemp.team_id,
+                                company_id: channelTemp.company_id,
+                                channel_token: change._id,
+                                hash: hash
+                            }
+                        );
+                    } else if (
+                        channelUpdateCheck.deleted_at ||
                         channelUpdateCheck.deleted_at === null
-                    ){
-                        await channelUnarchived(channelTemp,io,change._id, hash);
+                    ) {
+                        if (
+                            channelUpdateCheck.deleted_at === null
+                        ) {
+                            channelTemp.type == "support" ? await supportChannelUnarchived(channelTemp, io, change._id, hash) : await channelUnarchived(channelTemp, io, change._id, hash);
+                        }
+                        else {
+                            channelTemp.type == "support" ? await supportChannelArchived(channelTemp, io, change._id, hash) : await channelArchived(channelTemp, io, change._id, hash);
+                        }
+
+                    } else if (channelUpdateCheck.creator_id && channelTemp.type != 'support') {
+                        io.to(channelTemp._id.toString()).emit("channelCreatorUpdate", {
+                            channel: { name: channelTemp.name, _id: channelTemp._id, creator_id: channelTemp.creator_id },
+                            type: channelTemp.type,
+                            team_id: channelTemp.team_id,
+                            company_id: channelTemp.company_id,
+                            channel_token: change._id,
+                            hash: hash
+                        });
+                    } else if (channelUpdateCheck.creator_id && channelTemp.type == 'support') {
+                        io.to(channelTemp._id.toString()).emit("supportChannelCreatorUpdate", {
+                            channel: { name: channelTemp.name, _id: channelTemp._id, creator_id: channelTemp.creator_id },
+                            type: channelTemp.type,
+                            team_id: channelTemp.team_id,
+                            company_id: channelTemp.company_id,
+                            channel_token: change._id,
+                            hash: hash
+                        });
                     }
-                    else{
-                        await channelArchived(channelTemp,io,change._id, hash);
-                    }
-                        
-                } else if (channelUpdateCheck.creator_id) {
-                    io.to(channelTemp._id.toString()).emit("channelCreatorUpdate", {
-                        channel:{name:channelTemp.name,_id: channelTemp._id,creator_id: channelTemp.creator_id},
-                        type:channelTemp.type,
-                        team_id:channelTemp.team_id,
-                        company_id:channelTemp.company_id,
-                        channel_token:change._id,
-                        hash:hash
-                    });
-                }
-                break;
+                    break;
+            }
+        } catch (error) {
+            sendWebhookError(error, "channel change stream", change);
         }
-    } catch (error) {
-        sendWebhookError(error, "channel change stream", change);
-    }
     });
-    
+
 };
 
 module.exports = channel;
