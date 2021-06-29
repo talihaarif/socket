@@ -166,7 +166,6 @@ const joinPublicSupportChannel = async (data, io) => {
         let user_id = data.user_ids[0];
         const body = JSON.stringify({ channel_id, user_id });
         const result = await axios.post(url + "api/supportChannelData", body, configuration);
-        createChannelRoom(io, result.data);
         io.to(data.user_ids[0]).emit("addedInSupportChannel", { company_id: result.data.company_id, team_id: result.data.team_id, type: result.data.type, channel: result.data.channel, hash: data.hash });
     } catch (error) {
         sendWebhookError(error, "joinPublicSupportChannel listener", data);
@@ -180,7 +179,6 @@ const leavePublicSupportChannel = async (data, io) => {
             let user_id = data.user_ids[0];
             const body = JSON.stringify({ channel_id, user_id });
             const result = await axios.post(url + "api/supportChannelData", body, configuration);
-            deleteChannelRoom(io, result.data);
             io.to(data.user_id).emit('publicSupportChannelLeft', data);
         } catch (err) {
             sendWebhookError(err, "leavePublicSupportChannel listener", data);
