@@ -307,7 +307,7 @@ const supportChannelArchived = async (channelTemp, io, resumeToken, hash) => {
             }
         }
     }
-    channelTemp.type == "support" && await channelArchiveEmitToSubAdminsForSupportChannels(channel_id, channelTemp, resumeToken, io, hash);
+    await channelArchiveEmitToSubAdminsForSupportChannels(channel_id, channelTemp, resumeToken, io, hash);
 }
 
 const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resumeToken, hash) => {
@@ -531,7 +531,7 @@ const channelArchiveEmitToSubAdmins = async (channel_id, channelTemp, resumeToke
     result1.data.sub_admins.push(result1.data.admin);
     for (let user_id of result1.data.sub_admins) {
         try {
-            if (!channelTemp.user_ids.includes(user_id)) {
+            if (!channelTemp.user_ids.includes(user_id) || channelTemp.public_option==true) {
                 let body2 = JSON.stringify({ channel_id, user_id });
                 result_data = await axios.post(url + "api/channelData", body2, configuration);
                 io.to(user_id).emit("channelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: result_data.data.channel, channel_token: resumeToken, hash: hash });
