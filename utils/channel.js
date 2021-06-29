@@ -156,6 +156,7 @@ const supportChannelInsertEmitInCaseOfPublic = async (channelTemp, io, resumeTok
     console.log('supportChannelInsertEmitInCaseOfPublic');
     try {
         channel_id = channelTemp._id.toString();
+        const body = JSON.stringify({});
         const result = await axios.post(url + "api/get_all_user_ids", body, configuration);
         for (let user_id of result.data.users) {
             if (user_id != channelTemp.creator_id) {
@@ -292,6 +293,7 @@ const supportChannelArchived = async (channelTemp, io, resumeToken, hash) => {
         let body1 = JSON.stringify({ channel_id, attribute: "support_channel", operation: "update" });
         let result1 = await axios.post(url + "api/getSubAdmins", body1, configuration);
         result1.data.sub_admins.push(result1.data.admin);
+        let body = JSON.stringify({});
         const result = await axios.post(url + "api/get_all_user_ids", body, configuration);
         for (let user_id of result.data.users) {
             if (!result1.data.sub_admins.includes(user_id)) {
@@ -302,13 +304,13 @@ const supportChannelArchived = async (channelTemp, io, resumeToken, hash) => {
             }
         }
     }
-    channelTemp.type == "support" && await channelArchiveEmitToSubAdminsForSupportChannels(channel_id, channelTemp, resumeToken, io, hash, result);
+    channelTemp.type == "support" && await channelArchiveEmitToSubAdminsForSupportChannels(channel_id, channelTemp, resumeToken, io, hash);
 }
 
 const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resumeToken, hash) => {
     let channel_id = channelTemp._id.toString();
     for (let channel_object of channelTemp.data) {
-        if (channel_object.user_ids == [] && channel_object.team_ids == []) {
+        if (channel_object.user_ids.length == 0 && channel_object.length == 0) {
             let company_id = channelTemp.company_id;
             const body = JSON.stringify({ company_id });
             const result = await axios.post(url + "api/get_company_member_ids", body, configuration);
@@ -319,7 +321,7 @@ const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resum
                 io.to(channel_object.user_id).emit("supportChannelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: { _id: channelTemp._id.toString(), name: channelTemp.name }, channel_token: resumeToken, hash: hash });
             }
         }
-        else if (channel_object.user_ids != []) {
+        else if (channel_object.user_ids.length > 0) {
             for (let user_id of channel_object.user_ids) {
                 const body = JSON.stringify({ channel_id, user_id });
                 const result1 = await axios.post(url + "api/supportChannelData", body, configuration);
@@ -327,7 +329,7 @@ const send_emit_to_users_who_access_this_channel = async (channelTemp, io, resum
                 io.to(user_id).emit("supportChannelArchived", { company_id: channelTemp.company_id, team_id: channelTemp.team_id, type: channelTemp.type, channel: { _id: channelTemp._id.toString(), name: channelTemp.name }, channel_token: resumeToken, hash: hash });
             }
         }
-        else if (channel_object.team_ids != []) {
+        else if (channel_object.team_ids.length > 0) {
             for (let team_id of channel_object.team_ids) {
                 const body = JSON.stringify({ team_id });
                 const result = await axios.post(url + "api/get_team_member_ids", body, configuration);
@@ -537,7 +539,7 @@ const channelArchiveEmitToSubAdmins = async (channel_id, channelTemp, resumeToke
     }
 }
 
-const channelArchiveEmitToSubAdminsForSupportChannels = async (channel_id, channelTemp, resumeToken, io, hash, result) => {
+const channelArchiveEmitToSubAdminsForSupportChannels = async (channel_id, channelTemp, resumeToken, io, hash) => {
     let body1 = JSON.stringify({ channel_id, attribute: "support_channel", operation: "update" });
     let result1 = await axios.post(url + "api/getSubAdmins", body1, configuration);
     var result_data = null;
