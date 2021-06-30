@@ -44,7 +44,7 @@ const server = https.createServer(options, app);
 
 //Init Middleware
 app.use(cors());
-app.use(express.json({ extented: false }));
+app.use(express.json({ extented: false,limit: '50mb' }));
 
 
 //api endpoint for push notification

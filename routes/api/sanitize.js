@@ -22,10 +22,6 @@ function printList(items) {
         if(items[k]==null)
             console.log(items[k]);
         else if(typeof items[k] == 'string' || typeof items[k] == 'integer' ){
-            console.log(items[k].length);
-            if(typeof items[k] == 'string' && items[k].length > 80000)
-                items[k]=items[k].substring(0, 80000) + '...';
-            console.log(items[k].length);
             items[k]=sanitizeHtml(items[k],{allowedAttributes: {
                 'span': [ 'class','data-mention-id' ],
                 'a':['href','target','rel']
