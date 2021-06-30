@@ -35,7 +35,7 @@ router.post("/channelUsers", async (req, res) => {
   if(message_body.replying_id){
     event_name="socket_newReplyMessage";
     delete message_body.parent.replied_ids;
-    if(message_body.parent.message.length > 20)
+    if(message_body.parent.message && message_body.parent.message.length > 20)
       message_body.parent.message=message_body.parent.message.substring(0, 20);
   }
   else
