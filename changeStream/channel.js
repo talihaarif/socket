@@ -1,4 +1,4 @@
-const { channelInsert, supportChannelInsert, channelNameUpdate, channelUnarchived, supportChannelUnarchived, supportChannelArchived, channelArchived } = require("../utils/channel");
+const { channelInsert, supportChannelInsert, channelNameUpdate, channelUnarchived, supportChannelUnarchived, supportChannelArchived, channelArchived, supportChannelDataObjectUpdate, supportChannelInsertEmitInCaseOfPublic } = require("../utils/channel");
 const { sendWebhookError } = require("../utils/webhook");
 const { createHash } = require("../utils/hash");
 
@@ -30,7 +30,6 @@ const channel = (conn, io) => {
             let hash = createHash(channelTemp.created_at, change);
             switch (change.operationType) {
                 case "insert":
-                    console.log('channelTemp is: ', channelTemp);
                     if (channelTemp.default == false || channelTemp.type == 'support')
                         channelTemp.type == 'support' ? await supportChannelInsert(channelTemp, io, change._id, hash) : await channelInsert(channelTemp, io, change._id, hash);
                     break;
@@ -51,19 +50,36 @@ const channel = (conn, io) => {
                         channelUpdateCheck.description ||
                         channelUpdateCheck.description === null
                     ) {
-                        let send_emit_to;
-                        send_emit_to = channelTemp._id.toString();
-                        io.to(send_emit_to).emit(
-                            "channelDescriptionUpdated",
-                            {
-                                channel: { name: channelTemp.name, _id: channelTemp._id, description: channelTemp.description },
-                                type: channelTemp.type,
-                                team_id: channelTemp.team_id,
-                                company_id: channelTemp.company_id,
-                                channel_token: change._id,
-                                hash: hash
+                        if(channelTemp.type!="support"){
+                            let send_emit_to;
+                            send_emit_to = channelTemp._id.toString();
+                            io.to(send_emit_to).emit(
+                                "channelDescriptionUpdated",
+                                {
+                                    channel: { name: channelTemp.name, _id: channelTemp._id, description: channelTemp.description },
+                                    type: channelTemp.type,
+                                    team_id: channelTemp.team_id,
+                                    company_id: channelTemp.company_id,
+                                    channel_token: change._id,
+                                    hash: hash
+                                }
+                            );
+                        }
+                        else{
+                            if(channelTemp.public_option!=true){
+                                io.to(channelTemp._id.toString()).emit("channelDescriptionUpdated", {
+                                    channel: { name: channelTemp.name, _id: channelTemp._id, description: channelTemp.description },
+                                    type: channelTemp.type,
+                                    team_id: channelTemp.team_id,
+                                    company_id: channelTemp.company_id,
+                                    channel_token: change._id,
+                                    hash: hash
+                                });
+                                await supportChannelDataObjectUpdate(channelTemp, io, "channelDescriptionUpdated");
                             }
-                        );
+                            else
+                                await supportChannelInsertEmitInCaseOfPublic(channelTemp, io, resumeToken, hash, "channelDescriptionUpdated");
+                        }
                     } else if (
                         channelUpdateCheck.deleted_at ||
                         channelUpdateCheck.deleted_at === null

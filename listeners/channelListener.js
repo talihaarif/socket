@@ -117,10 +117,9 @@ const leaveSupportChannel = async (data, io) => {
         try {
             let channel_id = data.channel_id;
             let user_id = data.user_ids[0];
-            console.log("leaveSupportChannel user_id is: ", user_id);
             const body = JSON.stringify({ channel_id,user_id });
             const result =await axios.post(url+"api/supportChannelData", body, configuration);
-            deleteChannelRoom(io,result.data);
+            deleteChannelRoom(io,data);
             io.to(user_id).emit('removedSupportChannel', {company_id:result.data.company_id,team_id:result.data.team_id,type:result.data.type,channel:result.data.channel,hash:data.hash});
         } catch (err) {
             sendWebhookError(err, "leaveSupportChannel listener", data);
