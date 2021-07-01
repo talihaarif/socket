@@ -49,7 +49,6 @@ const message = (conn, io) => {
                         await queryMessageInsert(io,messageTemp,ids,hash,channel_id);
                     }
                     else if (messageTemp.is_forwarded) {
-                        console.log("in forward message",messageTemp);
                         await messageEmit(io,channel_id,"forwardMessage",messageTemp,ids,hash,channel_id);
                     } else if (messageTemp.send_after) {
                         let send_after_emit_name = messageTemp.replying_id ? "newReplyMessage" : "newMessage";
@@ -57,7 +56,6 @@ const message = (conn, io) => {
                     } else if (messageTemp.replying_id) {
                         await messageEmit(io,channel_id,"newReplyMessage",messageTemp,ids,hash,channel_id);
                     } else {
-                        console.log("new message",messageTemp);
                         await messageEmit(io,channel_id,"newMessage",messageTemp,ids,hash,channel_id);
                     }
                     break;

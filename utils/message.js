@@ -44,7 +44,6 @@ const getIds = async(channel_id)=>{
 }
 
 const queryMessageInsert=async(io,messageTemp,ids,hash,channel_id)=>{
-    console.log("message temp",messageTemp);
     if(messageTemp.replying_id){
         await messageEmit(io,messageTemp.channel_id,"newReplyMessage",messageTemp,ids,hash,channel_id);
         await messageEmit(io,false,"newReplyMessage",messageTemp,ids,hash,channel_id);
