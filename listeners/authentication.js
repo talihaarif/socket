@@ -7,7 +7,7 @@ const { joinCompanyRoom } = require("../utils/room");
 const { sendWebhookError } = require("../utils/webhook");
 const { default: axios } = require("axios");
 
-const url = process.env.URL;
+const url = process.env.URL
 
 /**
  * Middleware to verify token and then open the connection between user and server.
